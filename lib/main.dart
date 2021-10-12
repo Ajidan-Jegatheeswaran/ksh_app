@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import './screens/home_screen.dart';
+import './screens/login_screen.dart';
 
 void main() {
   runApp(MyApp());
 }
 
+// ignore: use_key_in_widget_constructors
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'KSH APP',
       theme: ThemeData(
+        //Farben
         primarySwatch: const MaterialColor(
           0xFF181825,
           <int, Color>{
@@ -43,9 +45,12 @@ class MyApp extends StatelessWidget {
                 },
               ),
             ),
-          canvasColor: const Color.fromRGBO(0, 161, 178, 1.0)
+        canvasColor: const Color.fromRGBO(0, 161, 178, 1.0),
+
+        //Text Konfiguration
+        textTheme: const TextTheme(headline6: TextStyle(color: Colors.white))
       ),
-      home: HomeScreen(),
+      home: LoginScreen(),
     );
   }
 }
