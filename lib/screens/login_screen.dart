@@ -1,14 +1,29 @@
 import 'package:flutter/material.dart';
+import '../models/user.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final _form = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(
         context); // MediaQuery wird hier als Objekt in der Variabel mediaQuery gespeichert, damit es zu weniger build() aufrufen kommt -> Performance
+    
+    try{
+      User ajidan = User(id:1, username: "", password: "", url: "");
+      dynamic userData = ajidan.getUserData();
+      print(userData);
+    } on Exception catch(e){
+      print(e);
+      print('Hat nicht funktioniert');
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -104,10 +119,5 @@ class LoginScreen extends StatefulWidget {
         ],
       ),
     );
-  }
-
-  @override
-  State<StatefulWidget> createState() {
-    
   }
 }
