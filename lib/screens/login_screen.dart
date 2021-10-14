@@ -16,15 +16,6 @@ class _LoginScreenState extends State<LoginScreen> {
     var mediaQuery = MediaQuery.of(
         context); // MediaQuery wird hier als Objekt in der Variabel mediaQuery gespeichert, damit es zu weniger build() aufrufen kommt -> Performance
     
-    try{
-      User ajidan = User(id:1, username: "", password: "", url: "");
-      dynamic userData = ajidan.getUserData();
-      print(userData);
-    } on Exception catch(e){
-      print(e);
-      print('Hat nicht funktioniert');
-    }
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).primaryColor,
@@ -96,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 padding: EdgeInsets.only(
                                     top: mediaQuery.size.height * 0.05),
                                 child: TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {}, //todo: Implement Button
                                   child: const Text(
                                     'Anmelden',
                                     style: TextStyle(color: Colors.white),
