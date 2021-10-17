@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:ksh_app/models/web_scraper_nesa.dart';
 import './screens/login_screen.dart';
+import 'models/web_scaper.dart';
 
 void main() {
   runApp(MyApp());
+  var nesa = WebScraperNesa();
+  var test = WebScraper();
+  test.login();
+  // ignore: unused_label
+  //debugShowCheckedModeBanner: true;
 }
 
 // ignore: use_key_in_widget_constructors
