@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
+
 import './screens/login_screen.dart';
-import 'models/web_scaper.dart';
+import './models/web_scaper.dart';
 
 void main() {
   runApp(MyApp());
   var nesa = WebScraperNesa();
-  var test = WebScraper();
-  test.login();
+  //WebScraper();
+  
+
   // ignore: unused_label
   //debugShowCheckedModeBanner: true;
 }
@@ -19,44 +21,44 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'KSH APP',
       theme: ThemeData(
-        //Farben
-        primarySwatch: const MaterialColor(
-          0xFF181825,
-          <int, Color>{
-            50: Color(0xFF181825),
-            100: Color(0xFF181825),
-            200: Color(0xFF181825),
-            300: Color(0xFF181825),
-            400: Color(0xFF181825),
-            500: Color(0xFF181825),
-            600: Color(0xFF181825),
-            700: Color(0xFF181825),
-            800: Color(0xFF181825),
-            900: Color(0xFF181825),
-          },
-        ),
-        colorScheme: ThemeData().colorScheme.copyWith(
-              secondary: const MaterialColor(
-                0xFF252A34,
-                <int, Color>{
-                  50: Color(0xFF252A34),
-                  100: Color(0xFF252A34),
-                  200: Color(0xFF252A34),
-                  300: Color(0xFF252A34),
-                  400: Color(0xFF252A34),
-                  500: Color(0xFF252A34),
-                  600: Color(0xFF252A34),
-                  700: Color(0xFF252A34),
-                  800: Color(0xFF252A34),
-                  900: Color(0xFF252A34),
-                },
+          //Farben
+          primarySwatch: const MaterialColor(
+            0xFF181825,
+            <int, Color>{
+              50: Color(0xFF181825),
+              100: Color(0xFF181825),
+              200: Color(0xFF181825),
+              300: Color(0xFF181825),
+              400: Color(0xFF181825),
+              500: Color(0xFF181825),
+              600: Color(0xFF181825),
+              700: Color(0xFF181825),
+              800: Color(0xFF181825),
+              900: Color(0xFF181825),
+            },
+          ),
+          colorScheme: ThemeData().colorScheme.copyWith(
+                secondary: const MaterialColor(
+                  0xFF252A34,
+                  <int, Color>{
+                    50: Color(0xFF252A34),
+                    100: Color(0xFF252A34),
+                    200: Color(0xFF252A34),
+                    300: Color(0xFF252A34),
+                    400: Color(0xFF252A34),
+                    500: Color(0xFF252A34),
+                    600: Color(0xFF252A34),
+                    700: Color(0xFF252A34),
+                    800: Color(0xFF252A34),
+                    900: Color(0xFF252A34),
+                  },
+                ),
               ),
-            ),
-        canvasColor: const Color.fromRGBO(0, 161, 178, 1.0),
+          canvasColor: const Color.fromRGBO(0, 161, 178, 1.0),
 
-        //Text Konfiguration
-        textTheme: const TextTheme(headline6: TextStyle(color: Colors.white))
-      ),
+          //Text Konfiguration
+          textTheme:
+              const TextTheme(headline6: TextStyle(color: Colors.white))),
       home: LoginScreen(),
     );
   }

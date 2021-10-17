@@ -3,6 +3,7 @@ import 'dart:convert' as convert;
 
 import 'package:http/http.dart' as http;
 import 'package:web_scraper/web_scraper.dart';
+import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
 class WebScraperNesa {
   //Hier wird der Client gestartet, damit der loginhash für den Login übereinstimmt mit dem gebrauchten loginhash
@@ -14,13 +15,9 @@ class WebScraperNesa {
   Map<String, String> _header = {};
 
   //Das sind die Variabeln des Headers für den body der Post Methode
-  Map<String, String> mapHeader = {
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Connection": "keep-alive",
-    "User-Agent": "Dart/2.14 (dart:io)" //Dart/2.14 (dart:io)
-  };
-  String phpSecurityHeader = '';
-  String longCodeHeader = '';
+  Map<String, String> mapHeader = {};
+  var phpSecurityHeader;
+  var longCodeHeader;
 
   //WebScraper Objekt -> Mit diesen kann man HTML in String Form in einen Tree verwandeln und danach die einzelnen Elemente herausfiltern oder die Inhalte dessen Attribute
   WebScraper webscraper = WebScraper();
@@ -30,20 +27,32 @@ class WebScraperNesa {
     getLoginhash().then((value) {
       addCookies();
       send();
-    }).then((value) => closeClient());
+    });
   }
 
-  //Hinzufügen der variablen (nicht nur auch 'layout-size=md';) Daten für die Cookies für den Header
+  //Hinzufügen der variablen (nicht nur 'layout-size=md'; zum Beispiel nicht) Daten für die Cookies für den Header
   void addCookies() {
-    String? stringPhpSecurityHeader = _header['set-cookie'];
-    phpSecurityHeader = 'set-cookie : ' + stringPhpSecurityHeader!;
-    print('Print: ' + phpSecurityHeader);
+    String? res = _header['set-cookie'];
+    print('print Cookie -> ' + _header.toString());
+    phpSecurityHeader = res!.split(';')[0];
+    print(phpSecurityHeader);
+    longCodeHeader = res.split(';')[1].split(',')[1];
+    print(longCodeHeader);
     if (phpSecurityHeader.isNotEmpty && longCodeHeader.isNotEmpty) {
-      mapHeader['Cookie'] =
-          'layout-size=md; ' + phpSecurityHeader + '; ' + longCodeHeader;
+      mapHeader['Cookies'] = phpSecurityHeader +
+          '; Path=/, ' +
+          longCodeHeader +
+          '; Domain=ksh.nesa.sg.ch; Path=/';
     } else {
-      throw Exception('Die Variabeln der für die getCookies Methode sind leer');
+      throw Exception('Die Variabeln der für die addCookies Methode sind leer');
     }
+    print('MapHeader: ' + mapHeader.toString());
+    client.head(Uri.parse('https://ksh.nesa-sg.ch/loginto.php?mode=0&lang='));
+  }
+
+  void handleCookies(http.Client client) async {
+    var cookieManager = WebviewCookieManager();
+    var getCookie = await cookieManager;
   }
 
   //Hier wird die Login Seite von Nesa aufgerufen
@@ -51,8 +60,9 @@ class WebScraperNesa {
     try {
       //Html von Login Page wird geholt
       var res = await client.post(
-        Uri.parse('https://ksh.nesa-sg.ch/index.php?pageid=1'),
+        Uri.parse('https://ksh.nesa-sg.ch/loginto.php?mode=0&lang='),
       );
+      print('Resultat: ' + res.body);
       //Überprüfung, ob res.body leer ist
       if (res.body.isNotEmpty) {
         _document = res.body;
@@ -88,10 +98,10 @@ class WebScraperNesa {
           '#standardformular > div > div.mdl-cell.mdl-cell--12-col > input',
           'value'));
 
-      /*loginhash = webscraper.getElementAttribute(
+      loginhash = webscraper.getElementAttribute(
               '#standardformular > div > div.mdl-cell.mdl-cell--12-col > input',
               'value')[1]
-          as String; */ //Der Webscraper gibt alles zurück, was auf die Beschreibung passt, deshalb wird hier nur das relavante also die 2. Stelle genommen (1.Stelle, da die Liste bei 0 anfängt)
+          as String; //Der Webscraper gibt alles zurück, was auf die Beschreibung passt, deshalb wird hier nur das relavante also die 2. Stelle genommen (1.Stelle, da die Liste bei 0 anfängt)
       print('Loginhash 1: ' + loginhash);
       return loginhash;
     }
@@ -108,39 +118,37 @@ class WebScraperNesa {
     };
 
     print('Loginhash 2: ' + loginhash);
-
-    print('Cookies -> ');
     //print('Headers -> ' + headers);
     //Mittels Post Request werden die form Daten versendet
     var res = await client.post(
-        Uri.parse('https://ksh.nesa-sg.ch/loginto.php?pageid=&mode=14&lang='),
-        headers: mapHeader,
+      Uri.parse('https://ksh.nesa-sg.ch/loginto.php?pageid=&mode=14&lang='),
+      headers: mapHeader,
 
-        /*{
+      /*{
           'Accept':
            //   'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/ //*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-        //'Accept-Encoding': 'gzip, deflate, br',
-        //'Accept-Language': 'de,de-DE;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-        //'Cache-Control': 'max-age=0',
-        //'Connection': 'keep-alive',
-        //'Cookie':
-        //    'layout-size=md; menuHidden=0; PHPSESSID=snp2lll5vjcm0to1p9a1sva1ni; TS015cda4e=01260b303711143554f16b17ac986b2edb757ed95542a8bd04030c28081fc5a1589a6c6a526dc1e27f9dde2f5f395256ca8b149f85dc015c1e7b0122bc1c0249d6595842184aaaccc415245ce8d5fc7c04fbad338b',
-        //'Host': 'ksh.nesa-sg.ch',
-        //'Referer': 'https://www.google.com/',
-        //'sec-ch-ua':
-        //    '"Chromium";v="94", "Microsoft Edge";v="94", ";Not A Brand";v="99"',
-        //'sec-ch-ua-mobile': '?0',
-        //'sec-ch-ua-platform': '"Windows"',
-        //'Sec-Fetch-Dest': 'document',
-        //'Sec-Fetch-Mode': 'navigate',
-        //'Sec-Fetch-Site': 'cross-site',
-        //'Sec-Fetch-User': '?1',
-        //'Upgrade-Insecure-Requests': '1',
-        //'User-Agent':
-        //    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36 Edg/94.0.992.47'
-        //},
-        body: form,
-        encoding: convert.Encoding.getByName('UTF-8'));
+      //'Accept-Encoding': 'gzip, deflate, br',
+      //'Accept-Language': 'de,de-DE;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+      //'Cache-Control': 'max-age=0',
+      //'Connection': 'keep-alive',
+      //'Cookie':
+      //    'layout-size=md; menuHidden=0; PHPSESSID=snp2lll5vjcm0to1p9a1sva1ni; TS015cda4e=01260b303711143554f16b17ac986b2edb757ed95542a8bd04030c28081fc5a1589a6c6a526dc1e27f9dde2f5f395256ca8b149f85dc015c1e7b0122bc1c0249d6595842184aaaccc415245ce8d5fc7c04fbad338b',
+      //'Host': 'ksh.nesa-sg.ch',
+      //'Referer': 'https://www.google.com/',
+      //'sec-ch-ua':
+      //    '"Chromium";v="94", "Microsoft Edge";v="94", ";Not A Brand";v="99"',
+      //'sec-ch-ua-mobile': '?0',
+      //'sec-ch-ua-platform': '"Windows"',
+      //'Sec-Fetch-Dest': 'document',
+      //'Sec-Fetch-Mode': 'navigate',
+      //'Sec-Fetch-Site': 'cross-site',
+      //'Sec-Fetch-User': '?1',
+      //'Upgrade-Insecure-Requests': '1',
+      //'User-Agent':
+      //    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36 Edg/94.0.992.47'
+      //},
+      body: form,
+    );
 
     if (res.statusCode == 200) {
       print(res.body);

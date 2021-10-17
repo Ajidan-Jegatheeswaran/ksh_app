@@ -1,21 +1,25 @@
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+import 'dart:async';
 
+//https://pub.dev/packages/cookie_jar
 class WebScraper {
-  final client = http.Client();
-  //Allgemeine Variabeln
-  final urlLoginPage = Uri.parse('https://ksh.nesa-sg.ch/');
-  final urlForLogin = Uri.parse('https://ksh.nesa-sg.ch/loginto.php?pageid=&mode=14&lang=');
+  var dio = Dio();
+  var cookieJar = CookieJar();
+  var response;
 
-  
-  Map<String, String> headers = {};
+  WebScraper() {
+    dio.interceptors.add(CookieManager(cookieJar));
+    getCookie();
+  }
 
-  void login() async {
-    this.client.get(urlLoginPage, headers: headers);
-    //var client = httpAuth.BasicAuthClient('ajidan.jegatheeswaran', '10Scheisse');
-    var response = client.get(Uri.parse('https://ksh.nesa-sg.ch/loginto.php?pageid=&mode=14&lang='), headers: headers);
+  String getHtmlFromNesaLoginPage() {
+    return "";
+  }
 
-    print('Client: '+ client.toString() +
-    'Response: ' + response.toString() +
-    'headers: ' + headers.toString());
+  void getCookie() async {
+    response = await dio.get('https://ksh.nesa-sg.ch/index.php?pageid=1');
+    print(await cookieJar.loadForRequest(Uri.parse("https://ksh.nesa-sg.ch/index.php?pageid=1")));
   }
 }
