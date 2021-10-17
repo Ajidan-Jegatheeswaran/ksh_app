@@ -7,6 +7,7 @@ import './models/web_scaper.dart';
 void main() {
   runApp(MyApp());
   var nesa = WebScraperNesa();
+  nesa.start();
   //WebScraper();
   
 

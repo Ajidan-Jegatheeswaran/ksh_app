@@ -6,6 +6,17 @@ import 'package:http/http.dart' as http;
 import 'package:web_scraper/web_scraper.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
+enum NaviPage {
+  home,
+  noten,
+  absenzen,
+  kontoauszug,
+  agenda,
+  kommunikation,
+  listenUndDok,
+  eSchool
+}
+
 class WebScraperNesa {
   //Hier wird der Client gestartet, damit der loginhash für den Login übereinstimmt mit dem gebrauchten loginhash
   final client = http.Client();
@@ -24,11 +35,11 @@ class WebScraperNesa {
   WebScraper webscraper = WebScraper();
 
   //Konstruktor
-  WebScraperNesa() {
-    getLoginhash().then((value) {
-      cookies();
-      send();
-    }).then((value) => getNavigator());
+  WebScraperNesa();
+
+  void start() async {
+    await getLoginhash().then((value) => cookies());
+    await send().then((value) => getHomeData());
   }
 
   Map<String, String> cookies() {
@@ -81,18 +92,18 @@ class WebScraperNesa {
       print(e.toString() + stacktrace.toString());
     }*/
     //print('String Header -> ' + listHeader.toString());
-    print(result.toString());
+
     return result;
   }
 
   //Hinzufügen der variablen (nicht nur 'layout-size=md'; zum Beispiel nicht) Daten für die Cookies für den Header
   void addCookies() {
     String? res = _header['set-cookie'];
-    print('print Cookie -> ' + _header.toString());
+
     phpSecurityHeader = res!.split(';')[0];
-    print(phpSecurityHeader);
+
     longCodeHeader = res.split(';')[1].split(',')[1];
-    print(longCodeHeader);
+
     if (phpSecurityHeader.isNotEmpty && longCodeHeader.isNotEmpty) {
       mapHeader['Cookies'] = phpSecurityHeader +
           '; Path=/, ' +
@@ -101,7 +112,7 @@ class WebScraperNesa {
     } else {
       throw Exception('Die Variabeln der für die addCookies Methode sind leer');
     }
-    print('MapHeader: ' + mapHeader.toString());
+
     client.head(Uri.parse('https://ksh.nesa-sg.ch/loginto.php?mode=0&lang='));
   }
 
@@ -117,7 +128,6 @@ class WebScraperNesa {
       var res = await client.post(
         Uri.parse('https://ksh.nesa-sg.ch/loginto.php?mode=0&lang='),
       );
-      print('Resultat: ' + res.body);
       //Überprüfung, ob res.body leer ist
       if (res.body.isNotEmpty) {
         _document = res.body;
@@ -127,9 +137,7 @@ class WebScraperNesa {
         throw Exception();
       }
       _header = res.headers;
-      print('Header -> ' + res.headers.toString());
     } on Error catch (error) {
-      print('GetLogin -> Error');
       throw error; //TODO: Exception behandeln und beachten, dass dann _document leer ist und der folgende Code diese benutzen will d.h. Ketten Exceptions
     }
 
@@ -144,27 +152,22 @@ class WebScraperNesa {
           []).isNotEmpty) {
         throw Exception('JavaScript ist ausgeschalten');
         //#standardformular > div > div:nth-child(3) > noscript > span
-      } else {
-        print('JavaSript ist eingeschaltet');
       }
 
       //Loginhash
-      print(webscraper.getElementAttribute(
-          '#standardformular > div > div.mdl-cell.mdl-cell--12-col > input',
-          'value'));
 
       loginhash = webscraper.getElementAttribute(
               '#standardformular > div > div.mdl-cell.mdl-cell--12-col > input',
               'value')[1]
           as String; //Der Webscraper gibt alles zurück, was auf die Beschreibung passt, deshalb wird hier nur das relavante also die 2. Stelle genommen (1.Stelle, da die Liste bei 0 anfängt)
-      print('Loginhash 1: ' + loginhash);
+
       return loginhash;
     }
     return loginhash;
   }
 
   //Schickt die Benutzerdaten dem Post-Link, um durch das Login System zu passieren
-  void send() async {
+  Future<void> send() async {
     //form beinhaltet alle Daten, die von nesa-sg.ch für den Login verlangt werden
     Map<String, String> form = {
       "login": "ajidan.jegatheeswaran",
@@ -172,8 +175,6 @@ class WebScraperNesa {
       "loginhash": loginhash
     };
 
-    print('Loginhash 2: ' + loginhash);
-    //print('Headers -> ' + headers);
     //Mittels Post Request werden die form Daten versendet
     var res = await client.post(
       Uri.parse('https://ksh.nesa-sg.ch/index.php?pageid=1'),
@@ -183,124 +184,98 @@ class WebScraperNesa {
 
     if (res.statusCode == 200) {
       _document = res.body;
-      print(_document);
     } else {
       throw Exception(
           'Status Code ist nicht 200, sondern ' + res.statusCode.toString());
     }
   }
 
-  getNavigator() {
+  Future<String> _getPageContent(String link) async {
+    var res = await client.get(Uri.parse(link));
+    var content = res.body;
+    return content;
+  }
+
+  String buildLink(String frag) {
+    return 'https://ksh.nesa-sg.ch/' + frag;
+  }
+
+  //Holt alle Links der Navigation Bar
+  Future<void> setNavigationPageContent(Enum c) async {
     bool _isLoad = webscraper.loadFromString(_document);
-    if (_isLoad) {
-      var linkHomePage = webscraper.getElementAttribute('#nav-main-menu > a', 'href');
-    print(linkHomePage);
+
+    String getNavigationPage() {
+      String menu;
+
+      switch (c) {
+        case NaviPage.home:
+          menu = '#menu1';
+          break;
+        case NaviPage.noten:
+          menu = '#menu21311';
+          break;
+        case NaviPage.absenzen:
+          menu = '#menu21111';
+          break;
+        case NaviPage.kontoauszug:
+          menu = '#menu21411';
+          break;
+        case NaviPage.agenda:
+          menu = '#menu21200';
+          break;
+        case NaviPage.kommunikation:
+          menu = '#menu22300';
+          break;
+        case NaviPage.listenUndDok:
+          menu = '#menu24030';
+          break;
+        case NaviPage.eSchool:
+          menu = '#menu23118';
+          break;
+
+        default:
+          throw Exception(''); //TODO: Exception
+      }
+
+      var link = webscraper.getElementAttribute(menu, 'href');
+      if (link.length > 1 || link.isEmpty) {
+        throw Exception('Etwas ist schief gelaufen'); //TODO: Exception
+      }
+      return _getPageContent(buildLink(link.toString())).toString();
     }
 
+    _isLoad = webscraper.loadFromString(getNavigationPage());
+    if (!_isLoad) {
+      throw Exception(); //TODO: Exception
+    }
+  }
+
+  String formatSelector(String selector) {
+    List<String> list = selector.split('>');
+    for (String i in list) {
+      i.replaceAll(' ', '');
+    }
+    String string = '';
+    for (int i = 0; i < list.length; i++) {
+      if (i == (list.length - 1)) {
+        string += list[i];
+      } else {
+        string += list[i] + '>';
+      }
+    }
+    print(string);
+    return string.trim();
+  }
+
+  getHomeData() {
+    setNavigationPageContent(NaviPage.home);
+    var stringName = webscraper.getElement(
+        formatSelector(
+            '#content-card > div > div.mdl-d ata-table__cell--non-numeric > table > tbody > tr:nth-child(1) > td:nth-child(1)'),
+        []);
+    print(stringName);
   }
 
   //Schliesst den Client
   void closeClient() => client.close();
 }
-
-//Lösung von Richard Heap -> Verbesserte Version nicht von mir, sondern... -> Quellen: https://newbedev.com/how-do-i-make-an-http-request-using-cookies-on-flutter oder https://stackoverflow.com/questions/52241089/how-do-i-make-an-http-request-using-cookies-on-flutter
-//Diese Klasse wird von mir vorallem für das Handeln der Cookies verwendet
-/*class NetworkService {
-  final JsonDecoder _decoder = new JsonDecoder();
-  final JsonEncoder _encoder = new JsonEncoder();
-
-  
-
-  void _updateCookie(http.Response response) {
-    String allSetCookie = response.headers['set-cookie'] as String;
-
-    if (allSetCookie != null) {
-      var setCookies = allSetCookie.split(',');
-
-      for (var setCookie in setCookies) {
-        var cookies = setCookie.split(';');
-
-        for (var cookie in cookies) {
-          _setCookie(cookie);
-        }
-      }
-
-      headers['cookie'] = _generateCookieHeader();
-    }
-  }
-
-  void _setCookie(String rawCookie) {
-    if (rawCookie.length > 0) {
-      var keyValue = rawCookie.split('=');
-      if (keyValue.length == 2) {
-        var key = keyValue[0].trim();
-        var value = keyValue[1];
-
-        // ignore keys that aren't cookies
-        if (key == 'path' || key == 'expires') return;
-
-        this.cookies[key] = value;
-      }
-    }
-  }
-
-  String _generateCookieHeader() {
-    String cookie = "";
-
-    for (var key in cookies.keys) {
-      if (cookie.length > 0) cookie += ";";
-      cookie += key + "=" + cookies[key].toString();
-    }
-
-    return cookie;
-  }
-
-  Future<dynamic> get(String url) {
-    return http
-        .get(Uri.parse(url), headers: headers)
-        .then((http.Response response) {
-      //Leichte Änderung von mir aufgrund von Neuerung von Flutter aus, welche nicht hier beachtet/aktualisiert wurden -> Uri.parse()
-      final String res = response.body;
-      final int statusCode = response.statusCode;
-
-      _updateCookie(response);
-
-      if (statusCode < 200 || statusCode > 400 || json == null) {
-        throw new Exception("Error while fetching data");
-      }
-      return _decoder.convert(res);
-    });
-  }
-
-  Future<dynamic> post(String url, {body, encoding}) {
-    //Da mein HTML Code einen Format Fehler hat, muss die Methode angepasst werden
-    String handleFormatError(String html) {
-      if (html.startsWith('<')) {
-        String newHtml = html.substring(1);
-        return newHtml;
-      }
-      return html;
-    }
-
-    if (body is String) {
-      return http
-          .post(Uri.parse(url),
-              body: _encoder.convert(handleFormatError(body.toString())),
-              headers: headers,
-              encoding:
-                  encoding) //Leichte Änderung von mir aufgrund von Neuerung von Flutter aus, welche nicht hier beachtet/aktualisiert wurden -> Uri.parse()
-          .then((http.Response response) {
-        final String res = response.body;
-        final int statusCode = response.statusCode;
-
-        _updateCookie(response);
-
-        if (statusCode < 200 || statusCode > 400 || json == null) {
-          throw new Exception("Error while fetching data");
-        }
-        return _decoder.convert(res);
-      });
-    }
-    throw Exception('Post hat nicht funktioniert'); //TODO: Error besser handeln
-  }
-}*/
