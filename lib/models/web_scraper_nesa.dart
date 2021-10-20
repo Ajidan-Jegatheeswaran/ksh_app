@@ -1,5 +1,6 @@
 // ignore_for_file: unrelated_type_equality_checks
 
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
@@ -24,12 +25,13 @@ class WebScraperNesa {
   // ignore: prefer_final_fields
   var _document = '';
   var loginhash = '';
+  Map<String, String> form = {};
   Map<String, String> _header = {};
 
   //Das sind die Variabeln des Headers für den body der Post Methode
   Map<String, String> mapHeader = {};
-  var phpSecurityHeader;
-  var longCodeHeader;
+  String phpSecurityHeader = '';
+  String longCodeHeader = '';
 
   //WebScraper Objekt -> Mit diesen kann man HTML in String Form in einen Tree verwandeln und danach die einzelnen Elemente herausfiltern oder die Inhalte dessen Attribute
   WebScraper webscraper = WebScraper();
@@ -37,9 +39,19 @@ class WebScraperNesa {
   //Konstruktor
   WebScraperNesa();
 
+  //Maps
+  Map<String, dynamic> homeData = {};
+  var listOpenAbsenzHome;
+  var listNotConfirmedMarksHome;
+
+  Map<String, dynamic> noten = {};
+
+  Map<String, dynamic> absenzen = {};
+  Map<String, dynamic> kontoauszug = {};
+
   void start() async {
     await getLoginhash().then((value) => cookies());
-    await send().then((value) => getHomeData());
+    await send().then((value) => getMarksData());
   }
 
   Map<String, String> cookies() {
@@ -61,64 +73,38 @@ class WebScraperNesa {
       'Host': 'ksh.nesa-sg.ch',
       'User-Agent': 'Dart/2.14 (dart:io)',
       'date': 'Sun, 17 Oct 2021 19:44:14 GMT',
-      'content-length': '90',
       'strict-transport-security':
           'max-age=31536000; includeSubDomains; preload',
       'pragma': 'no-cache',
       'x-frame-options': 'deny, expires: Mon, 26 Jul 1997 05:00:00 GMT'
     };
-
-    /*
-    String stringHeader = _header.toString();
-    stringHeader = stringHeader.substring(1, stringHeader.length);
-    List listHeader = stringHeader.split(';');
-    int counter = 0;
-    try{
-    for (var i in listHeader) {
-      for (var v = 0; v < listHeader.length; v++) {
-        print(i.toString());
-        var res = i.toString().split(',');
-        if (v.isEven || v == 0) {
-          listHeader[v] = res[v];
-        }else if (v.isOdd && v != 0){
-          for (var i = 0; i < res.length; i++) {
-            listHeader[v][i] = res[i];
-          }
-        }else{
-          throw Exception('Fehler bei Umwandlung von stringHeader zu listHeader'); //TODO: Exception
-        }
-      }
-    }}catch(e, stacktrace){
-      print(e.toString() + stacktrace.toString());
-    }*/
-    //print('String Header -> ' + listHeader.toString());
-
     return result;
-  }
+  } //'content-length': '90',
 
-  //Hinzufügen der variablen (nicht nur 'layout-size=md'; zum Beispiel nicht) Daten für die Cookies für den Header
-  void addCookies() {
-    String? res = _header['set-cookie'];
-
-    phpSecurityHeader = res!.split(';')[0];
-
-    longCodeHeader = res.split(';')[1].split(',')[1];
-
-    if (phpSecurityHeader.isNotEmpty && longCodeHeader.isNotEmpty) {
-      mapHeader['Cookies'] = phpSecurityHeader +
-          '; Path=/, ' +
-          longCodeHeader +
-          '; Domain=ksh.nesa.sg.ch; Path=/';
-    } else {
-      throw Exception('Die Variabeln der für die addCookies Methode sind leer');
+  void testIsJavaScriptActivated() {
+    //Überprüft, ob JavaScript aktiviert ist
+    if (webscraper.getElement(
+        '#standardformular > div > div:nth-child(3) > noscript > span',
+        []).isNotEmpty) {
+      throw Exception('JavaScript ist ausgeschalten');
     }
-
-    client.head(Uri.parse('https://ksh.nesa-sg.ch/loginto.php?mode=0&lang='));
   }
 
-  void handleCookies(http.Client client) async {
-    var cookieManager = WebviewCookieManager();
-    var getCookie = await cookieManager;
+  bool isLogin() {
+    webscraper.loadFromString(_document);
+    var nav = webscraper.getElement('#nav-main-menu',
+        ['style="display: flex; width: 1552px; overflow: hidden;"']);
+    String navTitle =
+        nav[0].values.toString().split(',')[0].replaceAll('(', '');
+
+    if (navTitle ==
+        'StartNotenAbsenzenKontoauszugAgendaKommunikationListen&Dok.eSchool') {
+      return true;
+    } else {
+      throw Exception(
+          'Nicht mehr angemeldet...'); //TODO: Exception später entfernen
+      return false;
+    }
   }
 
   //Hier wird die Login Seite von Nesa aufgerufen
@@ -146,20 +132,11 @@ class WebScraperNesa {
           .toString()); //From String Html wird es in einen Tree "verwandelt" mit einem Parser() -> Das ist in der Dokumentation des Package Entwicklers ersichtlich
       //Herausfiltern des Input Elements, welches den Loginhash beinhaltet und returnen des Loginhashes
 
-      //Überprüft, ob JavaScript aktiviert ist
-      if (webscraper.getElement(
-          '#standardformular > div > div:nth-child(3) > noscript > span',
-          []).isNotEmpty) {
-        throw Exception('JavaScript ist ausgeschalten');
-        //#standardformular > div > div:nth-child(3) > noscript > span
-      }
-
       //Loginhash
-
       loginhash = webscraper.getElementAttribute(
               '#standardformular > div > div.mdl-cell.mdl-cell--12-col > input',
               'value')[1]
-          as String; //Der Webscraper gibt alles zurück, was auf die Beschreibung passt, deshalb wird hier nur das relavante also die 2. Stelle genommen (1.Stelle, da die Liste bei 0 anfängt)
+          as String; //Der Webscraper gibt alles zurück, was auf die Beschreibung passt, deshalb wird hier nur das relavante also die 2. Stelle genommen (1, da die Liste bei 0 anfängt)
 
       return loginhash;
     }
@@ -169,7 +146,7 @@ class WebScraperNesa {
   //Schickt die Benutzerdaten dem Post-Link, um durch das Login System zu passieren
   Future<void> send() async {
     //form beinhaltet alle Daten, die von nesa-sg.ch für den Login verlangt werden
-    Map<String, String> form = {
+    form = {
       "login": "ajidan.jegatheeswaran",
       "passwort": "10Scheisse",
       "loginhash": loginhash
@@ -182,30 +159,53 @@ class WebScraperNesa {
       body: form,
     );
 
+    //Überprüft, ob die Anfrage und Empfang erfolgreich war
+
     if (res.statusCode == 200) {
       _document = res.body;
+      _header = res.headers;
+      if (isLogin()) {
+        print('Erfolgreich angemeldet...');
+      } else {
+        //TODO:
+      }
+
+      webscraper.loadFromString(_document);
     } else {
       throw Exception(
           'Status Code ist nicht 200, sondern ' + res.statusCode.toString());
     }
   }
 
-  Future<String> _getPageContent(String link) async {
-    var res = await client.get(Uri.parse(link));
-    var content = res.body;
-    return content;
-  }
-
   String buildLink(String frag) {
     return 'https://ksh.nesa-sg.ch/' + frag;
   }
 
-  //Holt alle Links der Navigation Bar
+  Future<String> _getPageContent(String followingPage) async {
+    Uri uri = Uri.parse(followingPage);
+    List<String> data = uri.query.split('&');
+    Map<String, String> body = {};
+
+    for (String i in data) {
+      List<String> list = i.split('=');
+      body[list[0]] = list[1];
+    }
+
+    var res = await client.post(uri, body: body, headers: cookies());
+    _header = res.headers;
+
+    var content = res.body;
+    print(res.contentLength);
+    return content;
+  }
+
+  //Methode, um den Webscraper die benötigte Seite von den 8 Navigationsseiten zu übergeben -> Code sparen + Effizienteres Arbeiten
   Future<void> setNavigationPageContent(Enum c) async {
     bool _isLoad = webscraper.loadFromString(_document);
 
-    String getNavigationPage() {
+    Future<String> getNavigationPage() async {
       String menu;
+      String _content = '';
 
       switch (c) {
         case NaviPage.home:
@@ -238,42 +238,186 @@ class WebScraperNesa {
       }
 
       var link = webscraper.getElementAttribute(menu, 'href');
+
       if (link.length > 1 || link.isEmpty) {
         throw Exception('Etwas ist schief gelaufen'); //TODO: Exception
       }
-      return _getPageContent(buildLink(link.toString())).toString();
+
+      await _getPageContent(buildLink(link[0].toString())).then((val) {
+        _content = val;
+      });
+
+      return _content;
     }
 
-    _isLoad = webscraper.loadFromString(getNavigationPage());
+    String cont = '';
+    await getNavigationPage().then((value) {
+      cont = value;
+    });
+    _isLoad = webscraper.loadFromString(cont);
     if (!_isLoad) {
       throw Exception(); //TODO: Exception
     }
   }
-
+/*
   String formatSelector(String selector) {
-    List<String> list = selector.split('>');
+    //TODO: Methode funktioniert noch nicht
+    List<String> list = selector.split(' > ');
+
     for (String i in list) {
-      i.replaceAll(' ', '');
+      i.toString().replaceAll(' ', '.');
     }
     String string = '';
     for (int i = 0; i < list.length; i++) {
       if (i == (list.length - 1)) {
         string += list[i];
       } else {
-        string += list[i] + '>';
+        string += list[i] + ' > ';
       }
     }
-    print(string);
+
     return string.trim();
+  } */
+
+  Future<void> getHomeData() async {
+    await setNavigationPageContent(NaviPage.home);
+
+    //Get all User Data
+    var listUserData =
+        webscraper.getElement('#content-card tr > td', ['style="width: ;"']);
+
+    print('ListUserName');
+    print(listUserData);
+
+    String wert1 = '';
+    bool isMark = false;
+    int loopCounter = 1;
+
+    for (Map<String, dynamic> item in listUserData) {
+      String value = item.values.first;
+      Map<String, String> noten = {};
+      loopCounter += 1;
+
+      if (loopCounter >= 18) {
+        break;
+      }
+
+      if (wert1 == '') {
+        wert1 = value;
+      } else {
+        homeData[wert1] = value;
+        wert1 = '';
+      }
+    }
+    listOpenAbsenzHome =
+        webscraper.getElement('#content-card > div > div:nth-child(6)', []);
+    listNotConfirmedMarksHome =
+        webscraper.getElement('#content-card > div > div:nth-child(7)', []);
+    print('ListNewMarks');
+    print(listNotConfirmedMarksHome);
+
+    print('HomeData');
+    print(homeData);
   }
 
-  getHomeData() {
-    setNavigationPageContent(NaviPage.home);
-    var stringName = webscraper.getElement(
-        formatSelector(
-            '#content-card > div > div.mdl-d ata-table__cell--non-numeric > table > tbody > tr:nth-child(1) > td:nth-child(1)'),
+  Future<void> getMarksData() async {
+    //Web Scraper auf NaviPage.Noten gestellt
+    await setNavigationPageContent(NaviPage.noten);
+
+    //Anzahl Fächer
+    List listSubjectTitle =
+        webscraper.getElement('table > tbody > tr > td > b', []);
+    int numberOfMarks = listSubjectTitle.length;
+    int counterListSubjectTitle = 0;
+
+    var listMarks = webscraper.getElement(
+        'table.mdl-data-table.mdl-js-data-table.mdl-table--listtable > tbody > tr:not([class]) > td', //#uebersicht_bloecke > page > div > table > tbody > tr:nth-child(5) > td:nth-child(1)
         []);
-    print(stringName);
+
+    int counter = 1;
+    int counter2 = 0;
+    String subjectName = "";
+    String subjectMark = "";
+    String isConfirmed = '';
+    for (var item in listMarks) {
+      String res = item.values.first;
+      res = res.trim();
+      print(res);
+
+      switch (counter) {
+        case 1:
+          subjectName =
+              res.replaceAll(listSubjectTitle[counter2].values.first, '');
+          counter += 1;
+          print('Subject Name');
+          print(subjectName);
+          break;
+        case 2:
+          subjectMark = res.replaceAll(' ', '');
+          if (subjectMark == '--') {
+            subjectMark = 'NoMark';
+          }
+          counter += 1;
+          print('SubjectMark');
+          print(subjectMark);
+          break;
+        case 3:
+          print('Case 3');
+          print(res);
+          counter += 1;
+          break;
+        case 4:
+          print('Case 4');
+          print(res);
+          if (res != '--') {
+            if (res.contains('ja')) {
+              isConfirmed = 'ja';
+            } else if (res.contains('bestätigen')) {
+              isConfirmed = 'nein';
+            } else {
+              throw Exception('IsConfirmed If Else FUnktioniert nicht');
+            }
+            print('IsConfirmed');
+            print(isConfirmed);
+          } else {
+            isConfirmed = 'NoMark';
+          }
+          print('Subject Mark');
+          print(subjectMark);
+          print('Subject Name');
+          print(subjectName);
+
+          //Note in Map impotieren
+          if (subjectMark != '' && subjectName != '' && isConfirmed != '') {
+            Map<String, String> dataMarks = {};
+            dataMarks['Fach'] = subjectName;
+            dataMarks['Note'] = subjectMark;
+            dataMarks['Noten bestätigt'] = isConfirmed;
+            noten[listSubjectTitle[counter2].values.first] = dataMarks;
+            print('Noten Map');
+            print(noten);
+          } else {
+            throw Exception(); //TODO: Exception
+          }
+
+          counter += 1;
+          break;
+
+        case 6:
+          print('Case 5');
+          print(res);
+          counter = 1;
+          counter2 += 1;
+          break;
+        default:
+          print('Default');
+          print(res);
+          counter += 1;
+          break;
+      }
+    }
+    print('Noten Map zum Schluss');
+    print(noten);
   }
 
   //Schliesst den Client
