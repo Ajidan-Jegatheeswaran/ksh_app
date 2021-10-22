@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ksh_app/models/web_scraper_nesa.dart';
 
 class HomeScreen extends StatelessWidget {
+  static const routeName = '/home-screen';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,12 +17,11 @@ class HomeScreen extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {}, //Todo: Noten hinzufügen Screen oder Bottom Sheet 
+            onPressed: () {}, //Todo: Noten hinzufügen Screen oder Bottom Sheet
           ),
         ],
       ),
       body: Container(),
-      floatingActionButton: FloatingActionButton(child: const Icon(Icons.add), onPressed: (){}, backgroundColor: Theme.of(context).canvasColor,),
       backgroundColor: Theme.of(context).primaryColor,
     );
   }

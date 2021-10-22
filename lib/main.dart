@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
+import 'package:ksh_app/screens/home_screen.dart';
+import 'package:provider/provider.dart';
 
 import './screens/login_screen.dart';
+import './models/user.dart';
+import 'screens/noten_screen.dart';
 
-void main() {
+void main() async {
   runApp(MyApp());
-  debugShowCheckedModeBanner: true;
+  //debugShowCheckedModeBanner: true;
 }
 
 // ignore: use_key_in_widget_constructors
@@ -54,6 +58,10 @@ class MyApp extends StatelessWidget {
           textTheme:
               const TextTheme(headline6: TextStyle(color: Colors.white))),
       home: LoginScreen(),
+      routes: {
+        LoginScreen.routeName: (ctx) => LoginScreen(),
+        HomeScreen.routeName: (ctx) => HomeScreen()
+      },
     );
   }
 }

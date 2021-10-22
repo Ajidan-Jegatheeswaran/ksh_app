@@ -1,11 +1,9 @@
 // ignore_for_file: unrelated_type_equality_checks
 
-import 'dart:developer';
-import 'dart:io';
-
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:web_scraper/web_scraper.dart';
-import 'package:webview_cookie_manager/webview_cookie_manager.dart';
+
 
 enum NaviPage {
   home,
@@ -19,6 +17,10 @@ enum NaviPage {
 }
 
 class WebScraperNesa {
+  //User Daten
+  final String username;
+  final String password;
+  final String host;
   //Hier wird der Client gestartet, damit der loginhash für den Login übereinstimmt mit dem gebrauchten loginhash
   final client = http.Client();
 
@@ -37,7 +39,10 @@ class WebScraperNesa {
   WebScraper webscraper = WebScraper();
 
   //Konstruktor
-  WebScraperNesa();
+  WebScraperNesa(
+      {@required required this.username,
+      @required required this.password,
+      @required required this.host});
 
   //Maps
   Map<String, dynamic> homeData = {};
@@ -49,12 +54,7 @@ class WebScraperNesa {
   Map<String, dynamic> absenzen = {};
   Map<String, dynamic> kontoauszug = {};
 
-  void start() async {
-    await getLoginhash().then((value) => cookies());
-    await send().then((value) => getMarksData());
-  }
-
-  Map<String, String> cookies() {
+  Future<Map<String, String>> cookies() async {
     String? res = _header['set-cookie'];
     phpSecurityHeader = res!.split(';')[0];
     longCodeHeader = res.split(';')[1].split(',')[1];
@@ -81,34 +81,29 @@ class WebScraperNesa {
     return result;
   } //'content-length': '90',
 
-  void testIsJavaScriptActivated() {
-    //Überprüft, ob JavaScript aktiviert ist
-    if (webscraper.getElement(
-        '#standardformular > div > div:nth-child(3) > noscript > span',
-        []).isNotEmpty) {
-      throw Exception('JavaScript ist ausgeschalten');
-    }
-  }
-
   bool isLogin() {
-    webscraper.loadFromString(_document);
-    var nav = webscraper.getElement('#nav-main-menu',
-        ['style="display: flex; width: 1552px; overflow: hidden;"']);
-    String navTitle =
-        nav[0].values.toString().split(',')[0].replaceAll('(', '');
+    try {
+      webscraper.loadFromString(_document);
+      var nav = webscraper.getElement('#nav-main-menu',
+          ['style="display: flex; width: 1552px; overflow: hidden;"']);
+      String navTitle =
+          nav[0].values.toString().split(',')[0].replaceAll('(', '');
 
-    if (navTitle ==
-        'StartNotenAbsenzenKontoauszugAgendaKommunikationListen&Dok.eSchool') {
-      return true;
-    } else {
-      throw Exception(
-          'Nicht mehr angemeldet...'); //TODO: Exception später entfernen
+      if (navTitle ==
+          'StartNotenAbsenzenKontoauszugAgendaKommunikationListen&Dok.eSchool') {
+        return true;
+      } else {
+        throw Exception(
+            'Nicht mehr angemeldet...'); //TODO: Exception später entfernen
+        return false;
+      }
+    } on RangeError catch (e) {
       return false;
     }
   }
 
-  //Hier wird die Login Seite von Nesa aufgerufen
-  Future<String> getLoginhash() async {
+  //User wird angemolden
+  Future<bool> login() async {
     try {
       //Html von Login Page wird geholt
       var res = await client.post(
@@ -132,30 +127,32 @@ class WebScraperNesa {
           .toString()); //From String Html wird es in einen Tree "verwandelt" mit einem Parser() -> Das ist in der Dokumentation des Package Entwicklers ersichtlich
       //Herausfiltern des Input Elements, welches den Loginhash beinhaltet und returnen des Loginhashes
 
-      //Loginhash
+      //Loginhash wird in die Variable loginhash zugeschrieben
       loginhash = webscraper.getElementAttribute(
               '#standardformular > div > div.mdl-cell.mdl-cell--12-col > input',
               'value')[1]
           as String; //Der Webscraper gibt alles zurück, was auf die Beschreibung passt, deshalb wird hier nur das relavante also die 2. Stelle genommen (1, da die Liste bei 0 anfängt)
-
-      return loginhash;
     }
-    return loginhash;
+    await cookies();
+    await send();
+    if (isLogin()) {
+      print('Anmeldung Erfolgreich');
+      return true;
+    } else {
+      print('Anmeldung fehlgeschlagen');
+      return false;
+    }
   }
 
   //Schickt die Benutzerdaten dem Post-Link, um durch das Login System zu passieren
   Future<void> send() async {
     //form beinhaltet alle Daten, die von nesa-sg.ch für den Login verlangt werden
-    form = {
-      "login": "ajidan.jegatheeswaran",
-      "passwort": "10Scheisse",
-      "loginhash": loginhash
-    };
+    form = {"login": username, "passwort": password, "loginhash": loginhash};
 
     //Mittels Post Request werden die form Daten versendet
     var res = await client.post(
       Uri.parse('https://ksh.nesa-sg.ch/index.php?pageid=1'),
-      headers: cookies(),
+      headers: await cookies(),
       body: form,
     );
 
@@ -191,7 +188,7 @@ class WebScraperNesa {
       body[list[0]] = list[1];
     }
 
-    var res = await client.post(uri, body: body, headers: cookies());
+    var res = await client.post(uri, body: body, headers: await cookies());
     _header = res.headers;
 
     var content = res.body;
@@ -201,7 +198,12 @@ class WebScraperNesa {
 
   //Methode, um den Webscraper die benötigte Seite von den 8 Navigationsseiten zu übergeben -> Code sparen + Effizienteres Arbeiten
   Future<void> setNavigationPageContent(Enum c) async {
+    if (!isLogin()) {
+      throw ('Nicht angemeldet');
+    }
     bool _isLoad = webscraper.loadFromString(_document);
+    print('Dokument');
+    print(_document);
 
     Future<String> getNavigationPage() async {
       String menu;
@@ -238,6 +240,8 @@ class WebScraperNesa {
       }
 
       var link = webscraper.getElementAttribute(menu, 'href');
+      print('Link');
+      print(link);
 
       if (link.length > 1 || link.isEmpty) {
         throw Exception('Etwas ist schief gelaufen'); //TODO: Exception
@@ -279,7 +283,7 @@ class WebScraperNesa {
     return string.trim();
   } */
 
-  Future<void> getHomeData() async {
+  void getHomeData() async {
     await setNavigationPageContent(NaviPage.home);
 
     //Get all User Data
@@ -320,7 +324,7 @@ class WebScraperNesa {
     print(homeData);
   }
 
-  Future<void> getMarksData() async {
+  void getMarksData() async {
     //Web Scraper auf NaviPage.Noten gestellt
     await setNavigationPageContent(NaviPage.noten);
 
