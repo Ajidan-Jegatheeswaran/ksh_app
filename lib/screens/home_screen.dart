@@ -32,8 +32,34 @@ class HomeScreen extends StatelessWidget {
     });
   }
 
+  Widget builderListTile(BuildContext ctx, var mediaQuery) {
+    return Column(
+      children: [
+        SizedBox(
+          height: mediaQuery.height * 0.012,
+        ),
+        ListTile(
+          minLeadingWidth: mediaQuery.width * 0.125,
+          tileColor: Theme.of(ctx).colorScheme.secondary,
+          leading: const Icon(Icons.ac_unit, color: Colors.white,),
+          title: Text('Noten Saldo', style: TextStyle(color: Colors.white, fontSize: mediaQuery.height * 0.022),),
+          trailing: Padding(
+            padding: EdgeInsets.only(right: mediaQuery.width * 0.11),
+            child: Text(
+              '2',
+              style: TextStyle(
+                  color: Colors.white, fontSize: mediaQuery.height * 0.03),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    var mediaQuery = MediaQuery.of(context).size;
+
     //readUserData(context);
     return Scaffold(
       appBar: AppBar(
@@ -55,18 +81,14 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.secondary,
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height * 0.25,
+              margin: EdgeInsets.only(bottom: mediaQuery.height * 0.015),
             ),
-            /*ListView.builder(
-              itemBuilder: (ctx, index) => Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.2,
-                color: Colors.red,
-              ),
-              shrinkWrap: true,
-            )*/
+            builderListTile(context, mediaQuery),
+            builderListTile(context, mediaQuery),
+            builderListTile(context, mediaQuery),
           ],
         ),
       ),
