@@ -60,7 +60,8 @@ class MyApp extends StatelessWidget {
       home: LoginScreen(),
       routes: {
         LoginScreen.routeName: (ctx) => LoginScreen(),
-        HomeScreen.routeName: (ctx) => HomeScreen()
+        HomeScreen.routeName: (ctx) => HomeScreen(),
+        NotenScreen.routeName: (ctx) => NotenScreen()
       },
     );
   }

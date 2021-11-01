@@ -169,6 +169,10 @@ class WebScraperNesa {
 
       webscraper.loadFromString(_document);
     } else {
+      if(res.isRedirect){
+        print('isRedirect');
+        print(res.isRedirect);
+      }
       throw Exception(
           'Status Code ist nicht 200, sondern ' + res.statusCode.toString());
     }

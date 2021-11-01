@@ -2,11 +2,13 @@ import 'dart:convert' as convert;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:ksh_app/screens/home_screen.dart';
+import 'package:ksh_app/screens/noten_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
 class LoginScreen extends StatefulWidget {
-  static const routeName = '/login-screen';
+  static const routeName = '/login';
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -16,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
   // ignore: prefer_final_fields
-  Map<String, String> _userData = {
+  Map<String, dynamic> _userData = {
     'username': '',
     'password': '',
     'host': 'ksh'
@@ -25,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   //File Variabeln
   late Directory dir;
   late File jsonFile;
-  late Map<String, String> fileContent;
+  late Map<String, dynamic> fileContent;
   final String fileName = 'userData.json';
   bool fileExists = false;
 
@@ -42,23 +44,50 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  void saveLoginDataInStorage(String username, String password, String host) {}
-
-  void _submit() {
-    if (!_formKey.currentState!.validate() && _userData['host'] != '') {
-      return;
+  void saveLoginDataInStorage() {
+    if (fileExists) {
+      jsonFile.deleteSync();
     }
-    _formKey.currentState!.save();
-
-    print(_userData['username'].toString() + _userData['password'].toString());
-
-    Navigator.of(context).pushNamed(HomeScreen.routeName);
+    jsonFile.createSync();
+    fileExists = true;
+    jsonFile.writeAsStringSync(convert.jsonEncode(_userData));
   }
 
   @override
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(
         context); // MediaQuery wird hier als Objekt in der Variabel mediaQuery gespeichert, damit es zu weniger build() aufrufen kommt -> Performance
+
+    void _submit() async {
+      print('Submit');
+      if (!_formKey.currentState!.validate() && _userData['host'] == '') {
+        throw Exception(); //todo: Exception
+      }
+      _formKey.currentState!.save();
+
+      print(
+          _userData['username'].toString() + _userData['password'].toString());
+
+      saveLoginDataInStorage();
+
+      Map<String, dynamic> map =
+          convert.jsonDecode(jsonFile.readAsStringSync());
+      print('Map');
+      print(map);
+
+      WebScraperNesa webScraper = WebScraperNesa(
+          username: _userData['username'].toString(),
+          password: _userData['password'].toString(),
+          host: _userData['host'].toString());
+      await webScraper.login();
+      print('isLogin');
+
+      print(webScraper.isLogin());
+      if (webScraper.isLogin()) {
+        print('If isLogin -> True');
+        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+      }
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -128,8 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 },
                               ),
                               TextFormField(
-                                textInputAction: TextInputAction
-                                    .send, //Achtung hier wurde send anstatt next verwendet bei Fehler hierauf achten
+                                textInputAction: TextInputAction.next,
                                 decoration: const InputDecoration(
                                   labelText: 'Passwort',
                                   labelStyle: TextStyle(color: Colors.white),
@@ -148,8 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 padding: EdgeInsets.only(
                                     top: mediaQuery.size.height * 0.05),
                                 child: TextButton(
-                                  onPressed: () =>
-                                      _submit, //todo: Implement Button
+                                  onPressed: _submit,
                                   child: const Text(
                                     'Anmelden',
                                     style: TextStyle(color: Colors.white),

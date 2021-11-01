@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class NotenScreen extends StatelessWidget {
+  static const routeName = '/noten'; 
   final _markLength = 10;
 
   @override
