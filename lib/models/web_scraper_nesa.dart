@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:web_scraper/web_scraper.dart';
 
-
 enum NaviPage {
   home,
   noten,
@@ -70,7 +69,7 @@ class WebScraperNesa {
           '; path=/,' +
           longCodeHeader +
           '; Path=/; Domain=.nesa-sg.ch',
-      'Host': 'ksh.nesa-sg.ch',
+      'Host': '$host.nesa-sg.ch',
       'User-Agent': 'Dart/2.14 (dart:io)',
       'date': 'Sun, 17 Oct 2021 19:44:14 GMT',
       'strict-transport-security':
@@ -107,7 +106,7 @@ class WebScraperNesa {
     try {
       //Html von Login Page wird geholt
       var res = await client.post(
-        Uri.parse('https://ksh.nesa-sg.ch/loginto.php?mode=0&lang='),
+        Uri.parse('https://$host.nesa-sg.ch/loginto.php?mode=0&lang='),
       );
       //Überprüfung, ob res.body leer ist
       if (res.body.isNotEmpty) {
@@ -151,7 +150,7 @@ class WebScraperNesa {
 
     //Mittels Post Request werden die form Daten versendet
     var res = await client.post(
-      Uri.parse('https://ksh.nesa-sg.ch/index.php?pageid=1'),
+      Uri.parse('https://$host.nesa-sg.ch/index.php?pageid=1'),
       headers: await cookies(),
       body: form,
     );
@@ -169,7 +168,7 @@ class WebScraperNesa {
 
       webscraper.loadFromString(_document);
     } else {
-      if(res.isRedirect){
+      if (res.isRedirect) {
         print('isRedirect');
         print(res.isRedirect);
       }
@@ -179,7 +178,7 @@ class WebScraperNesa {
   }
 
   String buildLink(String frag) {
-    return 'https://ksh.nesa-sg.ch/' + frag;
+    return 'https://$host.nesa-sg.ch/' + frag;
   }
 
   Future<String> _getPageContent(String followingPage) async {
@@ -328,7 +327,7 @@ class WebScraperNesa {
     print(homeData);
   }
 
-  void getMarksData() async {
+  Future<Map<String, dynamic>> getMarksData() async {
     //Web Scraper auf NaviPage.Noten gestellt
     await setNavigationPageContent(NaviPage.noten);
 
@@ -426,6 +425,7 @@ class WebScraperNesa {
     }
     print('Noten Map zum Schluss');
     print(noten);
+    return noten;
   }
 
   //Schliesst den Client

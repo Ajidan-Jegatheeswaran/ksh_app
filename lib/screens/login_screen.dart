@@ -38,9 +38,9 @@ class _LoginScreenState extends State<LoginScreen> {
       dir = directory;
       jsonFile = File(dir.path + '/' + fileName);
       fileExists = jsonFile.existsSync();
-      if (fileExists) {
+      /*if (fileExists) {
         _userData = convert.jsonDecode((jsonFile.readAsStringSync()));
-      }
+      }*/
     });
   }
 

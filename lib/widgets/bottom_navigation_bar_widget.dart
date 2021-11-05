@@ -10,25 +10,21 @@ class BottomNavigatioinBarWidget extends StatefulWidget {
 
 class _BottomNavigatioinBarWidgetState
     extends State<BottomNavigatioinBarWidget> {
-  final List<String> _pages = [
-    HomeScreen.routeName,
-    NotenScreen.routeName,
-    //SettingsScreen.routeName //todo: SettingsScreen erstellen
-  ];
-
-  int _selectedPageIndex = 0;
-
   void _tabSelected(int index) {
-    setState(() {
-      _selectedPageIndex = index;
-    });
+    switch (index) {
+      case 0:
+        Navigator.of(context).popAndPushNamed(HomeScreen.routeName);
+        break;
+      case 1:
+        Navigator.of(context).popAndPushNamed(NotenScreen.routeName);
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       onTap: _tabSelected,
-      
       backgroundColor: Theme.of(context).primaryColor,
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.white,

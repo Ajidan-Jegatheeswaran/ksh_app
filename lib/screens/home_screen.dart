@@ -7,9 +7,13 @@ import 'package:ksh_app/screens/login_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 
 import 'package:path_provider/path_provider.dart';
+import 'package:web_scraper/web_scraper.dart';
 
 class HomeScreen extends StatelessWidget {
   static const routeName = '/home';
+
+  Map<String, dynamic> userMarks = {};
+  String userSaldo = '';
 
   //ReadUserData Variabeln
   Map<String, dynamic> _userData = {};
@@ -33,11 +37,97 @@ class HomeScreen extends StatelessWidget {
     });
   }
 
+  Future<void> getUserData(BuildContext ctx) async {
+    await readUserData(ctx);
+    WebScraperNesa webScraperNesa = WebScraperNesa(
+        username: _userData['username'],
+        password: _userData['password'],
+        host: _userData['host']);
+    await webScraperNesa.login();
+    print('Hat es Funktioniert?: ' + webScraperNesa.isLogin().toString());
+    userMarks = await webScraperNesa.getMarksData();
+    print('Noten');
+    print(userMarks);
+  }
+
+  Future<void> saldo() async {
+    List<double> noten = [];
+    double saldo = 0;
+
+    for (dynamic i in userMarks.values) {
+      String stringMark =
+          i.toString().split(',')[1].split(':')[1].replaceAll(' ', '');
+      if (stringMark == 'NoMark') {
+        continue;
+      }
+
+      print('keys');
+      print(i.toString());
+      double doubleNote = double.parse(stringMark);
+      noten.add(doubleNote);
+    }
+    print('Noten Saldo Noten');
+    print(noten);
+
+    for (double mark in noten) {
+      double resMarkSaldo = mark - 4;
+      if (resMarkSaldo == 0) {
+        continue;
+      }
+      if (resMarkSaldo > 0) {
+        while (resMarkSaldo >= 1) {
+          resMarkSaldo = resMarkSaldo - 1;
+          saldo += 1;
+        }
+        while (resMarkSaldo >= 0.5) {
+          resMarkSaldo = resMarkSaldo - 0.5;
+          saldo += 0.5;
+        }
+        if (resMarkSaldo >= 0.25) {
+          resMarkSaldo = 0;
+          saldo += 0.5;
+        } else if (resMarkSaldo < 0.25) {
+          continue;
+        } else {
+          throw Exception(); //todo: Exception
+        }
+      } else if (resMarkSaldo < 0) {
+        resMarkSaldo = -resMarkSaldo;
+        if (resMarkSaldo > 0) {
+          while (resMarkSaldo >= 1) {
+            resMarkSaldo = resMarkSaldo - 1;
+            saldo -= 2;
+          }
+          while (resMarkSaldo >= 0.5) {
+            resMarkSaldo = resMarkSaldo - 0.5;
+            saldo -= 1;
+          }
+          if (resMarkSaldo >= 0.25) {
+            resMarkSaldo = 0;
+            saldo -= 1;
+          } else if (resMarkSaldo < 0.25) {
+            continue;
+          } else {
+            throw Exception(); //todo: Exception
+          }
+        }
+      } else {
+        throw Exception(); //todo: Exception
+      }
+    }
+    userSaldo = saldo.toString();
+  }
+
+  void setUserData(BuildContext context) async {
+    await getUserData(context);
+    await saldo();
+  }
+
   @override
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(context).size;
 
-    readUserData(context);
+    setUserData(context);
 
     Widget builderListTile() {
       return Column(
@@ -61,7 +151,7 @@ class HomeScreen extends StatelessWidget {
             trailing: Padding(
               padding: EdgeInsets.only(right: mediaQuery.width * 0.11),
               child: Text(
-                '2',
+                userSaldo,
                 style: TextStyle(
                     color: Colors.white, fontSize: mediaQuery.height * 0.03),
               ),
@@ -148,12 +238,14 @@ class HomeScreen extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  builderOtherOptions('Absenzen', icons: Icons.person_off_outlined),
+                  builderOtherOptions('Absenzen',
+                      icons: Icons.person_off_outlined),
                   builderOtherOptions('Kontoauszug',
                       icons: Icons.monetization_on),
                   builderOtherOptions('Kalender', icons: Icons.calendar_today),
                   builderOtherOptions('Dein Profil', icons: Icons.person),
-                  builderOtherOptions('Absenzen', icons: Icons.markunread_sharp),
+                  builderOtherOptions('Absenzen',
+                      icons: Icons.markunread_sharp),
                   builderOtherOptions('Absenzen', icons: Icons.ac_unit),
                   builderOtherOptions('Absenzen', icons: Icons.ac_unit),
                   builderOtherOptions('Absenzen', icons: Icons.ac_unit),
