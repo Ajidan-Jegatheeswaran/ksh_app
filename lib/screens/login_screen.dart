@@ -2,6 +2,7 @@ import 'dart:convert' as convert;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/screens/noten_screen.dart';
@@ -68,22 +69,17 @@ class _LoginScreenState extends State<LoginScreen> {
       print(
           _userData['username'].toString() + _userData['password'].toString());
 
-      saveLoginDataInStorage();
-
-      Map<String, dynamic> map =
-          convert.jsonDecode(jsonFile.readAsStringSync());
-      print('Map');
-      print(map);
+      User.writeInToFile(_userData, requiredFile.userLogin); //todo: Durch User Methode ersetzen
 
       WebScraperNesa webScraper = WebScraperNesa(
           username: _userData['username'].toString(),
           password: _userData['password'].toString(),
           host: _userData['host'].toString());
-      await webScraper.login();
-      print('isLogin');
 
-      print(webScraper.isLogin());
-      if (webScraper.isLogin()) {
+      bool isUserLogin = await User.getUserData(webScraper);
+
+      print(isUserLogin);
+      if (isUserLogin) {
         print('If isLogin -> True');
         Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
       }

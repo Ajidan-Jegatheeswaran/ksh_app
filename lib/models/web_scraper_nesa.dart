@@ -362,7 +362,7 @@ class WebScraperNesa {
         case 2:
           subjectMark = res.replaceAll(' ', '');
           if (subjectMark == '--') {
-            subjectMark = 'NoMark';
+            subjectMark = '--';
           }
           counter += 1;
           print('SubjectMark');
@@ -387,7 +387,7 @@ class WebScraperNesa {
             print('IsConfirmed');
             print(isConfirmed);
           } else {
-            isConfirmed = 'NoMark';
+            isConfirmed = '--';
           }
           print('Subject Mark');
           print(subjectMark);

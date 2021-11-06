@@ -1,11 +1,20 @@
+import 'dart:io';
+import 'dart:convert' as convert;
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'dart:convert';
 
 import 'package:ksh_app/models/web_scraper_nesa.dart';
-import 'package:web_scraper/web_scraper.dart';
+import 'package:path_provider/path_provider.dart';
 
-class User implements ChangeNotifier{
+enum requiredFile {
+  userLogin,
+  userDashboard,
+  userMarks,
+  userAbsence,
+  userTests,
+}
+
+class User {
   String username = '';
   String password = '';
   String host = '';
@@ -45,27 +54,144 @@ class User implements ChangeNotifier{
     return webScraperNesa;
   }
 
-  @override
-  void addListener(VoidCallback listener) {
-    // TODO: implement addListener
+  //Saldo wird berechnet
+  static String saldo(Map<String, dynamic> userMarks) {
+    List<double> noten = [];
+    double saldo = 0;
+
+    for (dynamic i in userMarks.values) {
+      String stringMark =
+          i.toString().split(',')[1].split(':')[1].replaceAll(' ', '');
+      if (stringMark == '--') {
+        continue;
+      }
+
+      print('keys');
+      print(i.toString());
+      double doubleNote = double.parse(stringMark);
+      noten.add(doubleNote);
+    }
+    print('Noten Saldo Noten');
+    print(noten);
+
+    for (double mark in noten) {
+      double resMarkSaldo = mark - 4;
+      if (resMarkSaldo == 0) {
+        continue;
+      }
+      if (resMarkSaldo > 0) {
+        while (resMarkSaldo >= 1) {
+          resMarkSaldo = resMarkSaldo - 1;
+          saldo += 1;
+        }
+        while (resMarkSaldo >= 0.5) {
+          resMarkSaldo = resMarkSaldo - 0.5;
+          saldo += 0.5;
+        }
+        if (resMarkSaldo >= 0.25) {
+          resMarkSaldo = 0;
+          saldo += 0.5;
+        } else if (resMarkSaldo < 0.25) {
+          continue;
+        } else {
+          throw Exception(); //todo: Exception
+        }
+      } else if (resMarkSaldo < 0) {
+        resMarkSaldo = -resMarkSaldo;
+        if (resMarkSaldo > 0) {
+          while (resMarkSaldo >= 1) {
+            resMarkSaldo = resMarkSaldo - 1;
+            saldo -= 2;
+          }
+          while (resMarkSaldo >= 0.5) {
+            resMarkSaldo = resMarkSaldo - 0.5;
+            saldo -= 1;
+          }
+          if (resMarkSaldo >= 0.25) {
+            resMarkSaldo = 0;
+            saldo -= 1;
+          } else if (resMarkSaldo < 0.25) {
+            continue;
+          } else {
+            throw Exception(); //todo: Exception
+          }
+        }
+      } else {
+        throw Exception(); //todo: Exception
+      }
+    }
+    return saldo.toString();
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
+  //Daten Verarbeitung -> Verwalten der Daten
+
+  static Future<File> getFile(Enum data) async {
+    String fileName = '';
+    File file;
+
+    Directory directory = await getApplicationDocumentsDirectory();
+    switch (data) {
+      case requiredFile.userLogin:
+        fileName = 'user_data.json';
+        break;
+      case requiredFile.userMarks:
+        fileName = 'user_marks.json';
+        break;
+      case requiredFile.userDashboard:
+        fileName = 'user_dashbaord.json';
+        break;
+      default:
+        throw Exception('File Path does not exist');
+    }
+    file = File(directory.path + '/' + fileName);
+    if (!file.existsSync()) {
+      file.createSync();
+    }
+    return file;
   }
 
-  @override
-  // TODO: implement hasListeners
-  bool get hasListeners => throw UnimplementedError();
-
-  @override
-  void notifyListeners() {
-    // TODO: implement notifyListeners
+  static void writeInToFile(
+      Map<String, dynamic> information, Enum fileEnum) async {
+    File file = await getFile(fileEnum);
+    if (file.existsSync()) {
+      file.deleteSync();
+      file.createSync();
+    }
+    file.writeAsStringSync(convert.jsonEncode(information));
   }
 
-  @override
-  void removeListener(VoidCallback listener) {
-    // TODO: implement removeListener
+  static Future<Map<String, dynamic>> readFile(Enum fileEnum) async {
+    File file = await getFile(fileEnum);
+    if (!file.existsSync()) {
+      throw Exception('File does not Exist'); //todo: Exception
+    }
+    Map<String, dynamic> data = convert.jsonDecode(file.readAsStringSync());
+    return data;
+  }
+
+  static Future<bool> getUserData(WebScraperNesa webScraperNesa) async {
+    //Login Daten werden beschafft
+    Map<String, dynamic> _userData =
+        await User.readFile(requiredFile.userLogin);
+    //User wird in Nesa eingeloggt
+    webScraperNesa = WebScraperNesa(
+        username: _userData['username'],
+        password: _userData['password'],
+        host: _userData['host']);
+    await webScraperNesa.login();
+    print('Hat es Funktioniert?: ' + webScraperNesa.isLogin().toString());
+
+    //Noten werden verarbeitet
+    Map<String, dynamic> userMarks = await webScraperNesa.getMarksData();
+    User.writeInToFile(userMarks, requiredFile.userMarks);
+
+    //Dashboard Informationen
+    Map<String, dynamic> userDashboard = {};
+    userDashboard['saldo'] = saldo(userMarks);
+    userDashboard['openAbsence'] = '0'; //todo:
+    userDashboard['nextTestDate'] = '03.12.2021'; //todo:
+    User.writeInToFile(userDashboard, requiredFile.userDashboard);
+
+    return webScraperNesa.isLogin();
   }
 }
