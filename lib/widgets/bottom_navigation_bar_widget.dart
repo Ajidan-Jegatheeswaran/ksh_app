@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/screens/noten_screen.dart';
+import 'package:ksh_app/screens/settings_screen.dart';
 
 class BottomNavigatioinBarWidget extends StatefulWidget {
   @override
@@ -18,6 +19,8 @@ class _BottomNavigatioinBarWidgetState
       case 1:
         Navigator.of(context).popAndPushNamed(NotenScreen.routeName);
         break;
+      case 2:
+        Navigator.of(context).popAndPushNamed(SettingsScreen.routeName);
     }
   }
 

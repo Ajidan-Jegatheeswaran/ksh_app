@@ -543,16 +543,29 @@ class WebScraperNesa {
 
     return absenzen;
   }
-
+  /*
   Future<void> getCalendarData() async {
+    DateTime dateNow = DateTime.now();
+    String currentDate = dateNow.year.toString() +
+        '-' +
+        dateNow.month.toString() +
+        '-' +
+        dateNow.day.toString();
+    print(currentDate);
+
     await setNavigationPageContent(NaviPage.agenda);
     String link = webscraper
         .getElementAttribute('#cls_pageid_nav_21312', 'href')[0]
         .toString();
     print(link);
 
-    Uri uri = Uri.parse(buildLink(link));
-    List<String> data = uri.query.split('&');
+    Uri uri = Uri.parse('https://$host.nesa-sg.ch/scheduler_processor.php?');
+    Uri uriQuery = Uri.parse(buildLink(link));
+    List<String> data = uriQuery.query.split('&');
+    print('Date2');
+    print(data);
+    data.add('ansicht=klassenuebersicht');
+    data.add('view=grid');
     print('Data');
     print(data);
     Map<String, String> body = {};
@@ -570,6 +583,11 @@ class WebScraperNesa {
     var content = res.body;
     print(res.contentLength);
 
+    webscraper.loadFromString(res.body);
+
+    print(res.body);
+
+
 /*
     Uri uri = Uri.parse(buildLink(link));
     List<String> data = uri.query.split('&');
@@ -584,7 +602,7 @@ class WebScraperNesa {
     Response response = await client.post(uri, body: body, headers: await cookies());
     print(response.body);
     */
-  }
+  }*/
 
   //Schliesst den Client
   void closeClient() => client.close();

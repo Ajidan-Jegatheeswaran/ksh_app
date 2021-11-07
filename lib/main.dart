@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:ksh_app/screens/home_screen.dart';
+import 'package:ksh_app/screens/settings_screen.dart';
 import 'package:provider/provider.dart';
 
 import './screens/login_screen.dart';
@@ -8,14 +9,15 @@ import './models/user.dart';
 import 'screens/noten_screen.dart';
 
 void main() async {
-  WebScraperNesa webScraperNesa = WebScraperNesa(username: 'jon.stojkaj', password: '21Jonmalone?', host: 'ksh');
+  WebScraperNesa webScraperNesa = WebScraperNesa(
+      username: 'jon.stojkaj', password: '21Jonmalone?', host: 'ksh');
   await webScraperNesa.login();
-  if(webScraperNesa.isLogin()){
+  if (webScraperNesa.isLogin()) {
     print('Eingeloggt...');
   }
 
-  webScraperNesa.getCalendarData();
-  //runApp(MyApp());
+  //webScraperNesa.getCalendarData();
+  runApp(MyApp());
   //debugShowCheckedModeBanner: true;
 }
 
@@ -68,7 +70,8 @@ class MyApp extends StatelessWidget {
       routes: {
         LoginScreen.routeName: (ctx) => LoginScreen(),
         HomeScreen.routeName: (ctx) => HomeScreen(),
-        NotenScreen.routeName: (ctx) => NotenScreen()
+        NotenScreen.routeName: (ctx) => NotenScreen(),
+        SettingsScreen.routeName: (ctx) => SettingsScreen(),
       },
     );
   }
