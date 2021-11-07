@@ -8,7 +8,14 @@ import './models/user.dart';
 import 'screens/noten_screen.dart';
 
 void main() async {
-  runApp(MyApp());
+  WebScraperNesa webScraperNesa = WebScraperNesa(username: 'jon.stojkaj', password: '21Jonmalone?', host: 'ksh');
+  await webScraperNesa.login();
+  if(webScraperNesa.isLogin()){
+    print('Eingeloggt...');
+  }
+
+  webScraperNesa.getCalendarData();
+  //runApp(MyApp());
   //debugShowCheckedModeBanner: true;
 }
 

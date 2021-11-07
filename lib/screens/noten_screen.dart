@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:ksh_app/models/subject.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
-import 'package:ksh_app/widgets/list_tile_information_widget.dart';
 
 class NotenScreen extends StatelessWidget {
   static const routeName = '/noten';

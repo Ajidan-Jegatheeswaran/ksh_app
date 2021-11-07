@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:web_scraper/web_scraper.dart';
 
 enum NaviPage {
@@ -55,6 +56,9 @@ class WebScraperNesa {
 
   Future<Map<String, String>> cookies() async {
     String? res = _header['set-cookie'];
+    print('Result');
+    print(res);
+    print(res!.split(';')[1].split(','));
     phpSecurityHeader = res!.split(';')[0];
     longCodeHeader = res.split(';')[1].split(',')[1];
 
@@ -190,7 +194,7 @@ class WebScraperNesa {
       List<String> list = i.split('=');
       body[list[0]] = list[1];
     }
-
+    
     var res = await client.post(uri, body: body, headers: await cookies());
     _header = res.headers;
 
@@ -426,6 +430,127 @@ class WebScraperNesa {
     print('Noten Map zum Schluss');
     print(noten);
     return noten;
+  }
+
+  Future<Map<String, dynamic>> getAbsenceData() async {
+    await setNavigationPageContent(NaviPage.absenzen);
+
+    List listOfAbsence = webscraper.getElement('td', []);
+    int anzahlAbsenzen = int.parse(listOfAbsence
+        .where((element) {
+          String test = element.toString();
+
+          return test.contains('Anzahl Ereignisse');
+        })
+        .toList()[0]
+        .values
+        .first
+        .split(': ')[1]);
+
+    Map<String, String> absenz = {};
+    List<Map<String, String>> absenzenList = [];
+    int indexCounter = 0;
+    int indexAbsence = 1;
+
+    for (Map i in listOfAbsence) {
+      String item = i.values.first.replaceAll(' ', '');
+      int tdLenghtOfAbsenzauszug = ((anzahlAbsenzen * 7) + 1);
+      if (indexCounter <= tdLenghtOfAbsenzauszug) {
+        switch (indexCounter) {
+          case 0:
+            absenz['dateFrom'] = item;
+            indexCounter += 1;
+            break;
+          case 1:
+            absenz['dateTo'] = item;
+            indexCounter += 1;
+            break;
+          case 2:
+            absenz['reason'] = item;
+            indexCounter += 1;
+            break;
+          case 3:
+            absenz['moreInfos'] = item;
+            indexCounter += 1;
+            break;
+          case 4:
+            absenz['additionalPeriod'] = item;
+            indexCounter += 1;
+            break;
+          case 5:
+            absenz['excuse'] = item;
+            indexCounter += 1;
+            break;
+          case 6:
+            print('Item');
+            print(item);
+            absenz['lections'] =
+                item.split('ZudieserAbsenzerfasstenMeldungen')[0];
+
+            List<int> anzahlEreignisseAll = [];
+            List elementAnzahlEreignisseAll = listOfAbsence.where((element) {
+              String test = element.toString();
+
+              return test.contains('Anzahl Ereignisse');
+            }).toList();
+            print('ElementEreignisse');
+            print(elementAnzahlEreignisseAll);
+            for (int indexAnzahlEreignisseAll = 0;
+                indexAnzahlEreignisseAll < 3;
+                indexAnzahlEreignisseAll++) {
+              String itemAnzahlEreignisse =
+                  elementAnzahlEreignisseAll[indexAnzahlEreignisseAll]
+                      .values
+                      .first
+                      .replaceAll(' ', '')
+                      .split(':')[1];
+              print('itemAnzahlEreignisse');
+              print(itemAnzahlEreignisse);
+
+              anzahlEreignisseAll.add(int.parse(itemAnzahlEreignisse));
+            }
+
+            absenzenList.add(absenz);
+            absenz = {};
+
+            if ((anzahlEreignisseAll[0]) == indexAbsence) {
+              absenzen['absenzenauszug'] = absenzenList;
+              absenzenList = [];
+            }
+            indexAbsence += 1;
+            indexCounter = 0;
+            break;
+          default:
+            throw Exception(); //todo: Exception
+        }
+      }
+    }
+
+    return absenzen;
+  }
+
+  Future<void> getCalendarData() async {
+    await setNavigationPageContent(NaviPage.agenda);
+    String link = webscraper
+        .getElementAttribute('#cls_pageid_nav_21312', 'href')[0]
+        .toString();
+    print(link);
+
+    _getPageContent(buildLink(link));
+/*
+    Uri uri = Uri.parse(buildLink(link));
+    List<String> data = uri.query.split('&');
+    Map<String, String> body = {};
+
+    for (String i in data) {
+      List<String> list = i.split('=');
+      body[list[0]] = list[1];
+    }
+    print('data');
+    print(body);
+    Response response = await client.post(uri, body: body, headers: await cookies());
+    print(response.body);
+    */
   }
 
   //Schliesst den Client
