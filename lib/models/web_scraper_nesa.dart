@@ -54,13 +54,20 @@ class WebScraperNesa {
   Map<String, dynamic> absenzen = {};
   Map<String, dynamic> kontoauszug = {};
 
-  Future<Map<String, String>> cookies() async {
+  Future<Map<String, String>> cookies({bool isPathSecond = false}) async {
     String? res = _header['set-cookie'];
     print('Result');
     print(res);
     print(res!.split(';')[1].split(','));
-    phpSecurityHeader = res!.split(';')[0];
-    longCodeHeader = res.split(';')[1].split(',')[1];
+    if (!isPathSecond) {
+      phpSecurityHeader = res.split(';')[0];
+    }
+    if (isPathSecond) {
+      longCodeHeader = res.split(';')[0];
+      print(longCodeHeader);
+    } else {
+      longCodeHeader = res.split(';')[1].split(',')[1];
+    }
 
     Map<String, String> result = {
       'Accept': '*/*',
@@ -81,6 +88,7 @@ class WebScraperNesa {
       'pragma': 'no-cache',
       'x-frame-options': 'deny, expires: Mon, 26 Jul 1997 05:00:00 GMT'
     };
+    print(result);
     return result;
   } //'content-length': '90',
 
@@ -153,13 +161,18 @@ class WebScraperNesa {
     form = {"login": username, "passwort": password, "loginhash": loginhash};
 
     //Mittels Post Request werden die form Daten versendet
-    var res = await client.post(
+    Map<String, String> cookies_data = await cookies();
+
+    Response res = await client.post(
       Uri.parse('https://$host.nesa-sg.ch/index.php?pageid=1'),
-      headers: await cookies(),
+      headers: cookies_data,
       body: form,
     );
 
     //Überprüft, ob die Anfrage und Empfang erfolgreich war
+    if (res == Null) {
+      throw Exception('Response wurde nicht gesetzt');
+    }
 
     if (res.statusCode == 200) {
       _document = res.body;
@@ -194,9 +207,11 @@ class WebScraperNesa {
       List<String> list = i.split('=');
       body[list[0]] = list[1];
     }
-    
+
     var res = await client.post(uri, body: body, headers: await cookies());
     _header = res.headers;
+    print('header');
+    print(_header);
 
     var content = res.body;
     print(res.contentLength);
@@ -536,7 +551,25 @@ class WebScraperNesa {
         .toString();
     print(link);
 
-    _getPageContent(buildLink(link));
+    Uri uri = Uri.parse(buildLink(link));
+    List<String> data = uri.query.split('&');
+    print('Data');
+    print(data);
+    Map<String, String> body = {};
+
+    for (String i in data) {
+      List<String> list = i.split('=');
+      body[list[0]] = list[1];
+    }
+
+    var res = await client.post(uri,
+        body: body, headers: await cookies(isPathSecond: true));
+    print(res.contentLength);
+    _header = res.headers;
+
+    var content = res.body;
+    print(res.contentLength);
+
 /*
     Uri uri = Uri.parse(buildLink(link));
     List<String> data = uri.query.split('&');
