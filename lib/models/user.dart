@@ -12,6 +12,7 @@ enum requiredFile {
   userMarks,
   userAbsence,
   userTests,
+  userHost
 }
 
 class User {
@@ -125,7 +126,7 @@ class User {
 
   //Daten Verarbeitung -> Verwalten der Daten
 
-  static Future<File> getFile(Enum data) async {
+  static Future<File> _getFile(Enum data) async {
     String fileName = '';
     File file;
 
@@ -140,6 +141,9 @@ class User {
       case requiredFile.userDashboard:
         fileName = 'user_dashbaord.json';
         break;
+      case requiredFile.userHost:
+        fileName = 'user_host.json';
+        break;
       default:
         throw Exception('File Path does not exist');
     }
@@ -152,7 +156,7 @@ class User {
 
   static void writeInToFile(
       Map<String, dynamic> information, Enum fileEnum) async {
-    File file = await getFile(fileEnum);
+    File file = await _getFile(fileEnum);
     if (file.existsSync()) {
       file.deleteSync();
       file.createSync();
@@ -161,7 +165,7 @@ class User {
   }
 
   static Future<Map<String, dynamic>> readFile(Enum fileEnum) async {
-    File file = await getFile(fileEnum);
+    File file = await _getFile(fileEnum);
     if (!file.existsSync()) {
       throw Exception('File does not Exist'); //todo: Exception
     }

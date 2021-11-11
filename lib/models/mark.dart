@@ -4,7 +4,7 @@ class Mark {
 
   Mark({this.mark1, this.mark2});
 
-  double duoCount(double mark1, double mark2, int count1, int count2) {
+  static double duoCount(double mark1, double mark2, int count1, int count2) {
     if (mark1 < 1 || mark2 < 1) {
       throw Exception();
     }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/widgets/choose_school_widget.dart';
 
-class ChooseSchool extends StatelessWidget {
+class ChooseSchoolScreen extends StatelessWidget {
+  static const routeName = '/choose-school';
+
   Map<String, String> subDomains = {
     'Kantonsschule Heerbrugg': 'ksh',
     'Kantonsschule am Burggraben': 'ksbg',
@@ -17,10 +19,72 @@ class ChooseSchool extends StatelessWidget {
     'Berufs- und Weiterbildungszentrum Toggenburg': 'bwzt',
     'Gewerbliches Berufs- und Weiterbildungszentrum St.Gallen': 'gbs',
     'Berufs- und Weiterbildungszentrum Wil-Zuwil Weiterbildung': 'bzwuwb',
+    'Kantonsschule Wattwil': 'ksw',
+    'Kantonsschule am Brühl': 'ksb',
+    'Berufs- und Weiterbildungszentrum für Gesundheits- und Sozialberufe St.Gallen':
+        'bzgs',
+    'Berufs- und Weiterbildungszentrum Sarganserland': 'bzsl',
+    'Kantonsschule Wil': 'kswil'
   };
+
+  late List<String> subDomainsName;
+  late List<String> subDomainsSub;
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    var mediaQuery = MediaQuery.of(context).size;
+    var heightOfStatusBar = MediaQuery.of(context).padding.top;
+
+    subDomainsName = subDomains.keys.toList();
+    subDomainsSub = subDomains.values.toList();
+
+    return Scaffold(
+        backgroundColor: Theme.of(context).primaryColor,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 7),
+          child: Column(
+          
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: heightOfStatusBar,
+              ),
+              Container(
+                child: const Center(
+                    child: Text(
+                  'Wähle deine Schule aus',
+                  textScaleFactor: 1.4,
+                  style: TextStyle(color: Colors.white),
+                )),
+                height: mediaQuery.height * 0.1,
+                width: mediaQuery.width,
+              ),
+              Flexible(
+                child: ListView.builder(
+                  itemCount: subDomains.length,
+                  padding: const EdgeInsets.all(0),
+                  itemBuilder: (BuildContext context, int index) {
+                    return ChooseSchoolWidget(subDomainsName[index], subDomainsSub[index]);
+                  },
+                ),
+              ),
+            ],
+          ),
+        )
+        /*
+        Column(
+          children: [
+            const Text(
+              'Wähle deine Schule aus',
+              style: TextStyle(color: Colors.white),
+              textScaleFactor: 1.8,
+            ),
+            SizedBox(
+              height: mediaQuery.height * 0.1,
+            ),
+            
+          ],
+        ))*/
+        );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
+import 'package:ksh_app/screens/choose_school_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
+import 'package:ksh_app/screens/noten_saldo_settings_screen.dart';
 import 'package:ksh_app/screens/settings_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -68,12 +70,14 @@ class MyApp extends StatelessWidget {
           //Text Konfiguration
           textTheme:
               const TextTheme(headline6: TextStyle(color: Colors.white))),
-      home: LoginScreen(),
+      home: ChooseSchoolScreen(),
       routes: {
         LoginScreen.routeName: (ctx) => LoginScreen(),
         HomeScreen.routeName: (ctx) => HomeScreen(),
         NotenScreen.routeName: (ctx) => NotenScreen(),
         SettingsScreen.routeName: (ctx) => SettingsScreen(),
+        ChooseSchoolScreen.routeName: (ctx) => ChooseSchoolScreen(),
+        NotenSaldoSettingScreen.routeName: (ctx) => NotenSaldoSettingScreen(),
       },
     );
   }

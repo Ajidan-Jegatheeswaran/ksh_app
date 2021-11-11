@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
+import 'package:ksh_app/screens/choose_school_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/screens/noten_screen.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Map<String, dynamic> _userData = {
     'username': '',
     'password': '',
-    'host': 'ksh'
+    'host': ''
   };
 
   //File Variabeln
@@ -60,8 +61,11 @@ class _LoginScreenState extends State<LoginScreen> {
         context); // MediaQuery wird hier als Objekt in der Variabel mediaQuery gespeichert, damit es zu weniger build() aufrufen kommt -> Performance
 
     void _submit() async {
+      await User.readFile(requiredFile.userHost).then((value) => _userData['host'] = value['subdomain']);
+      print('host');
+      print(_userData['host']);
       print('Submit');
-      if (!_formKey.currentState!.validate() && _userData['host'] == '') {
+      if (!_formKey.currentState!.validate() || _userData['host'] == '') {
         throw Exception(); //todo: Exception
       }
       _formKey.currentState!.save();
@@ -81,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
       print(isUserLogin);
       if (isUserLogin) {
         print('If isLogin -> True');
-        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+        Navigator.of(context).pushNamedAndRemoveUntil(HomeScreen.routeName, ModalRoute.withName('/'));
       }
     }
 
