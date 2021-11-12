@@ -4,6 +4,7 @@ import 'dart:convert' as convert;
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
+import 'package:ksh_app/screens/your_account_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/list_tile_information_widget.dart';
 
@@ -60,11 +61,7 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.person),
-            onPressed: () {}, //TODO: Verlinkung zum ProfilScreen()
-          ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {}, //Todo: Noten hinzufügen Screen oder Bottom Sheet
+            onPressed: () => Navigator.of(context).pushReplacementNamed(YourAccountScreen.routeName), //TODO: Verlinkung zum ProfilScreen()
           ),
         ],
       ),

@@ -29,6 +29,7 @@ class WebScraperNesa {
   var loginhash = '';
   Map<String, String> form = {};
   Map<String, String> _header = {};
+  Map<String, String> body = {};
 
   //Das sind die Variabeln des Headers für den body der Post Methode
   Map<String, String> mapHeader = {};
@@ -201,7 +202,7 @@ class WebScraperNesa {
   Future<String> _getPageContent(String followingPage) async {
     Uri uri = Uri.parse(followingPage);
     List<String> data = uri.query.split('&');
-    Map<String, String> body = {};
+    body = {};
 
     for (String i in data) {
       List<String> list = i.split('=');
@@ -543,6 +544,28 @@ class WebScraperNesa {
 
     return absenzen;
   }
+
+  Future<String> getUserImageNetworkPath() async {
+    await setNavigationPageContent(NaviPage.listenUndDok);
+    String _resLink = webscraper
+        .getElementAttribute('#cls_pageid_nav_24184', 'href')[0]
+        .toString();
+    print('Schülerübersicht');
+    print(_resLink);
+    Response _response = await client.post(Uri.parse(buildLink(_resLink)),
+        body: body, headers: await cookies(isPathSecond: true));
+    
+    print('Schülerübersicht Content-Lenght');
+    print(_response.contentLength);
+
+    webscraper.loadFromString(_response.body);
+    String _resData = webscraper.getElementAttribute('img', 'src')[1].toString();
+    print(_resData);
+    String completeLink = buildLink(_resLink);
+    print(completeLink);
+    return completeLink;
+  }
+
   /*
   Future<void> getCalendarData() async {
     DateTime dateNow = DateTime.now();

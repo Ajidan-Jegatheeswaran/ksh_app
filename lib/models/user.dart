@@ -12,7 +12,8 @@ enum requiredFile {
   userMarks,
   userAbsence,
   userTests,
-  userHost
+  userHost,
+  userImage
 }
 
 class User {
@@ -144,6 +145,9 @@ class User {
       case requiredFile.userHost:
         fileName = 'user_host.json';
         break;
+      case requiredFile.userImage:
+        fileName = 'user_image.json';
+        break;
       default:
         throw Exception('File Path does not exist');
     }
@@ -195,6 +199,15 @@ class User {
     userDashboard['openAbsence'] = '0'; //todo:
     userDashboard['nextTestDate'] = '03.12.2021'; //todo:
     User.writeInToFile(userDashboard, requiredFile.userDashboard);
+
+    //Image Informationen
+    Map<String,dynamic> userImage = {};
+    
+    String imagePath=await webScraperNesa.getUserImageNetworkPath();
+    userImage['profilePicture'] = imagePath;
+    print('UserImage');
+    print(userImage);
+    User.writeInToFile(userImage, requiredFile.userImage);
 
     return webScraperNesa.isLogin();
   }

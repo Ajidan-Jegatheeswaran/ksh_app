@@ -3,7 +3,7 @@ import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:ksh_app/screens/choose_school_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/screens/noten_saldo_settings_screen.dart';
-import 'package:ksh_app/screens/settings_screen.dart';
+import 'package:ksh_app/screens/your_account_screen.dart';
 import 'package:provider/provider.dart';
 
 import './screens/login_screen.dart';
@@ -11,14 +11,14 @@ import './models/user.dart';
 import 'screens/noten_screen.dart';
 
 void main() async {
-  /*
+  
   WebScraperNesa webScraperNesa = WebScraperNesa(
       username: 'jon.stojkaj', password: '21Jonmalone?', host: 'ksh');
   await webScraperNesa.login();
   if (webScraperNesa.isLogin()) {
     print('Eingeloggt...');
   }
-  */
+  //webScraperNesa.getUserImageNetworkPath();
 
   //webScraperNesa.getCalendarData();
   runApp(MyApp());
@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.routeName: (ctx) => LoginScreen(),
         HomeScreen.routeName: (ctx) => HomeScreen(),
         NotenScreen.routeName: (ctx) => NotenScreen(),
-        SettingsScreen.routeName: (ctx) => SettingsScreen(),
+        YourAccountScreen.routeName: (ctx) => YourAccountScreen(),
         ChooseSchoolScreen.routeName: (ctx) => ChooseSchoolScreen(),
         NotenSaldoSettingScreen.routeName: (ctx) => NotenSaldoSettingScreen(),
       },
