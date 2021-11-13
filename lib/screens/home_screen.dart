@@ -4,7 +4,7 @@ import 'dart:convert' as convert;
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
-import 'package:ksh_app/screens/your_account_screen.dart';
+import 'package:ksh_app/screens/my_account_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/list_tile_information_widget.dart';
 
@@ -13,7 +13,7 @@ class HomeScreen extends StatelessWidget {
 
   Map<String, dynamic> userMarks = {};
   String userSaldo = '';
-
+  
   //ReadUserData Variabeln
   // ignore: prefer_final_fields
 
@@ -61,7 +61,7 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.person),
-            onPressed: () => Navigator.of(context).pushReplacementNamed(YourAccountScreen.routeName), //TODO: Verlinkung zum ProfilScreen()
+            onPressed: () => Navigator.of(context).pushReplacementNamed(MyAccountScreen.routeName), //TODO: Verlinkung zum ProfilScreen()
           ),
         ],
       ),

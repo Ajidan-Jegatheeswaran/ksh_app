@@ -43,7 +43,6 @@ class ChooseSchoolScreen extends StatelessWidget {
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 7),
           child: Column(
-          
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
@@ -51,11 +50,12 @@ class ChooseSchoolScreen extends StatelessWidget {
               ),
               Container(
                 child: const Center(
-                    child: Text(
-                  'Wähle deine Schule aus',
-                  textScaleFactor: 1.4,
-                  style: TextStyle(color: Colors.white),
-                )),
+                  child: Text(
+                    'Wähle deine Schule aus',
+                    textScaleFactor: 1.4,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
                 height: mediaQuery.height * 0.1,
                 width: mediaQuery.width,
               ),
@@ -64,7 +64,8 @@ class ChooseSchoolScreen extends StatelessWidget {
                   itemCount: subDomains.length,
                   padding: const EdgeInsets.all(0),
                   itemBuilder: (BuildContext context, int index) {
-                    return ChooseSchoolWidget(subDomainsName[index], subDomainsSub[index]);
+                    return ChooseSchoolWidget(
+                        subDomainsName[index], subDomainsSub[index]);
                   },
                 ),
               ),

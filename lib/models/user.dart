@@ -13,7 +13,8 @@ enum requiredFile {
   userAbsence,
   userTests,
   userHost,
-  userImage
+  userImage,
+  userInformation
 }
 
 class User {
@@ -148,6 +149,9 @@ class User {
       case requiredFile.userImage:
         fileName = 'user_image.json';
         break;
+      case requiredFile.userInformation:
+        fileName = 'user_information.json';
+        break;
       default:
         throw Exception('File Path does not exist');
     }
@@ -158,7 +162,7 @@ class User {
     return file;
   }
 
-  static void writeInToFile(
+  static Future<void> writeInToFile(
       Map<String, dynamic> information, Enum fileEnum) async {
     File file = await _getFile(fileEnum);
     if (file.existsSync()) {
@@ -191,16 +195,23 @@ class User {
 
     //Noten werden verarbeitet
     Map<String, dynamic> userMarks = await webScraperNesa.getMarksData();
-    User.writeInToFile(userMarks, requiredFile.userMarks);
+    await User.writeInToFile(userMarks, requiredFile.userMarks);
 
     //Dashboard Informationen
     Map<String, dynamic> userDashboard = {};
     userDashboard['saldo'] = saldo(userMarks);
     userDashboard['openAbsence'] = '0'; //todo:
     userDashboard['nextTestDate'] = '03.12.2021'; //todo:
-    User.writeInToFile(userDashboard, requiredFile.userDashboard);
+    await User.writeInToFile(userDashboard, requiredFile.userDashboard);
 
+    //User Informationen von der Startseite
+    Map<String,dynamic> userInformation = await webScraperNesa.getHomeData(HomePageInfo.information);
+    if(userInformation == {}){
+      throw Exception();
+    }
+    await User.writeInToFile(userInformation, requiredFile.userInformation);
     //Image Informationen
+    /*
     Map<String,dynamic> userImage = {};
     
     String imagePath=await webScraperNesa.getUserImageNetworkPath();
@@ -208,6 +219,7 @@ class User {
     print('UserImage');
     print(userImage);
     User.writeInToFile(userImage, requiredFile.userImage);
+    */
 
     return webScraperNesa.isLogin();
   }

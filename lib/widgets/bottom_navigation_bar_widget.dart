@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/screens/home_screen.dart';
+import 'package:ksh_app/screens/my_account_screen.dart';
 import 'package:ksh_app/screens/noten_screen.dart';
-import 'package:ksh_app/screens/your_account_screen.dart';
+
 
 class BottomNavigatioinBarWidget extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ class _BottomNavigatioinBarWidgetState
         Navigator.of(context).popAndPushNamed(NotenScreen.routeName);
         break;
       case 2:
-        Navigator.of(context).popAndPushNamed(YourAccountScreen.routeName);
+        Navigator.of(context).popAndPushNamed(MyAccountScreen.routeName);
     }
   }
 

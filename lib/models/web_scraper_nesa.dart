@@ -16,6 +16,8 @@ enum NaviPage {
   eSchool
 }
 
+enum HomePageInfo { information, openAbsence, newMarks }
+
 class WebScraperNesa {
   //User Daten
   final String username;
@@ -39,6 +41,9 @@ class WebScraperNesa {
   //WebScraper Objekt -> Mit diesen kann man HTML in String Form in einen Tree verwandeln und danach die einzelnen Elemente herausfiltern oder die Inhalte dessen Attribute
   WebScraper webscraper = WebScraper();
 
+  //Other Variables
+  late String _homeHtml;
+
   //Konstruktor
   WebScraperNesa(
       {@required required this.username,
@@ -55,17 +60,19 @@ class WebScraperNesa {
   Map<String, dynamic> absenzen = {};
   Map<String, dynamic> kontoauszug = {};
 
-  Future<Map<String, String>> cookies({bool isPathSecond = false}) async {
+  Future<Map<String, String>> cookies(
+      {bool isPathSecond = false, bool isNoLongCodeHeader = false}) async {
     String? res = _header['set-cookie'];
     print('Result');
     print(res);
     print(res!.split(';')[1].split(','));
     if (!isPathSecond) {
       phpSecurityHeader = res.split(';')[0];
-    }
-    if (isPathSecond) {
+    } else if (isPathSecond) {
       longCodeHeader = res.split(';')[0];
       print(longCodeHeader);
+    } else if (isNoLongCodeHeader || res.length < 2) {
+      print('Hier gibt es keinen NoLongCodeHeader');
     } else {
       longCodeHeader = res.split(';')[1].split(',')[1];
     }
@@ -177,6 +184,10 @@ class WebScraperNesa {
 
     if (res.statusCode == 200) {
       _document = res.body;
+      _homeHtml = res.body;
+      print('Home HTML Lenght');
+      print(_homeHtml.length);
+      print(res.contentLength);
       _header = res.headers;
       if (isLogin()) {
         print('Erfolgreich angemeldet...');
@@ -272,6 +283,10 @@ class WebScraperNesa {
 
       await _getPageContent(buildLink(link[0].toString())).then((val) {
         _content = val;
+        print('PageContent');
+        print(_content);
+        print('PageLenght');
+        print(_content.length);
       });
 
       return _content;
@@ -306,28 +321,47 @@ class WebScraperNesa {
     return string.trim();
   } */
 
-  void getHomeData() async {
-    await setNavigationPageContent(NaviPage.home);
+  Future<Map<String, dynamic>> getHomeData(Enum homepageInformation) async {
+    if (_homeHtml == Null) {
+      throw Exception(); //todo: Excpetion
+    }
+
+    if (!webscraper.loadFromString(_homeHtml)) {
+      throw Exception(); //todo: Exception
+    }
+    webscraper.loadFromString(_homeHtml);
+    print(_homeHtml.length);
 
     //Get all User Data
-    var listUserData =
-        webscraper.getElement('#content-card tr > td', ['style="width: ;"']);
+    var listUserData = webscraper.getElement('td', []);
 
-    print('ListUserName');
+    print('ListUserData');
     print(listUserData);
 
     String wert1 = '';
     bool isMark = false;
     int loopCounter = 1;
+    String listUserDataKey = '';
+    String listUserDataValue = '';
+    Map<String, dynamic> userInformation = {};
 
     for (Map<String, dynamic> item in listUserData) {
       String value = item.values.first;
       Map<String, String> noten = {};
-      loopCounter += 1;
 
-      if (loopCounter >= 18) {
-        break;
+      if (loopCounter < 18) {
+        if (loopCounter.isOdd) {
+          listUserDataKey = '';
+          listUserDataValue = '';
+          listUserDataKey = value;
+        } else if (loopCounter.isEven) {
+          listUserDataValue = value;
+          if (listUserDataKey != '' || listUserDataValue != '') {
+            userInformation[listUserDataKey] = listUserDataValue;
+          }
+        }
       }
+      //todo: getHomeAlgo
 
       if (wert1 == '') {
         wert1 = value;
@@ -335,16 +369,16 @@ class WebScraperNesa {
         homeData[wert1] = value;
         wert1 = '';
       }
+      loopCounter += 1;
     }
-    listOpenAbsenzHome =
-        webscraper.getElement('#content-card > div > div:nth-child(6)', []);
-    listNotConfirmedMarksHome =
-        webscraper.getElement('#content-card > div > div:nth-child(7)', []);
-    print('ListNewMarks');
-    print(listNotConfirmedMarksHome);
-
-    print('HomeData');
-    print(homeData);
+    switch (homepageInformation) {
+      case HomePageInfo.information:
+        print('UserInformation');
+        print(userInformation);
+        return userInformation;
+      default:
+        return {};
+    }
   }
 
   Future<Map<String, dynamic>> getMarksData() async {
@@ -545,6 +579,7 @@ class WebScraperNesa {
     return absenzen;
   }
 
+/*
   Future<String> getUserImageNetworkPath() async {
     await setNavigationPageContent(NaviPage.listenUndDok);
     String _resLink = webscraper
@@ -553,19 +588,20 @@ class WebScraperNesa {
     print('Schülerübersicht');
     print(_resLink);
     Response _response = await client.post(Uri.parse(buildLink(_resLink)),
-        body: body, headers: await cookies(isPathSecond: true));
-    
+        body: body, headers: await cookies(isNoLongCodeHeader: true));
+
     print('Schülerübersicht Content-Lenght');
     print(_response.contentLength);
 
     webscraper.loadFromString(_response.body);
-    String _resData = webscraper.getElementAttribute('img', 'src')[1].toString();
+    String _resData =
+        webscraper.getElementAttribute('img', 'src')[1].toString();
     print(_resData);
     String completeLink = buildLink(_resLink);
     print(completeLink);
     return completeLink;
   }
-
+*/
   /*
   Future<void> getCalendarData() async {
     DateTime dateNow = DateTime.now();
