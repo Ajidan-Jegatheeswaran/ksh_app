@@ -1,10 +1,17 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:ksh_app/models/user.dart';
+import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/list_tile_information_section_widget.dart';
+import 'package:ksh_app/widgets/list_tile_setting_widget.dart';
 
 class MyAccountScreen extends StatelessWidget {
   static const routeName = '/my-account';
+
+  void logout(){
+    
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +23,24 @@ class MyAccountScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Mein Konto'),
         backgroundColor: Theme.of(context).primaryColor,
+        actions: [IconButton(onPressed: (){}, icon: const Icon(Icons.logout))],
       ),
+      bottomNavigationBar: BottomNavigatioinBarWidget(),
       body: FutureBuilder(
+        future: User.readFile(requiredFile.userInformation),
         builder: (ctx, snap) {
+          if (snap.data == Null) {
+            return const CircularProgressIndicator(
+              color: Colors.white,
+            );
+          }
+          print(snap.data);
+          print(snap);
+          Map<String, dynamic> _map = snap.data as Map<String, dynamic>;
+
           return SingleChildScrollView(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(
                   height: 10,
@@ -28,11 +48,11 @@ class MyAccountScreen extends StatelessWidget {
                 const Center(
                   child: CircleAvatar(
                     //backgroundImage: AssetImage('assets/images/user_profile.jpg'),
-                    radius: 90,
+                    radius: 60,
                     backgroundColor: Colors.blueGrey,
                     child: Icon(
                       Icons.person,
-                      size: 100,
+                      size: 70,
                       color: Colors.white,
                     ),
                   ),
@@ -40,8 +60,8 @@ class MyAccountScreen extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                const Text(
-                  'Felix Mustermann',
+                Text(
+                  _map['Name'],
                   style: TextStyle(color: Colors.white),
                   textScaleFactor: 1.9,
                 ),
@@ -51,7 +71,8 @@ class MyAccountScreen extends StatelessWidget {
                 Container(
                   width: mediaQuery.width - 30,
                   color: Theme.of(context).colorScheme.secondary,
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                   child: Column(
                     children: [
                       const Text(
@@ -59,9 +80,37 @@ class MyAccountScreen extends StatelessWidget {
                         style: TextStyle(color: Colors.white),
                         textScaleFactor: 1.5,
                       ),
-                      //Flexible(child: ListView.builder(itemBuilder: ListTileInformationSectionWidget()))
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: _map.length,
+                        itemBuilder: (ctx, index) {
+                          if (index == 0) {
+                            return const SizedBox(
+                              height: 0,
+                              width: 0,
+                            );
+                          }
+                          return Column(
+                            children: [
+                              ListTileInformationSectionWidget(
+                                  _map.keys.toList()[index],
+                                  _map.values.toList()[index]),
+                              const SizedBox(
+                                height: 4,
+                              )
+                            ],
+                          );
+                        },
+                      )
                     ],
                   ),
+                ),
+                const SizedBox(
+                  height: 15,
                 ),
               ],
             ),

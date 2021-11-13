@@ -7,11 +7,18 @@ class ChooseSchoolScreen extends StatelessWidget {
   Map<String, String> subDomains = {
     'Kantonsschule Heerbrugg': 'ksh',
     'Kantonsschule am Burggraben': 'ksbg',
+    'Kantonsschule Wil': 'kswil',
+    'Kantonsschule Wattwil': 'ksw',
+    'Kantonsschule am Brühl': 'ksb',
+    'Kantonsschule Sargans': 'kss',
+
+    //todo: Sobald es für die Kantonschulen funktioniert, kann es auf die Berufsschulen erweitert werden
+    /*
     'Interstaatliche Maturitätsschule für Erwachsene': 'isme',
     'Berufs- und Weiterbildungszentrum Rorschach-Rheintal': 'brz',
     'Amt für Berufsbildung': 'zentrale',
-    'Kantonsschule Sargans': 'kss',
-    'Berufs- und Weiterbildungszentrum Buch': 'bzb',
+    
+    'Berufs- und Weiterbildungszentrum Buchs': 'bzb',
     'Berufs- und Weiterbildungszentrum Rapperswil-Jona': 'bwzr',
     'Berufs- und Weiterbildungszentrum für Gesundheits- und Sozialberufe':
         'bzgshf',
@@ -19,12 +26,11 @@ class ChooseSchoolScreen extends StatelessWidget {
     'Berufs- und Weiterbildungszentrum Toggenburg': 'bwzt',
     'Gewerbliches Berufs- und Weiterbildungszentrum St.Gallen': 'gbs',
     'Berufs- und Weiterbildungszentrum Wil-Zuwil Weiterbildung': 'bzwuwb',
-    'Kantonsschule Wattwil': 'ksw',
-    'Kantonsschule am Brühl': 'ksb',
+    
     'Berufs- und Weiterbildungszentrum für Gesundheits- und Sozialberufe St.Gallen':
         'bzgs',
     'Berufs- und Weiterbildungszentrum Sarganserland': 'bzsl',
-    'Kantonsschule Wil': 'kswil'
+    */
   };
 
   late List<String> subDomainsName;

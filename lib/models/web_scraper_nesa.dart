@@ -349,7 +349,7 @@ class WebScraperNesa {
       String value = item.values.first;
       Map<String, String> noten = {};
 
-      if (loopCounter < 18) {
+      if (loopCounter < 16) {
         if (loopCounter.isOdd) {
           listUserDataKey = '';
           listUserDataValue = '';
@@ -477,6 +477,99 @@ class WebScraperNesa {
           break;
       }
     }
+
+    listMarks = webscraper.getElement('tr>td>table>tbody>tr>td', []);
+    print('ListOfMarks');
+    print(listMarks);
+
+    Map<String, dynamic> marksOfSubjects = {};
+    List<Map<String, dynamic>> listMarksOfSubjects = [];
+    int listMarksCounter = 0;
+    int listMarksCounterMap = 0;
+    int status = 0;
+    String date = '';
+    String topic = '';
+    String valuation = '';
+    String weighting = '';
+    bool durchschnitt = false;
+    for (var i in listMarks) {
+      if(durchschnitt){
+        durchschnitt = false;
+        continue;
+      }
+      String item = i.values.first.toString().replaceAll(' ', '');
+      print('Item');
+      print(item);
+      if (item.contains('Datum')) {
+        status = 0;
+        listMarksCounter = 0;
+        continue;
+      } else if (item.contains('Thema') || item.contains('Bewertung')) {
+        print('Neues Thema');
+        listMarksCounter = 0;
+        continue;
+      } else if (item.contains('Gewichtung')) {
+        status = 1;
+        listMarksCounter = 0;
+        continue;
+      }
+
+      if (status == 1) {
+        switch (listMarksCounter) {
+          case 0:
+            date = item;
+            listMarksCounter++;
+            break;
+          case 1:
+            topic = item;
+            listMarksCounter++;
+            break;
+          case 2:
+            valuation = item;
+            print(item);
+            listMarksCounter++;
+            break;
+          case 3:
+            weighting = item;
+            listMarksOfSubjects.add({
+              'date': date,
+              'topic': topic,
+              'valuation': valuation,
+              'weighting': weighting
+            });
+            listMarksCounter++;
+            break;
+          case 4:
+            
+            if (item.contains('AktuellerDurchschnitt:')) {
+              listMarksCounter = 0;
+              date = '';
+              topic = '';
+              valuation = '';
+              weighting = '';
+              durchschnitt = true;
+            } else {
+              date = item;
+              listMarksCounter = 1;
+            }
+
+            break;
+          case 5:
+            print('Case 6 storing...');
+            marksOfSubjects[noten.keys
+                .toList()[listMarksCounterMap]
+                .toString()] = listMarksOfSubjects;
+            listMarksOfSubjects = [];
+            listMarksCounter = 0;
+            listMarksCounterMap++;
+            break;
+        }
+      }
+    }
+
+    print('MarksOfSubjects');
+    print(marksOfSubjects);
+
     print('Noten Map zum Schluss');
     print(noten);
     return noten;

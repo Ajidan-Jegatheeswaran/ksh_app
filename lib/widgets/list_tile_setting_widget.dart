@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ListTileSettingWiget extends StatefulWidget {
-  const ListTileSettingWiget({Key? key}) : super(key: key);
+  final String title;
+
+  ListTileSettingWiget(this.title);
   
 
   @override
@@ -15,11 +17,12 @@ class _ListTileSettingWigetState extends State<ListTileSettingWiget> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
+      color: Theme.of(context).primaryColor,
       child: SwitchListTile(
         activeTrackColor: Colors.white,
         activeColor: Colors.white,
-        inactiveTrackColor: Theme.of(context).primaryColor,
-        inactiveThumbColor: Theme.of(context).primaryColor,
+        inactiveTrackColor: Theme.of(context).colorScheme.secondary,
+        inactiveThumbColor: Theme.of(context).colorScheme.secondary,
         tileColor: Theme.of(context).colorScheme.secondary,
         onChanged: (bool value) {
           setState(() {
@@ -27,7 +30,7 @@ class _ListTileSettingWigetState extends State<ListTileSettingWiget> {
           });
         },
         value: _isNotensaldoSelected,
-        title: const Text('Notensaldo', style: TextStyle(color: Colors.white)),
+        title: Text(widget.title, style: TextStyle(color: Colors.white)),
         
       ),
     );

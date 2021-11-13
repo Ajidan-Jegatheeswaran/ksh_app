@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:ksh_app/screens/choose_school_screen.dart';
+import 'package:ksh_app/screens/detail_noten_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/screens/my_account_screen.dart';
 import 'package:ksh_app/screens/noten_saldo_settings_screen.dart';
@@ -11,17 +12,16 @@ import './models/user.dart';
 import 'screens/noten_screen.dart';
 
 void main() async {
-  /*
+  
   WebScraperNesa webScraperNesa = WebScraperNesa(
       username: 'jon.stojkaj', password: '21Jonmalone?', host: 'ksh');
   await webScraperNesa.login();
   if (webScraperNesa.isLogin()) {
     print('Eingeloggt...');
-  }*/
-  //webScraperNesa.getUserImageNetworkPath();
+  }
+  webScraperNesa.getMarksData();
 
-  //webScraperNesa.getCalendarData();
-  runApp(MyApp());
+  //runApp(MyApp());
   //debugShowCheckedModeBanner: true;
 }
 
@@ -80,6 +80,7 @@ class MyApp extends StatelessWidget {
         MyAccountScreen.routeName: (ctx) => MyAccountScreen(),
         ChooseSchoolScreen.routeName: (ctx) => ChooseSchoolScreen(),
         NotenSaldoSettingScreen.routeName: (ctx) => NotenSaldoSettingScreen(),
+        DetailNotenScreen.routeName: (ctx) => DetailNotenScreen(),
       },
     );
   }
