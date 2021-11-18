@@ -5,15 +5,14 @@ import 'package:ksh_app/screens/not_relevant_marks_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/duo_note_erstellen_select_widget.dart';
 
-class NotenSaldoSettingScreen extends StatefulWidget {
+class DuoNotenScreen extends StatefulWidget {
   static const routeName = '/noten-saldo-settings';
 
   @override
-  State<NotenSaldoSettingScreen> createState() =>
-      _NotenSaldoSettingScreenState();
+  State<DuoNotenScreen> createState() => _DuoNotenScreenState();
 }
 
-class _NotenSaldoSettingScreenState extends State<NotenSaldoSettingScreen> {
+class _DuoNotenScreenState extends State<DuoNotenScreen> {
   @override
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(context).size;
@@ -74,8 +73,8 @@ class _NotenSaldoSettingScreenState extends State<NotenSaldoSettingScreen> {
                                   var a = await User.readFile(
                                       requiredFile.userDuoMarks);
                                   print(a);
-                                  Navigator.of(context).pushNamed(
-                                      NotenSaldoSettingScreen.routeName);
+                                  Navigator.of(context)
+                                      .pushNamed(DuoNotenScreen.routeName);
                                 },
                               ),
                             );
@@ -302,9 +301,8 @@ class _NotenSaldoSettingScreenState extends State<NotenSaldoSettingScreen> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        DuoMark.delete(
-                                            DuoMark.mapFromJson(
-                                                duoMarks)[index]);
+                                        DuoMark.delete(DuoMark.mapFromJson(
+                                            duoMarks)[index]);
                                       });
                                     },
                                   ),

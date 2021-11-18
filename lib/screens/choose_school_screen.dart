@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:ksh_app/widgets/choose_school_widget.dart';
+import '../models/user.dart';
 
 class ChooseSchoolScreen extends StatelessWidget {
   static const routeName = '/choose-school';
@@ -35,6 +38,10 @@ class ChooseSchoolScreen extends StatelessWidget {
 
   late List<String> subDomainsName;
   late List<String> subDomainsSub;
+
+  void main(List<String> args) async {
+    
+  }
 
   @override
   Widget build(BuildContext context) {

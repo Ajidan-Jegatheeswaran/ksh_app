@@ -3,7 +3,7 @@ import 'package:ksh_app/models/subject.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/screens/detail_noten_screen.dart';
 import 'package:ksh_app/screens/my_account_screen.dart';
-import 'package:ksh_app/screens/noten_saldo_settings_screen.dart';
+import 'package:ksh_app/screens/duo_noten_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 
 class NotenScreen extends StatelessWidget {
@@ -22,7 +22,7 @@ class NotenScreen extends StatelessWidget {
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(NotenSaldoSettingScreen.routeName);
+                Navigator.of(context).pushNamed(DuoNotenScreen.routeName);
               },
               icon: const Icon(Icons.settings))
         ],

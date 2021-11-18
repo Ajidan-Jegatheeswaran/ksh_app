@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
@@ -6,29 +8,50 @@ import 'package:ksh_app/screens/detail_noten_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/screens/my_account_screen.dart';
 import 'package:ksh_app/screens/not_relevant_marks_screen.dart';
-import 'package:ksh_app/screens/noten_saldo_settings_screen.dart';
+import 'package:ksh_app/screens/duo_noten_screen.dart';
 import 'package:ksh_app/widgets/duo_note_erstellen_select_widget.dart';
+import 'package:path_provider/path_provider.dart';
 
 import './screens/login_screen.dart';
 import 'screens/noten_screen.dart';
 
 void main() async {
   /*
-  WebScraperNesa webScraperNesa = WebScraperNesa(
-      username: 'jon.stojkaj', password: '21Jonmalone?', host: 'ksh');
+  var login = LoginScreen();
+  
+  bool isLogin = false;
+  try {
+    File login = await User.getFile(requiredFile.userLogin);
+    File host = await User.getFile(requiredFile.userHost);
+    if (login.existsSync() && host.existsSync()) {
+      Map<String, dynamic> loginData =
+          await User.readFile(requiredFile.userLogin);
+      Map<String, dynamic> hostData =
+          await User.readFile(requiredFile.userHost);
+      WebScraperNesa webScraperNesa = WebScraperNesa(
+          username: loginData['username'],
+          password: loginData['password'],
+          host: hostData['subdomain']);
+      isLogin = await User.getUserData(webScraperNesa);
+    }
+  } on Exception {
+    runApp(MyApp(false));
+  }
+  /*
+  
   await webScraperNesa.login();
   if (webScraperNesa.isLogin()) {
     print('Eingeloggt...');
   }*/
   //await User.getUserData(webScraperNesa);
-  
-
+  */
   runApp(MyApp());
   //debugShowCheckedModeBanner: true;
 }
 
 // ignore: use_key_in_widget_constructors
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -81,7 +104,7 @@ class MyApp extends StatelessWidget {
         NotenScreen.routeName: (ctx) => NotenScreen(),
         MyAccountScreen.routeName: (ctx) => MyAccountScreen(),
         ChooseSchoolScreen.routeName: (ctx) => ChooseSchoolScreen(),
-        NotenSaldoSettingScreen.routeName: (ctx) => NotenSaldoSettingScreen(),
+        DuoNotenScreen.routeName: (ctx) => DuoNotenScreen(),
         DetailNotenScreen.routeName: (ctx) => DetailNotenScreen(),
         NotRelevantMarksScreen.routeName: (ctx) => NotRelevantMarksScreen()
       },

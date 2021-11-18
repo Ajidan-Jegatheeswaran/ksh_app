@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
+import 'package:ksh_app/screens/duo_noten_screen.dart';
+import 'package:ksh_app/screens/not_relevant_marks_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/list_tile_information_section_widget.dart';
 import 'package:ksh_app/widgets/list_tile_setting_widget.dart';
@@ -9,9 +11,7 @@ import 'package:ksh_app/widgets/list_tile_setting_widget.dart';
 class MyAccountScreen extends StatelessWidget {
   static const routeName = '/my-account';
 
-  void logout(){
-    
-  }
+  void logout() {}
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +23,13 @@ class MyAccountScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Mein Konto'),
         backgroundColor: Theme.of(context).primaryColor,
-        actions: [IconButton(onPressed: (){}, icon: const Icon(Icons.logout))],
+        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.logout))],
       ),
       bottomNavigationBar: BottomNavigatioinBarWidget(),
       body: FutureBuilder(
         future: User.readFile(requiredFile.userInformation),
         builder: (ctx, snap) {
-          if (snap.data == Null) {
+          if (snap.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator(
               color: Colors.white,
             );
@@ -67,6 +67,35 @@ class MyAccountScreen extends StatelessWidget {
                 ),
                 const SizedBox(
                   height: 30,
+                ),
+                Container(
+                  width: mediaQuery.width - 30,
+                  color: Theme.of(context).colorScheme.secondary,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Einstellungen',
+                        style: TextStyle(color: Colors.white),
+                        textScaleFactor: 1.5,
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Column(
+                        children: [
+                          ListTileForSettings(
+                              'Duo Noten', DuoNotenScreen.routeName),
+                          ListTileForSettings(
+                              'Nicht relevante Noten', NotRelevantMarksScreen.routeName)
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
                 ),
                 Container(
                   width: mediaQuery.width - 30,
@@ -117,6 +146,45 @@ class MyAccountScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class ListTileForSettings extends StatelessWidget {
+  final title;
+  var navigator;
+
+  ListTileForSettings(this.title, this.navigator);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          color: Theme.of(context).primaryColor,
+          child: ListTile(
+            onTap: () {
+              Navigator.pushNamed(context, navigator);
+            },
+            title: Text(
+              title,
+              style: const TextStyle(color: Colors.white),
+              textScaleFactor: 1.1,
+            ),
+            trailing: IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, navigator);
+                },
+                icon: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                )),
+          ),
+        ),
+        SizedBox(
+          height: 5,
+        )
+      ],
     );
   }
 }

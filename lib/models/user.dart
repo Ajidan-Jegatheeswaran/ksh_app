@@ -59,11 +59,37 @@ class User {
   }
 
   //Saldo wird berechnet
-  static String saldo(Map<String, dynamic> userMarks) {
+  static Future<String> saldo(Map<String, dynamic> userMarks) async {
     List<double> noten = [];
     double saldo = 0;
 
-    for (dynamic i in userMarks.values) {
+    
+    Map<String, dynamic> _userDuoMarks =
+        await User.readFile(requiredFile.userDuoMarks);
+
+    List<String> alreadyDoneDuoMarks = [];
+
+    for (Map<String, dynamic> i in userMarks.values) {
+      /*
+      if (i['relevant'] == true) {
+        continue;
+      }
+      for (String item in _userDuoMarks.keys) {
+        if (item.contains(i['Fach'])) {
+          print('Duo Noten im Saldo...');
+          print(i['Fach']);
+
+          double sum = double.parse(_userDuoMarks[item].keys.first['Note']) +
+              double.parse(_userDuoMarks[item].values.first['Note']);
+          print('Saldo Duo Note Summe = ' + sum.toString());
+          double notenschnitt = sum / 2;
+          print('Notenschnitt = ' + notenschnitt.toString());
+        }else{
+          print('Das ist keine Duo Note: '+ i['Fach']);
+        }
+      }
+      */
+
       String stringMark =
           i.toString().split(',')[1].split(':')[1].replaceAll(' ', '');
       if (stringMark == '--') {
@@ -129,7 +155,7 @@ class User {
 
   //Daten Verarbeitung -> Verwalten der Daten
 
-  static Future<File> _getFile(Enum data) async {
+  static Future<File> getFile(Enum data) async {
     String fileName = '';
     File file;
 
@@ -166,10 +192,9 @@ class User {
     return file;
   }
 
-  static Future<void> 
-  writeInToFile(
+  static Future<void> writeInToFile(
       Map<String, dynamic> information, Enum fileEnum) async {
-    File file = await _getFile(fileEnum);
+    File file = await getFile(fileEnum);
     if (file.existsSync()) {
       file.deleteSync();
       file.createSync();
@@ -178,13 +203,13 @@ class User {
   }
 
   static Future<Map<String, dynamic>> readFile(Enum fileEnum) async {
-    File file = await _getFile(fileEnum);
+    File file = await getFile(fileEnum);
     if (!file.existsSync()) {
       throw Exception('File does not Exist'); //todo: Exception
     }
     print('ReadFile');
     print(file.readAsStringSync());
-    if(file.readAsStringSync() == Null || file.readAsStringSync() == ''){
+    if (file.readAsStringSync() == Null || file.readAsStringSync() == '') {
       return {};
     }
     print('File String');
@@ -211,7 +236,8 @@ class User {
 
     //Dashboard Informationen
     Map<String, dynamic> userDashboard = {};
-    userDashboard['saldo'] = saldo(userMarks);
+    userDashboard['saldo'] = await saldo(userMarks);
+    print('Absence Data');
     userDashboard['openAbsence'] = '0'; //todo:
     userDashboard['nextTestDate'] = '03.12.2021'; //todo:
     await User.writeInToFile(userDashboard, requiredFile.userDashboard);

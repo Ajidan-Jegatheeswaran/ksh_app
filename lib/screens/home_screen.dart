@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:ksh_app/screens/my_account_screen.dart';
-import 'package:ksh_app/screens/noten_saldo_settings_screen.dart';
+import 'package:ksh_app/screens/duo_noten_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/list_tile_information_widget.dart';
 
@@ -53,7 +53,7 @@ class HomeScreen extends StatelessWidget {
         ),
       );
     }
-
+  
     return Scaffold(
       bottomNavigationBar: BottomNavigatioinBarWidget(),
       appBar: AppBar(
@@ -62,7 +62,7 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).pushReplacementNamed(NotenSaldoSettingScreen.routeName), //TODO: Verlinkung zum ProfilScreen()
+            onPressed: () => Navigator.of(context).pushReplacementNamed(DuoNotenScreen.routeName), //TODO: Verlinkung zum ProfilScreen()
           ),
         ],
       ),

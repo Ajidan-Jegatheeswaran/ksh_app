@@ -2,7 +2,7 @@ import 'dart:convert' as convert;
 
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
-import 'package:ksh_app/screens/noten_saldo_settings_screen.dart';
+import 'package:ksh_app/screens/duo_noten_screen.dart';
 
 class DuoMark {
   final Map<String, dynamic> firstSubject;
@@ -75,14 +75,38 @@ class DuoMark {
     }*/
     Map<String, dynamic> data = await User.readFile(requiredFile.userDuoMarks);
     data.addAll({
-      firstSubject['Fach'] +
-              secondSubject['Fach']:
+      firstSubject['Fach'] + secondSubject['Fach']:
           DuoMark(firstSubject, secondSubject).toJson()
     });
+    /*
+    Map<String, dynamic> sub1 = {};
+    Map<String, dynamic> sub2 = {};
 
+    Map<String, dynamic> marks = await User.readFile(requiredFile.userMarks);
+    List<Map<String, dynamic>> list =
+        marks.values.toList() as List<Map<String, dynamic>>;
+    Map<String, dynamic> newMapMarks = {};
+    List newValues = [];
+    for (Map<String, dynamic> i in marks.values) {
+      bool isDuoNote = false;
+      if (i['Fach'] == firstSubject['Fach'] ||
+          i['Fach'] == secondSubject['Fach']) {
+        isDuoNote = true;
+      }
+      i['isDuoNote'] = isDuoNote;
+      newValues.add(i);
+    }
+    for (var i = 0; i < marks.length; i++) {
+      newMapMarks[marks.keys.toList()[i]] = newValues[i];
+    }
+    print('NewMapMarks Duo Mark');
+    print(newMapMarks);
+    User.writeInToFile(newMapMarks, requiredFile.userMarks);
+    */
     print('Add new Duo Mark...');
     print(data);
-    User.writeInToFile(data, requiredFile.userDuoMarks);
+    await User.writeInToFile(data, requiredFile.userDuoMarks);
+    
   }
 
   static void delete(String subjectNames) async {
@@ -110,7 +134,7 @@ class DuoMark {
 
     if (objectFound1 || objectFound2) {
       print('Objekt erfolgreich entfernt...');
-    }else{
+    } else {
       print('Objekte konnte nicht entfernt werden...');
     }
   }
