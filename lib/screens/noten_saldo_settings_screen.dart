@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:ksh_app/models/duo_mark.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/screens/not_relevant_marks_screen.dart';
+import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/duo_note_erstellen_select_widget.dart';
 
-class NotenSaldoSettingScreen extends StatelessWidget {
+class NotenSaldoSettingScreen extends StatefulWidget {
   static const routeName = '/noten-saldo-settings';
 
+  @override
+  State<NotenSaldoSettingScreen> createState() =>
+      _NotenSaldoSettingScreenState();
+}
+
+class _NotenSaldoSettingScreenState extends State<NotenSaldoSettingScreen> {
   @override
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(context).size;
@@ -16,7 +23,7 @@ class NotenSaldoSettingScreen extends StatelessWidget {
       int _groupValue = 1;
 
       void showDialogChooseSubjectSecond(
-          Map<String,dynamic> lastSubject, Map<String, dynamic> marks) {
+          Map<String, dynamic> lastSubject, Map<String, dynamic> marks) {
         showDialog(
           context: context,
           builder: (ctx) {
@@ -64,8 +71,11 @@ class NotenSaldoSettingScreen extends StatelessWidget {
                                 tileColor: Theme.of(context).primaryColor,
                                 onTap: () async {
                                   DuoMark.add(lastSubject, subject, context);
-                                  var a  = await User.readFile(requiredFile.userDuoMarks);
+                                  var a = await User.readFile(
+                                      requiredFile.userDuoMarks);
                                   print(a);
+                                  Navigator.of(context).pushNamed(
+                                      NotenSaldoSettingScreen.routeName);
                                 },
                               ),
                             );
@@ -144,128 +154,173 @@ class NotenSaldoSettingScreen extends StatelessWidget {
       return selectedMark;
     }
 
+    Future<Map<String, dynamic>> userData() async {
+      Map<String, dynamic> userMarks =
+          await User.readFile(requiredFile.userMarks);
+      Map<String, dynamic> userDuoMarks =
+          await User.readFile(requiredFile.userDuoMarks);
+      return {'marks': userMarks, 'duoMarks': userDuoMarks};
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
-        title: const Text('Notensaldo Einstellungen'),
+        title: const Text('Duo Noten'),
         backgroundColor: Theme.of(context).primaryColor,
       ),
+      bottomNavigationBar: BottomNavigatioinBarWidget(),
       body: FutureBuilder(
-          future: User.readFile(requiredFile.userMarks),
-          builder: (ctx, snap) {
-            Map<String, dynamic> marks = {};
-            try {
-              marks = snap.data as Map<String, dynamic>;
-              print('mARKS');
-              print(marks);
-            } catch (Exception) {
-              print('Oh Exception');
-            }
-            return Padding(
-              padding: const EdgeInsets.all(15),
-              child: SingleChildScrollView(
-                child: Container(
-                  color: Theme.of(context).colorScheme.secondary,
-                  width: mediaQuery.width - 30,
-                  height: mediaQuery.height * 0.5,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Duo Noten',
-                            style: TextStyle(color: Colors.white),
-                            textScaleFactor: 1.3,
-                          ),
-                          IconButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (ctx) {
-                                    mediaQuery = MediaQuery.of(context).size;
-                                    return Dialog(
-                                      backgroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                      insetPadding: const EdgeInsets.only(
-                                          left: 15,
-                                          right: 15,
-                                          top: 140,
-                                          bottom: 140),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(40),
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(30),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+        future: userData(),
+        builder: (ctx, snap) {
+          Map<String, dynamic> marks = {};
+          Map<String, dynamic> duoMarks = {};
+          try {
+            Map<String, dynamic> _userData = snap.data as Map<String, dynamic>;
+            marks = _userData['marks'] as Map<String, dynamic>;
+            duoMarks = _userData['duoMarks'] as Map<String, dynamic>;
+            print('mARKS');
+            print(marks);
+          } catch (Exception) {
+            print('Oh Exception');
+          }
+          return Padding(
+            padding: const EdgeInsets.all(15),
+            child: SingleChildScrollView(
+              child: Container(
+                color: Theme.of(context).colorScheme.secondary,
+                width: mediaQuery.width - 30,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Duo Noten',
+                          style: TextStyle(color: Colors.white),
+                          textScaleFactor: 1.3,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) {
+                                mediaQuery = MediaQuery.of(context).size;
+                                return Dialog(
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.secondary,
+                                  insetPadding: const EdgeInsets.only(
+                                      left: 15,
+                                      right: 15,
+                                      top: 140,
+                                      bottom: 140),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(40),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(30),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
                                           children: [
-                                            Column(
-                                              children: [
-                                                Container(
-                                                  //todo: Farbe für Container einstellen und ListTile Farben zu primary machen
-                                                  width: mediaQuery.width - 30,
-                                                  child: const Center(
-                                                    child: Text(
-                                                      'Duo Note erstellen',
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                      textScaleFactor: 1.3,
-                                                    ),
-                                                  ),
+                                            Container(
+                                              //todo: Farbe für Container einstellen und ListTile Farben zu primary machen
+                                              width: mediaQuery.width - 30,
+                                              child: const Center(
+                                                child: Text(
+                                                  'Duo Note erstellen',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                  textScaleFactor: 1.3,
                                                 ),
-                                                const Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 15,
-                                                      vertical: 30),
-                                                  child: Text(
-                                                    'Manche Noten zählen zusammen für den Notensaldo '
-                                                    'und für kannst du hier eine Duo Note erstellen. Beispielsweise Musik(4.5) und'
-                                                    ' BG(3.75) zählen zusammen. D.h. zusammen gibt das einen Schnitt von 4.25, welcher einen '
-                                                    'halben Plus für den Notensaldo einbringt. ',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                    textScaleFactor: 1.2,
-                                                  ),
-                                                )
-                                              ],
+                                              ),
                                             ),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                showDialogChooseSubject(marks);
-                                              },
-                                              child: const Text('Erstellen'),
-                                              style: ButtonStyle(
-                                                  backgroundColor:
-                                                      MaterialStateProperty.all(
-                                                          Colors.blue)),
-                                            ),
+                                            const Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 15, vertical: 30),
+                                              child: Text(
+                                                'Manche Noten zählen zusammen für den Notensaldo '
+                                                'und für kannst du hier eine Duo Note erstellen. Beispielsweise Musik(4.5) und'
+                                                ' BG(3.75) zählen zusammen. D.h. zusammen gibt das einen Schnitt von 4.25, welcher einen '
+                                                'halben Plus für den Notensaldo einbringt. ',
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                                textScaleFactor: 1.2,
+                                              ),
+                                            )
                                           ],
                                         ),
-                                      ),
-                                    );
-                                  },
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            showDialogChooseSubject(marks);
+                                          },
+                                          child: const Text('Erstellen'),
+                                          style: ButtonStyle(
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.blue)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 );
                               },
-                              icon: const Icon(
-                                Icons.add,
-                                color: Colors.white,
-                              ))
-                        ],
-                      ),
-                      //ListView.builder(itemBuilder: ) todo: ListView builder mit Noten, welche alle als Duo Noten gelten
-                    ],
-                  ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: duoMarks.length,
+                        itemBuilder: (ctx, index) {
+                          return Column(
+                            children: [
+                              Container(
+                                color: Theme.of(context).primaryColor,
+                                child: ListTile(
+                                  title: Text(
+                                    DuoMark.mapFromJson(duoMarks)[index],
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        DuoMark.delete(
+                                            DuoMark.mapFromJson(
+                                                duoMarks)[index]);
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 10)
+                            ],
+                          );
+                        })
+                  ],
                 ),
               ),
-            );
-          }),
+            ),
+          );
+        },
+      ),
     );
   }
 }

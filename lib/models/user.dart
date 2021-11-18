@@ -166,7 +166,8 @@ class User {
     return file;
   }
 
-  static Future<void> writeInToFile(
+  static Future<void> 
+  writeInToFile(
       Map<String, dynamic> information, Enum fileEnum) async {
     File file = await _getFile(fileEnum);
     if (file.existsSync()) {
@@ -181,6 +182,13 @@ class User {
     if (!file.existsSync()) {
       throw Exception('File does not Exist'); //todo: Exception
     }
+    print('ReadFile');
+    print(file.readAsStringSync());
+    if(file.readAsStringSync() == Null || file.readAsStringSync() == ''){
+      return {};
+    }
+    print('File String');
+    print(file.readAsStringSync());
     Map<String, dynamic> data = convert.jsonDecode(file.readAsStringSync());
     return data;
   }

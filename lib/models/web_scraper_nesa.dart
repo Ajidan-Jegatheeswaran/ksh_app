@@ -201,8 +201,8 @@ class WebScraperNesa {
         print('isRedirect');
         print(res.isRedirect);
       }
-      throw Exception(
-          'Status Code ist nicht 200, sondern ' + res.statusCode.toString());
+
+      throw Exception('Nutzeranfrage war nicht erfolgreich');
     }
   }
 
@@ -493,7 +493,7 @@ class WebScraperNesa {
     String weighting = '';
     bool durchschnitt = false;
     for (var i in listMarks) {
-      if(durchschnitt){
+      if (durchschnitt) {
         durchschnitt = false;
         continue;
       }
@@ -540,7 +540,6 @@ class WebScraperNesa {
             listMarksCounter++;
             break;
           case 4:
-            
             if (item.contains('AktuellerDurchschnitt:')) {
               listMarksCounter = 0;
               date = '';

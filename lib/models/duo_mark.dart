@@ -1,4 +1,4 @@
-import 'dart:ffi';
+import 'dart:convert' as convert;
 
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
@@ -22,9 +22,43 @@ class DuoMark {
     return isTrue;
   }
 
+  Map<String, dynamic> toJson() {
+    return {firstSubject.toString(): secondSubject.toString()};
+  }
+
+  static List<String> mapFromJson(Map<String, dynamic> map) {
+    List listDuoMarks = map.values.toList();
+    print('listDuoMarks');
+    print(listDuoMarks);
+    List listS1 = [];
+    List listS2 = [];
+    List<String> listObjectOfDuoMark = [];
+    for (var i in listDuoMarks) {
+      listS1.add(i.keys.first
+          .toString()
+          .replaceAll('{Fach: ', '')
+          .replaceAll('}', '')
+          .split(',')[0]);
+    }
+    for (Map i in listDuoMarks) {
+      listS2.add(i.values.first
+          .toString()
+          .replaceAll('{Fach: ', '')
+          .replaceAll('}', '')
+          .split(',')[0]);
+    }
+    for (var i = 0; i < listS1.length; i++) {
+      listObjectOfDuoMark.add(listS1[i] + ' + ' + listS2[i]);
+    }
+
+    print('listObjectOfDuoMark');
+    print(listObjectOfDuoMark);
+    return listObjectOfDuoMark;
+  }
+
   static Future<void> add(Map<String, dynamic> firstSubject,
       Map<String, dynamic> secondSubject, BuildContext context) async {
-    List exist = await DuoMark.isExist(DuoMark(firstSubject, secondSubject));
+    /*List exist = await DuoMark.isExist(DuoMark(firstSubject, secondSubject));
     if (exist[0] || exist[1]) {
       showDialog(
           context: context,
@@ -38,22 +72,46 @@ class DuoMark {
                       child: Text('Verstanden'))
                 ],
               )); //todo: Das noch testen
-    }
+    }*/
     Map<String, dynamic> data = await User.readFile(requiredFile.userDuoMarks);
-    data[firstSubject['Fach'] + secondSubject['Fach']] =
-        DuoMark(firstSubject, secondSubject);
+    data.addAll({
+      firstSubject['Fach'] +
+              secondSubject['Fach']:
+          DuoMark(firstSubject, secondSubject).toJson()
+    });
+
     print('Add new Duo Mark...');
     print(data);
     User.writeInToFile(data, requiredFile.userDuoMarks);
   }
 
-  Future<void> delete(DuoMark d) async {
+  static void delete(String subjectNames) async {
     Map<String, dynamic> data = await User.readFile(requiredFile.userDuoMarks);
-    if (data.keys.contains(d.firstSubject['Fach'] + d.secondSubject['Fach'])) {
-      data.remove(d.firstSubject['Fach'] + d.secondSubject['Fach']);
-    } else if (data.keys
-        .contains(d.secondSubject['Fach'] + d.firstSubject['Fach'])) {
-      data.remove(d.secondSubject['Fach'] + d.firstSubject['Fach']);
+    print('Data Delete');
+    print(data);
+    String firstSubjectName = subjectNames.split(' + ')[0];
+    print('deleteFirstName');
+    print(firstSubjectName);
+    String secondSubjectName = subjectNames.split(' + ')[1];
+    print('deleteSecondName');
+    print(secondSubjectName);
+    bool objectFound1 = false;
+    bool objectFound2 = false;
+
+    data.remove(firstSubjectName + secondSubjectName) == Null
+        ? objectFound1 = false
+        : objectFound1 = true;
+
+    data.remove(secondSubjectName + firstSubjectName) == Null
+        ? objectFound2 = false
+        : objectFound2 = true;
+
+    User.writeInToFile(data, requiredFile.userDuoMarks);
+
+    if (objectFound1 || objectFound2) {
+      print('Objekt erfolgreich entfernt...');
+    }else{
+      print('Objekte konnte nicht entfernt werden...');
     }
   }
 

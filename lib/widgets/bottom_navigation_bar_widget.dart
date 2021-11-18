@@ -15,13 +15,13 @@ class _BottomNavigatioinBarWidgetState
   void _tabSelected(int index) {
     switch (index) {
       case 0:
-        Navigator.of(context).popAndPushNamed(HomeScreen.routeName);
+        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
         break;
       case 1:
-        Navigator.of(context).popAndPushNamed(NotenScreen.routeName);
+        Navigator.of(context).pushReplacementNamed(NotenScreen.routeName);
         break;
       case 2:
-        Navigator.of(context).popAndPushNamed(MyAccountScreen.routeName);
+        Navigator.of(context).pushReplacementNamed(MyAccountScreen.routeName);
     }
   }
 
