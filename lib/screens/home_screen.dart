@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:ksh_app/screens/my_account_screen.dart';
+import 'package:ksh_app/screens/noten_saldo_settings_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/list_tile_information_widget.dart';
 
@@ -60,8 +61,8 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).primaryColor,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () => Navigator.of(context).pushReplacementNamed(MyAccountScreen.routeName), //TODO: Verlinkung zum ProfilScreen()
+            icon: const Icon(Icons.settings),
+            onPressed: () => Navigator.of(context).pushReplacementNamed(NotenSaldoSettingScreen.routeName), //TODO: Verlinkung zum ProfilScreen()
           ),
         ],
       ),

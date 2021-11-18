@@ -14,7 +14,8 @@ enum requiredFile {
   userTests,
   userHost,
   userImage,
-  userInformation
+  userInformation,
+  userDuoMarks
 }
 
 class User {
@@ -152,6 +153,9 @@ class User {
       case requiredFile.userInformation:
         fileName = 'user_information.json';
         break;
+      case requiredFile.userDuoMarks:
+        fileName = 'user_duo_marks.json';
+        break;
       default:
         throw Exception('File Path does not exist');
     }
@@ -205,8 +209,9 @@ class User {
     await User.writeInToFile(userDashboard, requiredFile.userDashboard);
 
     //User Informationen von der Startseite
-    Map<String,dynamic> userInformation = await webScraperNesa.getHomeData(HomePageInfo.information);
-    if(userInformation == {}){
+    Map<String, dynamic> userInformation =
+        await webScraperNesa.getHomeData(HomePageInfo.information);
+    if (userInformation == {}) {
       throw Exception();
     }
     await User.writeInToFile(userInformation, requiredFile.userInformation);
