@@ -614,59 +614,6 @@ class WebScraperNesa {
     }
   }
 
-  Future<void> getCalendarData() async {
-    DateTime dateNow = DateTime.now();
-    String currentDate = dateNow.year.toString() +
-        '-' +
-        dateNow.month.toString() +
-        '-' +
-        dateNow.day.toString();
-    print(currentDate);
-
-    await setNavigationPageContent(NaviPage.agenda);
-    String link = webscraper
-        .getElementAttribute('#cls_pageid_nav_21312', 'href')[0]
-        .toString();
-    print(link);
-
-    Uri uri = Uri.parse('https://$host.nesa-sg.ch/scheduler_processor.php?');
-    Uri uriQuery = Uri.parse(buildLink(link));
-    List<String> data = uriQuery.query.split('&');
-    print('Date2');
-    print(data);
-    data.add('ansicht=klassenuebersicht');
-    data.add('view=grid');
-    data.add('curr_date=' + currentDate);
-    if (dateNow.month >= 8 && dateNow.month <= 2) {
-      data.add('min_date=2021-09-15');
-      data.add('max_date=2022-01-31');
-    } else {
-      data.add('min_date=2022-01-31');
-      data.add('max_date=2021-09-15');
-    }
-
-    print('Data');
-    print(data);
-    Map<String, String> body = {};
-
-    for (String i in data) {
-      List<String> list = i.split('=');
-      body[list[0]] = list[1];
-    }
-
-    var res = await client.post(uri,
-        body: body, headers: await cookies(isPathSecond: true));
-    print(res.contentLength);
-    _header = res.headers;
-
-    var content = res.body;
-    print(res.contentLength);
-
-    webscraper.loadFromString(res.body);
-
-    print(res.body);
-  }
-
   Future<Map<String, dynamic>> getAbsenceData() async {
     await setNavigationPageContent(NaviPage.absenzen);
 
@@ -805,4 +752,66 @@ class WebScraperNesa {
 
   //Schliesst den Client
   void closeClient() => client.close();
+
+  getCalendarData() async {
+    DateTime dateNow = DateTime.now();
+    String currentDate = dateNow.year.toString() +
+        '-' +
+        dateNow.month.toString() +
+        '-' +
+        dateNow.day.toString();
+    print(currentDate);
+
+    await setNavigationPageContent(NaviPage.agenda);
+    String link = webscraper
+        .getElementAttribute('#cls_pageid_nav_21312', 'href')[0]
+        .toString();
+    print(link);
+
+    Uri uriQuery = Uri.parse(buildLink(link));
+    List<String> data = uriQuery.query.split('&');
+    print('Date2');
+    print(data);
+    data.add('ansicht=klassenuebersicht');
+    data.add('view=grid');
+    data.add('curr_date=' + currentDate);
+    data.add('pageid=21312');
+    if (dateNow.month >= 8 && dateNow.month <= 2) {
+      data.add('min_date=2021-09-15');
+      data.add('max_date=2022-01-31');
+    } else {
+      data.add('min_date=2022-01-31');
+      data.add('max_date=2021-09-15');
+    }
+
+    print('Data');
+    print(data);
+    Map<String, String> body = {};
+
+    for (int j = 0; j < 3; j++) {
+      String i = data[j];
+      List<String> list = i.split('=');
+      body[list[0]] = list[1];
+    }
+    print('Body Calendar');
+    print(body);
+
+    String url = 'https://$host.nesa-sg.ch/scheduler_processor.php?';
+    for (String item in data) {
+      url += item;
+    }
+    Uri uri = Uri.parse(url);
+
+    var res = await client.post(uri,
+        body: body, headers: await cookies(isPathSecond: true));
+    print(res.contentLength);
+    _header = res.headers;
+
+    var content = res.body;
+    print(res.contentLength);
+
+    webscraper.loadFromString(res.body);
+
+    print(res.body);
+  }
 }

@@ -17,9 +17,7 @@ import 'screens/noten_screen.dart';
 
 void main() async {
   WebScraperNesa webScraperNesa = WebScraperNesa(
-          username: 'jon.stojkaj',
-          password: '21Jonmalone?',
-          host: 'ksh');
+      username: 'jon.stojkaj', password: '21Jonmalone?', host: 'ksh');
   /*
   WebScraperNesa webScraperNesa = WebScraperNesa(
           username: 'haesan.ashokarasan',
@@ -27,8 +25,9 @@ void main() async {
           host: 'ksh');
           */
   await webScraperNesa.login();
+  await webScraperNesa.getCalendarData();
   //await webScraperNesa.getAllMark();
-  
+
   /*
   var login = LoginScreen();
   
