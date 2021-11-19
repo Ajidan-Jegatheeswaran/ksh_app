@@ -1,5 +1,7 @@
 // ignore_for_file: unrelated_type_equality_checks
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -478,100 +480,191 @@ class WebScraperNesa {
       }
     }
 
-    listMarks = webscraper.getElement('tr>td>table>tbody>tr>td', []);
-    print('ListOfMarks');
+    print('Noten Map zum Schluss');
+    print(noten);
+    return noten;
+  }
+
+  Future<void> getAllMark() async {
+    //Facher werden aus getMarksData geladen und die Fächer Namen werden in eine Liste importiert
+    Map<String, dynamic> marks = await getMarksData();
+
+    print('Marks in All Marks');
+    print(marks);
+    List<String> markNames = [];
+    for (var i in marks.values) {
+      String res = i
+          .toString()
+          .replaceAll('{', '')
+          .replaceAll('{', '')
+          .split(',')[0]
+          .split(': ')[1];
+
+      markNames.add(res);
+    }
+    print('MarkNames');
+    print(markNames);
+
+    //td Elemente, welche unteranderm die Einzelnoten der Fächer enthalten werden herausgefiltert
+    List listMarks = webscraper.getElement('tr>td>table>tbody>tr>td', []);
+    print("Alle td's vom Html Code");
     print(listMarks);
 
-    Map<String, dynamic> marksOfSubjects = {};
-    List<Map<String, dynamic>> listMarksOfSubjects = [];
-    int listMarksCounter = 0;
-    int listMarksCounterMap = 0;
-    int status = 0;
-    String date = '';
-    String topic = '';
-    String valuation = '';
-    String weighting = '';
-    bool durchschnitt = false;
-    for (var i in listMarks) {
-      if (durchschnitt) {
-        durchschnitt = false;
-        continue;
-      }
-      String item = i.values.first.toString().replaceAll(' ', '');
-      print('Item');
-      print(item);
-      if (item.contains('Datum')) {
-        status = 0;
-        listMarksCounter = 0;
-        continue;
-      } else if (item.contains('Thema') || item.contains('Bewertung')) {
-        print('Neues Thema');
-        listMarksCounter = 0;
-        continue;
-      } else if (item.contains('Gewichtung')) {
-        status = 1;
-        listMarksCounter = 0;
-        continue;
-      }
+    //Die gebrauchten Daten werden herausgenommen und die Liste titleListMarks gespeichert
+    List titleListMarks = [];
+    for (var item in listMarks) {
+      titleListMarks.add(item
+          .toString()
+          .replaceAll('{', '')
+          .replaceAll('}', '')
+          .split(',')[0]
+          .split(': ')[1]);
+    }
+    print('TitleListMarks');
+    print(titleListMarks);
 
-      if (status == 1) {
-        switch (listMarksCounter) {
+    //Alle Listen Elemente, welche 'Datum', 'Thema', 'Bewertung', und 'Gewichtung' enthalten werden entfert.
+    //Und an dieser Stelle wird der Fach Name eingefügt
+    int counterSubjectsTitleListMarks = 0;
+    for (int index = 0; index < titleListMarks.length; index++) {
+      String cache = titleListMarks[index];
+
+      titleListMarks.remove('');
+      titleListMarks.remove('Bewertung');
+      titleListMarks.remove('Datum');
+      titleListMarks.remove('Thema');
+    }
+    print('TitleListMarks after Subject eingefügt');
+    print(titleListMarks);
+    counterSubjectsTitleListMarks = 0;
+    for (int j = 0; j < titleListMarks.length; j++) {
+      var i = titleListMarks[j];
+      if (i.contains('Gewichtung')) {
+        print('Gewichtung wurde gefunden...');
+        titleListMarks[j] = markNames[counterSubjectsTitleListMarks];
+        counterSubjectsTitleListMarks++;
+      }
+    }
+
+    print('TitleListMarks after Subject eingefügt');
+    print(titleListMarks);
+
+    //Es wird eine Map erstellt bei dem der Key Wert der Name des Faches ist und der Value Wert eine List von Noten mit den jeweiligen Zusatzinformation wie Datum, Thema,...
+    counterSubjectsTitleListMarks = 0;
+
+    bool isSubjectStart = false;
+    String currentSubject = '';
+    String nextSubject = '';
+    counterSubjectsTitleListMarks = 0;
+    int switchCounter = 0;
+
+    Map<String, dynamic> _subjects = {};
+    Map<String, dynamic> _subject = {};
+    List _listSubjects = [];
+
+    bool aktuellerDurchschnitt = false;
+
+    //Prüfung
+    for (int k = 0; k < titleListMarks.length; k++) {
+      if (aktuellerDurchschnitt) {
+        aktuellerDurchschnitt = false;
+        continue;
+      }
+      String item = titleListMarks[k];
+      if (item.contains('Aktueller Durchschnitt:')) {
+        aktuellerDurchschnitt = true;
+        continue;
+      }
+      if (item.contains(markNames[counterSubjectsTitleListMarks])) {
+        currentSubject = markNames[counterSubjectsTitleListMarks];
+        nextSubject = markNames[counterSubjectsTitleListMarks + 1];
+        counterSubjectsTitleListMarks++;
+        isSubjectStart = true;
+      } else if (isSubjectStart) {
+        if (!item.contains(nextSubject)) {
+          isSubjectStart = false;
+          _subjects[currentSubject] = _subject;
+          print(_subjects);
+        }
+        switch (switchCounter) {
           case 0:
-            date = item;
-            listMarksCounter++;
+            _subject['date'] = item;
+            switchCounter++;
             break;
           case 1:
-            topic = item;
-            listMarksCounter++;
+            _subject['topic'] = item;
+            switchCounter++;
             break;
           case 2:
-            valuation = item;
-            print(item);
-            listMarksCounter++;
+            _subject['valuation'] = item
+                .replaceAll(' ', '')
+                .replaceAll('DetailszurNotePunkte', '')
+                .replaceAll(' ', '');
+            switchCounter++;
             break;
           case 3:
-            weighting = item;
-            listMarksOfSubjects.add({
-              'date': date,
-              'topic': topic,
-              'valuation': valuation,
-              'weighting': weighting
-            });
-            listMarksCounter++;
-            break;
-          case 4:
-            if (item.contains('AktuellerDurchschnitt:')) {
-              listMarksCounter = 0;
-              date = '';
-              topic = '';
-              valuation = '';
-              weighting = '';
-              durchschnitt = true;
-            } else {
-              date = item;
-              listMarksCounter = 1;
-            }
-
-            break;
-          case 5:
-            print('Case 6 storing...');
-            marksOfSubjects[noten.keys
-                .toList()[listMarksCounterMap]
-                .toString()] = listMarksOfSubjects;
-            listMarksOfSubjects = [];
-            listMarksCounter = 0;
-            listMarksCounterMap++;
+            _subject['weighting'] = item;
+            switchCounter = 0;
+            _listSubjects.add(_subject);
+            print('Subject Map');
+            print(_subject);
             break;
         }
       }
     }
+  }
 
-    print('MarksOfSubjects');
-    print(marksOfSubjects);
+  Future<void> getCalendarData() async {
+    DateTime dateNow = DateTime.now();
+    String currentDate = dateNow.year.toString() +
+        '-' +
+        dateNow.month.toString() +
+        '-' +
+        dateNow.day.toString();
+    print(currentDate);
 
-    print('Noten Map zum Schluss');
-    print(noten);
-    return noten;
+    await setNavigationPageContent(NaviPage.agenda);
+    String link = webscraper
+        .getElementAttribute('#cls_pageid_nav_21312', 'href')[0]
+        .toString();
+    print(link);
+
+    Uri uri = Uri.parse('https://$host.nesa-sg.ch/scheduler_processor.php?');
+    Uri uriQuery = Uri.parse(buildLink(link));
+    List<String> data = uriQuery.query.split('&');
+    print('Date2');
+    print(data);
+    data.add('ansicht=klassenuebersicht');
+    data.add('view=grid');
+    data.add('curr_date=' + currentDate);
+    if (dateNow.month >= 8 && dateNow.month <= 2) {
+      data.add('min_date=2021-09-15');
+      data.add('max_date=2022-01-31');
+    } else {
+      data.add('min_date=2022-01-31');
+      data.add('max_date=2021-09-15');
+    }
+
+    print('Data');
+    print(data);
+    Map<String, String> body = {};
+
+    for (String i in data) {
+      List<String> list = i.split('=');
+      body[list[0]] = list[1];
+    }
+
+    var res = await client.post(uri,
+        body: body, headers: await cookies(isPathSecond: true));
+    print(res.contentLength);
+    _header = res.headers;
+
+    var content = res.body;
+    print(res.contentLength);
+
+    webscraper.loadFromString(res.body);
+
+    print(res.body);
   }
 
   Future<Map<String, dynamic>> getAbsenceData() async {
@@ -694,50 +787,6 @@ class WebScraperNesa {
     return completeLink;
   }
 */
-  /*
-  Future<void> getCalendarData() async {
-    DateTime dateNow = DateTime.now();
-    String currentDate = dateNow.year.toString() +
-        '-' +
-        dateNow.month.toString() +
-        '-' +
-        dateNow.day.toString();
-    print(currentDate);
-
-    await setNavigationPageContent(NaviPage.agenda);
-    String link = webscraper
-        .getElementAttribute('#cls_pageid_nav_21312', 'href')[0]
-        .toString();
-    print(link);
-
-    Uri uri = Uri.parse('https://$host.nesa-sg.ch/scheduler_processor.php?');
-    Uri uriQuery = Uri.parse(buildLink(link));
-    List<String> data = uriQuery.query.split('&');
-    print('Date2');
-    print(data);
-    data.add('ansicht=klassenuebersicht');
-    data.add('view=grid');
-    print('Data');
-    print(data);
-    Map<String, String> body = {};
-
-    for (String i in data) {
-      List<String> list = i.split('=');
-      body[list[0]] = list[1];
-    }
-
-    var res = await client.post(uri,
-        body: body, headers: await cookies(isPathSecond: true));
-    print(res.contentLength);
-    _header = res.headers;
-
-    var content = res.body;
-    print(res.contentLength);
-
-    webscraper.loadFromString(res.body);
-
-    print(res.body);
-
 
 /*
     Uri uri = Uri.parse(buildLink(link));
@@ -753,7 +802,6 @@ class WebScraperNesa {
     Response response = await client.post(uri, body: body, headers: await cookies());
     print(response.body);
     */
-  }*/
 
   //Schliesst den Client
   void closeClient() => client.close();

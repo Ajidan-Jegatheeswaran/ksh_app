@@ -16,6 +16,19 @@ import './screens/login_screen.dart';
 import 'screens/noten_screen.dart';
 
 void main() async {
+  WebScraperNesa webScraperNesa = WebScraperNesa(
+          username: 'jon.stojkaj',
+          password: '21Jonmalone?',
+          host: 'ksh');
+  /*
+  WebScraperNesa webScraperNesa = WebScraperNesa(
+          username: 'haesan.ashokarasan',
+          password: 'Haesan2021.',
+          host: 'ksh');
+          */
+  await webScraperNesa.login();
+  //await webScraperNesa.getAllMark();
+  
   /*
   var login = LoginScreen();
   
@@ -45,13 +58,12 @@ void main() async {
   }*/
   //await User.getUserData(webScraperNesa);
   */
-  runApp(MyApp());
+  //runApp(MyApp());
   //debugShowCheckedModeBanner: true;
 }
 
 // ignore: use_key_in_widget_constructors
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

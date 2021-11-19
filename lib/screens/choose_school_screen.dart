@@ -39,9 +39,7 @@ class ChooseSchoolScreen extends StatelessWidget {
   late List<String> subDomainsName;
   late List<String> subDomainsSub;
 
-  void main(List<String> args) async {
-    
-  }
+  void main(List<String> args) async {}
 
   @override
   Widget build(BuildContext context) {

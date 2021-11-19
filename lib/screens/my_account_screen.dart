@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
+import 'package:ksh_app/screens/choose_school_screen.dart';
 import 'package:ksh_app/screens/duo_noten_screen.dart';
 import 'package:ksh_app/screens/not_relevant_marks_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
@@ -23,7 +24,17 @@ class MyAccountScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Mein Konto'),
         backgroundColor: Theme.of(context).primaryColor,
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.logout))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                User.deleteAppDir();
+
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    ChooseSchoolScreen.routeName,
+                    (Route<dynamic> route) => false);
+              },
+              icon: const Icon(Icons.logout))
+        ],
       ),
       bottomNavigationBar: BottomNavigatioinBarWidget(),
       body: FutureBuilder(
@@ -87,8 +98,8 @@ class MyAccountScreen extends StatelessWidget {
                         children: [
                           ListTileForSettings(
                               'Duo Noten', DuoNotenScreen.routeName),
-                          ListTileForSettings(
-                              'Nicht relevante Noten', NotRelevantMarksScreen.routeName)
+                          ListTileForSettings('Nicht relevante Noten',
+                              NotRelevantMarksScreen.routeName)
                         ],
                       )
                     ],

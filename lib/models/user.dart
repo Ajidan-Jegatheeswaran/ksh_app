@@ -262,4 +262,14 @@ class User {
 
     return webScraperNesa.isLogin();
   }
+  //_deleteAppDir() wurde aus StackOverFlow kopiert -> https://stackoverflow.com/questions/62547759/how-to-implement-flutter-clear-user-app-data-and-storage-on-logout
+  static Future<void> deleteAppDir() async {
+    final appDir = await getApplicationSupportDirectory();
+
+    if (appDir.existsSync()) {
+      appDir.deleteSync(recursive: true);
+    }
+  }
+
+
 }
