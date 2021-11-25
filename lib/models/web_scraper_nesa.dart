@@ -63,7 +63,9 @@ class WebScraperNesa {
   Map<String, dynamic> kontoauszug = {};
 
   Future<Map<String, String>> cookies(
-      {bool isPathSecond = false, bool isNoLongCodeHeader = false}) async {
+      {bool isPathSecond = false,
+      bool isNoLongCodeHeader = false,
+      bool isCalendar = false}) async {
     String? res = _header['set-cookie'];
     print('Result');
     print(res);
@@ -98,6 +100,28 @@ class WebScraperNesa {
       'pragma': 'no-cache',
       'x-frame-options': 'deny, expires: Mon, 26 Jul 1997 05:00:00 GMT'
     };
+    if (isCalendar) {
+      Map<String, String> result = {
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'de,de-DE;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        'Cache-Control': _header['cache-control'] as String,
+        'Connection': 'keep-alive',
+        'Cookie': 'layout-size=md;' +
+            phpSecurityHeader +
+            '; path=/,' +
+            longCodeHeader +
+            '; Path=/; Domain=.nesa-sg.ch',
+        'Host': '$host.nesa-sg.ch',
+        'User-Agent': 'Dart/2.14 (dart:io)',
+        'date': 'Sun, 17 Oct 2021 19:44:14 GMT',
+        'strict-transport-security':
+            'max-age=31536000; includeSubDomains; preload',
+        'pragma': 'no-cache',
+        'x-frame-options': 'deny, expires: Mon, 26 Jul 1997 05:00:00 GMT',
+        'X-Requested-With': 'XMLHttpRequest'
+      };
+    }
     print(result);
     return result;
   } //'content-length': '90',
@@ -566,6 +590,9 @@ class WebScraperNesa {
 
     //Prüfung
     for (int k = 0; k < titleListMarks.length; k++) {
+      if(counterSubjectsTitleListMarks == markNames.length){
+        break;
+      }
       if (aktuellerDurchschnitt) {
         aktuellerDurchschnitt = false;
         continue;
@@ -575,17 +602,30 @@ class WebScraperNesa {
         aktuellerDurchschnitt = true;
         continue;
       }
+      
+
       if (item.contains(markNames[counterSubjectsTitleListMarks])) {
+        _subjects[currentSubject.toString()] = _listSubjects;
+        print('currentSubject');
+        print(currentSubject);
+        _subject = {};
+
+        print('Subjects');
+        print(_subjects);
+
         currentSubject = markNames[counterSubjectsTitleListMarks];
-        nextSubject = markNames[counterSubjectsTitleListMarks + 1];
+        if ((counterSubjectsTitleListMarks + 1) != markNames.length) {
+          print('Lenght');
+          print(counterSubjectsTitleListMarks);
+          print(titleListMarks.length);
+          nextSubject = markNames[counterSubjectsTitleListMarks + 1];
+        } else {
+          nextSubject = '';
+        }
         counterSubjectsTitleListMarks++;
+        _listSubjects = [];
         isSubjectStart = true;
       } else if (isSubjectStart) {
-        if (!item.contains(nextSubject)) {
-          isSubjectStart = false;
-          _subjects[currentSubject] = _subject;
-          print(_subjects);
-        }
         switch (switchCounter) {
           case 0:
             _subject['date'] = item;
@@ -608,10 +648,13 @@ class WebScraperNesa {
             _listSubjects.add(_subject);
             print('Subject Map');
             print(_subject);
+            _subject = {};
             break;
         }
       }
     }
+    print('Subject End');
+    print(_subjects);
   }
 
   Future<Map<String, dynamic>> getAbsenceData() async {
@@ -711,7 +754,6 @@ class WebScraperNesa {
     return absenzen;
   }
 
-/*
   Future<String> getUserImageNetworkPath() async {
     await setNavigationPageContent(NaviPage.listenUndDok);
     String _resLink = webscraper
@@ -733,7 +775,6 @@ class WebScraperNesa {
     print(completeLink);
     return completeLink;
   }
-*/
 
 /*
     Uri uri = Uri.parse(buildLink(link));
@@ -773,9 +814,9 @@ class WebScraperNesa {
     print('Date2');
     print(data);
     data.add('ansicht=klassenuebersicht');
-    data.add('view=grid');
+    data.add('view=month');
     data.add('curr_date=' + currentDate);
-    data.add('pageid=21312');
+    data.add('showOnlyThisClass=-2');
     if (dateNow.month >= 8 && dateNow.month <= 2) {
       data.add('min_date=2021-09-15');
       data.add('max_date=2022-01-31');
@@ -783,6 +824,7 @@ class WebScraperNesa {
       data.add('min_date=2022-01-31');
       data.add('max_date=2021-09-15');
     }
+    data.add('timeshift=-60');
 
     print('Data');
     print(data);
@@ -794,16 +836,35 @@ class WebScraperNesa {
       body[list[0]] = list[1];
     }
     print('Body Calendar');
-    print(body);
+    print(data);
 
     String url = 'https://$host.nesa-sg.ch/scheduler_processor.php?';
     for (String item in data) {
       url += item;
+      if (item != 'timeshift=-60') {
+        url += '&';
+      }
     }
+    String i1 = '';
+    String i2 = '';
+    for (String i in data) {
+      if (i1 == '') {
+        i1 = i;
+      } else {
+        i2 = i;
+        body[i1] = i2;
+        i1 = '';
+        i2 = '';
+      }
+    }
+    print('Body Data');
+    print(body);
+    print(url);
+    print(await cookies());
     Uri uri = Uri.parse(url);
-
     var res = await client.post(uri,
-        body: body, headers: await cookies(isPathSecond: true));
+        body: body,
+        headers: await cookies(isPathSecond: true, isCalendar: true));
     print(res.contentLength);
     _header = res.headers;
 

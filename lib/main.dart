@@ -16,16 +16,19 @@ import './screens/login_screen.dart';
 import 'screens/noten_screen.dart';
 
 void main() async {
-  WebScraperNesa webScraperNesa = WebScraperNesa(
+  /*WebScraperNesa webScraperNesa = WebScraperNesa(
       username: 'jon.stojkaj', password: '21Jonmalone?', host: 'ksh');
-  /*
+      */
+
   WebScraperNesa webScraperNesa = WebScraperNesa(
-          username: 'haesan.ashokarasan',
-          password: 'Haesan2021.',
-          host: 'ksh');
-          */
+      username: 'haesan.ashokarasan', password: 'Haesan2021.', host: 'ksh');
+
   await webScraperNesa.login();
-  await webScraperNesa.getCalendarData();
+
+  await webScraperNesa.getAllMark();
+  //await webScraperNesa.login();
+  //await webScraperNesa.getAllMark();
+  //print(await webScraperNesa.getCalendarData());
   //await webScraperNesa.getAllMark();
 
   /*

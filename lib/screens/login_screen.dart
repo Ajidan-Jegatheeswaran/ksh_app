@@ -80,22 +80,23 @@ class _LoginScreenState extends State<LoginScreen> {
             username: _userData['username'].toString(),
             password: _userData['password'].toString(),
             host: _userData['host'].toString());
-
-        if(webScraper.isLogin()){
-          setState(() {
-            _isLoading = true;
-          });
-        }
+        setState(() {
+          _isLoading = true;
+        });
 
         bool isUserLogin = await User.getUserData(webScraper);
 
         print(isUserLogin);
         if (isUserLogin) {
+          _isLoading = false;
           print('If isLogin -> True');
           Navigator.of(context).pushNamedAndRemoveUntil(
               HomeScreen.routeName, ModalRoute.withName('/'));
         }
       } on Exception {
+        setState(() {
+          _isLoading = false;
+        });
         showDialog(
             context: context,
             builder: (ctx) {
@@ -162,7 +163,14 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     return _isLoading
-        ? const Center(child: CircularProgressIndicator())
+        ? Container(
+          width: mediaQuery.size.width,
+          height: mediaQuery.size.height,
+          color: Theme.of(context).primaryColor,
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
         : Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Theme.of(context).primaryColor,
