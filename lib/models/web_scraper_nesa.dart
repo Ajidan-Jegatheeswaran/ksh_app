@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:ksh_app/models/user.dart';
 import 'package:web_scraper/web_scraper.dart';
 
 enum NaviPage {
@@ -397,11 +398,127 @@ class WebScraperNesa {
       }
       loopCounter += 1;
     }
+    print('Td Länge');
+    print(listUserData.length);
+    print(listUserData);
+    print('Open Absence Print');
+    Map<String, dynamic> _map = await User.readFile(requiredFile.userDashboard);
+
+    int numOpenAbsence = int.parse(_map['openAbsence']);
+    print('NumOpenAbsence');
+    print(numOpenAbsence);
+    int _counterNewMarks = 0;
+    int _counterNewMarks2 = 0;
+    int _counterNewMarks3 = 0;
+    Map<String, dynamic> newMark = {};
+    Map<String, dynamic> allNewMarks = {};
+
+    //Variablen für Absenzen
+    Map<String, dynamic> openAbsence = {};
+    Map<String, dynamic> openAbsences = {};
+    int _counterOpenAbsence = 0;
+    int _counterOpenAbsence2 = 0;
+
+    for (var i in listUserData) {
+      if (_counterNewMarks <= (15)) {
+        print(_counterNewMarks);
+        print('Schleife wurde übersprungen');
+        print(i);
+        _counterNewMarks++;
+        continue;
+      }
+      String item = i['title'].toString();
+
+      
+      if (_counterNewMarks > 15 &&
+          _counterNewMarks < ((3 * numOpenAbsence) + 16)) {
+        print(_counterNewMarks);
+        print('Offene ABsenzen');
+        print(item);
+
+        switch (_counterOpenAbsence) {
+          case 0:
+            openAbsence['from'] = item;
+            print('from');
+            print(item);
+            _counterOpenAbsence++;
+            break;
+          case 1:
+            openAbsence['to'] = item;
+            print('to');
+            print(item);
+            _counterOpenAbsence++;
+            break;
+          case 2:
+            openAbsence['deadline'] = item;
+            print('to');
+            print(item);
+            openAbsences[_counterOpenAbsence2.toString()] = openAbsence;
+            print('OpenAbsences');
+            print(openAbsences);
+            openAbsence = {};
+            _counterOpenAbsence = 0;
+            _counterOpenAbsence2++;
+
+            break;
+        }
+
+        _counterNewMarks++;
+
+        continue;
+      }
+      print('OpenAbsences');
+      print(openAbsences);
+
+      print(_counterNewMarks);
+      print('item NewMark');
+      print(item);
+      switch (_counterNewMarks2) {
+        case 0:
+          newMark['title'] = item;
+          _counterNewMarks2++;
+          break;
+
+        case 1:
+          newMark['testName'] = item;
+          _counterNewMarks2++;
+          break;
+
+        case 2:
+          newMark['date'] = item;
+          _counterNewMarks2++;
+          break;
+
+        case 3:
+          newMark['valuation'] = item;
+
+          allNewMarks[_counterNewMarks3.toString()] = newMark;
+          newMark = {};
+          _counterNewMarks++;
+          _counterNewMarks2 = 0;
+          _counterNewMarks3++;
+          break;
+      }
+
+      _counterNewMarks++;
+    }
+
     switch (homepageInformation) {
       case HomePageInfo.information:
         print('UserInformation');
         print(userInformation);
         return userInformation;
+
+      case HomePageInfo.newMarks:
+        print('UserNewMarks');
+        print(allNewMarks);
+        return allNewMarks;
+
+      case HomePageInfo.openAbsence:
+        print('UserOpenAbsences');
+        print(openAbsences);
+        return openAbsences;
+
       default:
         return {};
     }

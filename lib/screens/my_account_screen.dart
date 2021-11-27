@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
+import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:ksh_app/screens/choose_school_screen.dart';
 import 'package:ksh_app/screens/duo_noten_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
@@ -173,6 +174,7 @@ class ListTileForSettings extends StatelessWidget {
   var navigator;
 
   ListTileForSettings(this.title, this.navigator);
+
 
   @override
   Widget build(BuildContext context) {

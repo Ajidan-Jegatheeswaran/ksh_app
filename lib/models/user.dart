@@ -16,7 +16,9 @@ enum requiredFile {
   userImage,
   userInformation,
   userDuoMarks,
-  userAllMarks
+  userAllMarks,
+  userNewMarks,
+  userOpenAbsences
 }
 
 class User {
@@ -60,7 +62,6 @@ class User {
   WebScraperNesa get getWebScraper {
     return webScraperNesa;
   }
-
 
   //Saldo wird berechnet
   static Future<List<String>> saldo(Map<String, dynamic> userMarks) async {
@@ -169,7 +170,8 @@ class User {
     print(_notendurchschnittValue);
     print(_counterNotenDurchschnitt);
     print((_notendurchschnittValue / _counterNotenDurchschnitt).toString());
-    double notendurchschnitt = (_notendurchschnittValue / _counterNotenDurchschnitt);
+    double notendurchschnitt =
+        (_notendurchschnittValue / _counterNotenDurchschnitt);
     return [saldo.toString(), notendurchschnitt.toString()];
   }
 
@@ -203,8 +205,15 @@ class User {
         fileName = 'user_duo_marks.json';
         break;
       case requiredFile.userAllMarks:
-        fileName = 'all_marks.json';
+        fileName = 'user_all_marks.json';
         break;
+      case requiredFile.userNewMarks:
+        fileName = 'user_new_marks.json';
+        break;
+      case requiredFile.userOpenAbsences:
+        fileName = 'user_open_absences.json';
+        break;
+
       default:
         throw Exception('File Path does not exist');
     }
@@ -259,22 +268,29 @@ class User {
     print(userMarks);
     await User.writeInToFile(userMarks, requiredFile.userMarks);
 
-    
     //Dashboard Informationen
     Map<String, dynamic> userDashboard = {};
     userDashboard['saldo'] = await saldo(userMarks);
     print('Absence Data');
-    userDashboard['openAbsence'] = webScraperNesa.openAbsence.replaceAll('\n', ''); //todo:
+    userDashboard['openAbsence'] =
+        webScraperNesa.openAbsence.replaceAll('\n', ''); //todo:
     userDashboard['notenschnitt'] = await saldo(userMarks); //todo:
     await User.writeInToFile(userDashboard, requiredFile.userDashboard);
 
     //User Informationen von der Startseite
     Map<String, dynamic> userInformation =
         await webScraperNesa.getHomeData(HomePageInfo.information);
+    Map<String, dynamic> userNewMarks =
+        await webScraperNesa.getHomeData(HomePageInfo.newMarks);
+    Map<String, dynamic> userOpenAbsences =
+        await webScraperNesa.getHomeData(HomePageInfo.openAbsence);
     if (userInformation == {}) {
       throw Exception();
     }
     await User.writeInToFile(userInformation, requiredFile.userInformation);
+    await User.writeInToFile(userNewMarks, requiredFile.userNewMarks);
+    await User.writeInToFile(userOpenAbsences, requiredFile.userOpenAbsences);
+
     //Image Informationen
     /*
     Map<String,dynamic> userImage = {};

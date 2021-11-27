@@ -11,8 +11,6 @@ class ListTileInformationWidget extends StatelessWidget {
   late Enum mode;
   Icon icon;
 
-  Map<String, dynamic> _userData = {};
-
   ListTileInformationWidget(this.mode, this.icon,
       {this.title = 'None', this.shownData = 'None'});
 
