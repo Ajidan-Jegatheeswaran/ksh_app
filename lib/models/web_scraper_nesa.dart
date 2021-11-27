@@ -44,7 +44,7 @@ class WebScraperNesa {
   WebScraper webscraper = WebScraper();
 
   //Other Variables
-  late String _homeHtml;
+  String _homeHtml = '';
 
   //Konstruktor
   WebScraperNesa(
@@ -61,6 +61,8 @@ class WebScraperNesa {
 
   Map<String, dynamic> absenzen = {};
   Map<String, dynamic> kontoauszug = {};
+
+  String openAbsence = '';
 
   Future<Map<String, String>> cookies(
       {bool isPathSecond = false,
@@ -348,10 +350,6 @@ class WebScraperNesa {
   } */
 
   Future<Map<String, dynamic>> getHomeData(Enum homepageInformation) async {
-    if (_homeHtml == Null) {
-      throw Exception(); //todo: Excpetion
-    }
-
     if (!webscraper.loadFromString(_homeHtml)) {
       throw Exception(); //todo: Exception
     }
@@ -373,6 +371,8 @@ class WebScraperNesa {
 
     for (Map<String, dynamic> item in listUserData) {
       String value = item.values.first;
+      print('Value');
+      print(value);
       Map<String, String> noten = {};
 
       if (loopCounter < 16) {
@@ -509,7 +509,7 @@ class WebScraperNesa {
     return noten;
   }
 
-  Future<void> getAllMark() async {
+  Future<Map<String, dynamic>> getAllMarks() async {
     //Facher werden aus getMarksData geladen und die Fächer Namen werden in eine Liste importiert
     Map<String, dynamic> marks = await getMarksData();
 
@@ -590,7 +590,7 @@ class WebScraperNesa {
 
     //Prüfung
     for (int k = 0; k < titleListMarks.length; k++) {
-      if(counterSubjectsTitleListMarks == markNames.length){
+      if (counterSubjectsTitleListMarks == markNames.length) {
         break;
       }
       if (aktuellerDurchschnitt) {
@@ -602,7 +602,6 @@ class WebScraperNesa {
         aktuellerDurchschnitt = true;
         continue;
       }
-      
 
       if (item.contains(markNames[counterSubjectsTitleListMarks])) {
         _subjects[currentSubject.toString()] = _listSubjects;
@@ -655,6 +654,7 @@ class WebScraperNesa {
     }
     print('Subject End');
     print(_subjects);
+    return _subjects;
   }
 
   Future<Map<String, dynamic>> getAbsenceData() async {
@@ -720,6 +720,9 @@ class WebScraperNesa {
             }).toList();
             print('ElementEreignisse');
             print(elementAnzahlEreignisseAll);
+            openAbsence = elementAnzahlEreignisseAll[1]['title']
+                .split(': ')[1]
+                .replaceAll(' ', '');
             for (int indexAnzahlEreignisseAll = 0;
                 indexAnzahlEreignisseAll < 3;
                 indexAnzahlEreignisseAll++) {
@@ -750,7 +753,8 @@ class WebScraperNesa {
         }
       }
     }
-
+    print('Ende Absenzen Resultat');
+    print(absenz);
     return absenzen;
   }
 

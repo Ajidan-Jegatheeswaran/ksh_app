@@ -83,7 +83,7 @@ class HomeScreen extends StatelessWidget {
               shownDataEnum.openAbsence,
             ),
             ListTileInformationWidget(
-              shownDataEnum.testDate,
+              shownDataEnum.notenschnitt,
             ),
             SizedBox(
               height: mediaQuery.height * 0.03,

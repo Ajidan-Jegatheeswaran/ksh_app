@@ -162,129 +162,138 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
 
-    return _isLoading
-        ? Container(
-          width: mediaQuery.size.width,
-          height: mediaQuery.size.height,
-          color: Theme.of(context).primaryColor,
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
-          )
-        : Scaffold(
-            resizeToAvoidBottomInset: false,
-            backgroundColor: Theme.of(context).primaryColor,
-            body: Column(
-              children: [
-                Padding(
-                  child: Text(
-                    'Anmelden',
-                    style: Theme.of(context).textTheme.headline6,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context)
+            .pushReplacementNamed(ChooseSchoolScreen.routeName);
+        return false;
+      },
+      child: _isLoading
+          ? Container(
+              width: mediaQuery.size.width,
+              height: mediaQuery.size.height,
+              color: Theme.of(context).primaryColor,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : Scaffold(
+              resizeToAvoidBottomInset: false,
+              backgroundColor: Theme.of(context).primaryColor,
+              body: Column(
+                children: [
+                  Padding(
+                    child: Text(
+                      'Anmelden',
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                    padding: EdgeInsets.only(
+                        top: mediaQuery.size.height * 0.1,
+                        bottom: mediaQuery.size.height * 0.1),
                   ),
-                  padding: EdgeInsets.only(
-                      top: mediaQuery.size.height * 0.1,
-                      bottom: mediaQuery.size.height * 0.1),
-                ),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(25),
-                    child: Card(
-                      color: Theme.of(context).colorScheme.secondary,
-                      child: Padding(
-                          padding: const EdgeInsets.all(30),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Image.asset(
-                                    'assets/img/kanton_sg_wappen.png',
-                                    width: 30,
-                                  ),
-                                  SizedBox(
-                                    width: mediaQuery.size.width * 0.2,
-                                  ),
-                                  const Text(
-                                    'Nesa Login',
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 16),
-                                  )
-                                ],
-                              ),
-                              SizedBox(
-                                height: mediaQuery.size.height * 0.025,
-                              ),
-
-                              //Formular für das Login
-                              Form(
-                                key: _formKey,
-                                child: SingleChildScrollView(
-                                  child: Column(children: [
-                                    TextFormField(
-                                      textInputAction: TextInputAction.next,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Benutzername',
-                                        labelStyle:
-                                            TextStyle(color: Colors.white),
-                                      ),
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                      validator: (val) {
-                                        if (val == '' || val == Null) {
-                                          return 'Bitte geben Sie Ihren Benutzernamen ein.';
-                                        }
-                                      },
-                                      onSaved: (val) {
-                                        _userData['username'] = val.toString();
-                                      },
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(25),
+                      child: Card(
+                        color: Theme.of(context).colorScheme.secondary,
+                        child: Padding(
+                            padding: const EdgeInsets.all(30),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Image.asset(
+                                      'assets/img/kanton_sg_wappen.png',
+                                      width: 30,
                                     ),
-                                    TextFormField(
-                                      textInputAction: TextInputAction.next,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Passwort',
-                                        labelStyle:
-                                            TextStyle(color: Colors.white),
-                                      ),
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                      obscureText: true,
-                                      validator: (val) {
-                                        if (val == '' || val == Null) {
-                                          return 'Bitte geben Sie ein Passwort ein.';
-                                        }
-                                      },
-                                      onSaved: (val) => {
-                                        _userData['password'] = val.toString()
-                                      },
+                                    SizedBox(
+                                      width: mediaQuery.size.width * 0.2,
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          top: mediaQuery.size.height * 0.05),
-                                      child: TextButton(
-                                        onPressed: _submit,
-                                        child: const Text(
-                                          'Anmelden',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Colors.purple),
-                                        ),
-                                      ),
-                                    ),
-                                  ]),
+                                    const Text(
+                                      'Nesa Login',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 16),
+                                    )
+                                  ],
                                 ),
-                              ),
-                            ],
-                          )),
+                                SizedBox(
+                                  height: mediaQuery.size.height * 0.025,
+                                ),
+
+                                //Formular für das Login
+                                Form(
+                                  key: _formKey,
+                                  child: SingleChildScrollView(
+                                    child: Column(children: [
+                                      TextFormField(
+                                        textInputAction: TextInputAction.next,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Benutzername',
+                                          labelStyle:
+                                              TextStyle(color: Colors.white),
+                                        ),
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        validator: (val) {
+                                          if (val == '' || val == Null) {
+                                            return 'Bitte geben Sie Ihren Benutzernamen ein.';
+                                          }
+                                        },
+                                        onSaved: (val) {
+                                          _userData['username'] =
+                                              val.toString();
+                                        },
+                                      ),
+                                      TextFormField(
+                                        textInputAction: TextInputAction.next,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Passwort',
+                                          labelStyle:
+                                              TextStyle(color: Colors.white),
+                                        ),
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        obscureText: true,
+                                        validator: (val) {
+                                          if (val == '' || val == Null) {
+                                            return 'Bitte geben Sie ein Passwort ein.';
+                                          }
+                                        },
+                                        onSaved: (val) => {
+                                          _userData['password'] = val.toString()
+                                        },
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            top: mediaQuery.size.height * 0.05),
+                                        child: TextButton(
+                                          onPressed: _submit,
+                                          child: const Text(
+                                            'Anmelden',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                    Color>(Colors.purple),
+                                          ),
+                                        ),
+                                      ),
+                                    ]),
+                                  ),
+                                ),
+                              ],
+                            )),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          );
+    );
   }
 }

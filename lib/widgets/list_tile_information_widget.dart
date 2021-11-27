@@ -3,7 +3,7 @@ import 'package:ksh_app/models/subject.dart';
 import 'package:ksh_app/models/user.dart';
 
 //Enum, welche das definieren der angezeigten Information einfacher machen für den Programmierer und für andere Programmierer lesbarer machen.
-enum shownDataEnum { saldo, testDate, openAbsence, fach }
+enum shownDataEnum { saldo, notenschnitt, openAbsence, fach }
 
 class ListTileInformationWidget extends StatelessWidget {
   late String title;
@@ -33,11 +33,17 @@ class ListTileInformationWidget extends StatelessWidget {
             switch (mode) {
               case shownDataEnum.saldo:
                 title = 'Dein Saldo';
-                shownData = asyncSanpshot.data['saldo'];
+                
+                shownData = asyncSanpshot.data['saldo'][0].toString();
                 break;
-              case shownDataEnum.testDate:
-                title = 'Nächste Prüfung';
-                shownData = asyncSanpshot.data['nextTestDate'];
+              case shownDataEnum.notenschnitt:
+                title = 'Akuteller Notenschnitt';
+                String _shownDataVal = asyncSanpshot.data['notenschnitt'][1].toString();
+                if(_shownDataVal.length > 4){
+                  shownData = _shownDataVal.substring(0,4);
+                }else{
+                  shownData = _shownDataVal;
+                }
                 break;
               case shownDataEnum.openAbsence:
                 title = 'Offene Absenzen';
@@ -48,7 +54,7 @@ class ListTileInformationWidget extends StatelessWidget {
                   throw Exception(
                       'Titel des Fachs und die Note fehlen.'); //todo: Exception
                 }
-                break;
+             
               default:
                 throw Exception(); //todo: Exception
             }

@@ -15,7 +15,8 @@ enum requiredFile {
   userHost,
   userImage,
   userInformation,
-  userDuoMarks
+  userDuoMarks,
+  userAllMarks
 }
 
 class User {
@@ -23,6 +24,8 @@ class User {
   String password = '';
   String host = '';
   var webScraperNesa;
+
+  static List<double> allMarks = [];
 
   User();
 
@@ -58,12 +61,12 @@ class User {
     return webScraperNesa;
   }
 
+
   //Saldo wird berechnet
-  static Future<String> saldo(Map<String, dynamic> userMarks) async {
+  static Future<List<String>> saldo(Map<String, dynamic> userMarks) async {
     List<double> noten = [];
     double saldo = 0;
 
-    
     Map<String, dynamic> _userDuoMarks =
         await User.readFile(requiredFile.userDuoMarks);
 
@@ -103,6 +106,8 @@ class User {
     }
     print('Noten Saldo Noten');
     print(noten);
+
+    allMarks = noten;
 
     for (double mark in noten) {
       double resMarkSaldo = mark - 4;
@@ -150,7 +155,22 @@ class User {
         throw Exception(); //todo: Exception
       }
     }
-    return saldo.toString();
+
+    double _notendurchschnittValue = 0;
+    int _counterNotenDurchschnitt = 0;
+    print('AllMarks');
+    print(allMarks);
+    for (double item in allMarks) {
+      _notendurchschnittValue += item;
+
+      _counterNotenDurchschnitt++;
+    }
+    print('Notenschnitt');
+    print(_notendurchschnittValue);
+    print(_counterNotenDurchschnitt);
+    print((_notendurchschnittValue / _counterNotenDurchschnitt).toString());
+    double notendurchschnitt = (_notendurchschnittValue / _counterNotenDurchschnitt);
+    return [saldo.toString(), notendurchschnitt.toString()];
   }
 
   //Daten Verarbeitung -> Verwalten der Daten
@@ -181,6 +201,9 @@ class User {
         break;
       case requiredFile.userDuoMarks:
         fileName = 'user_duo_marks.json';
+        break;
+      case requiredFile.userAllMarks:
+        fileName = 'all_marks.json';
         break;
       default:
         throw Exception('File Path does not exist');
@@ -229,17 +252,20 @@ class User {
         host: _userData['host']);
     await webScraperNesa.login();
     print('Hat es Funktioniert?: ' + webScraperNesa.isLogin().toString());
-
+    webScraperNesa.getAbsenceData();
     //Noten werden verarbeitet
     Map<String, dynamic> userMarks = await webScraperNesa.getMarksData();
+    print('User Marks');
+    print(userMarks);
     await User.writeInToFile(userMarks, requiredFile.userMarks);
 
+    
     //Dashboard Informationen
     Map<String, dynamic> userDashboard = {};
     userDashboard['saldo'] = await saldo(userMarks);
     print('Absence Data');
-    userDashboard['openAbsence'] = '0'; //todo:
-    userDashboard['nextTestDate'] = '03.12.2021'; //todo:
+    userDashboard['openAbsence'] = webScraperNesa.openAbsence.replaceAll('\n', ''); //todo:
+    userDashboard['notenschnitt'] = await saldo(userMarks); //todo:
     await User.writeInToFile(userDashboard, requiredFile.userDashboard);
 
     //User Informationen von der Startseite
@@ -262,6 +288,7 @@ class User {
 
     return webScraperNesa.isLogin();
   }
+
   //_deleteAppDir() wurde aus StackOverFlow kopiert -> https://stackoverflow.com/questions/62547759/how-to-implement-flutter-clear-user-app-data-and-storage-on-logout
   static Future<void> deleteAppDir() async {
     final appDir = await getApplicationSupportDirectory();
@@ -270,6 +297,4 @@ class User {
       appDir.deleteSync(recursive: true);
     }
   }
-
-
 }
