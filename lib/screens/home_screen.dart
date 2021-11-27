@@ -14,7 +14,7 @@ class HomeScreen extends StatelessWidget {
 
   Map<String, dynamic> userMarks = {};
   String userSaldo = '';
-  
+
   //ReadUserData Variabeln
   // ignore: prefer_final_fields
 
@@ -53,7 +53,7 @@ class HomeScreen extends StatelessWidget {
         ),
       );
     }
-  
+
     return Scaffold(
       bottomNavigationBar: BottomNavigatioinBarWidget(),
       appBar: AppBar(
@@ -62,7 +62,9 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).pushReplacementNamed(DuoNotenScreen.routeName), //TODO: Verlinkung zum ProfilScreen()
+            onPressed: () => Navigator.of(context).pushReplacementNamed(
+                MyAccountScreen
+                    .routeName), //TODO: Verlinkung zum ProfilScreen()
           ),
         ],
       ),
@@ -77,14 +79,11 @@ class HomeScreen extends StatelessWidget {
               margin: EdgeInsets.only(bottom: mediaQuery.height * 0.013),
             ),
             ListTileInformationWidget(
-              shownDataEnum.saldo,
-            ),
+                shownDataEnum.saldo, const Icon(Icons.school_outlined)),
             ListTileInformationWidget(
-              shownDataEnum.openAbsence,
-            ),
+                shownDataEnum.openAbsence, const Icon(Icons.person_off_outlined)),
             ListTileInformationWidget(
-              shownDataEnum.notenschnitt,
-            ),
+                shownDataEnum.notenschnitt, const Icon(Icons.article_outlined)),
             SizedBox(
               height: mediaQuery.height * 0.03,
             ),

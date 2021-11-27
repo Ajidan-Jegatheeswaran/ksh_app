@@ -9,10 +9,11 @@ class ListTileInformationWidget extends StatelessWidget {
   late String title;
   String shownData;
   late Enum mode;
+  Icon icon;
 
   Map<String, dynamic> _userData = {};
 
-  ListTileInformationWidget(this.mode,
+  ListTileInformationWidget(this.mode, this.icon,
       {this.title = 'None', this.shownData = 'None'});
 
   Future<Map<String, dynamic>> userData =
@@ -28,20 +29,20 @@ class ListTileInformationWidget extends StatelessWidget {
           //Hier werden alle Szenarien aufgelistet, sodass später durch eine einfache Angabe der angezeigten Information über ein Enum der richtigige Code ausgeführt wird.
           if (const AsyncSnapshot.nothing() == asyncSanpshot ||
               const AsyncSnapshot.waiting() == asyncSanpshot) {
-                return CircularProgressIndicator();
+            return CircularProgressIndicator();
           } else {
             switch (mode) {
               case shownDataEnum.saldo:
                 title = 'Dein Saldo';
-                
                 shownData = asyncSanpshot.data['saldo'][0].toString();
                 break;
               case shownDataEnum.notenschnitt:
                 title = 'Akuteller Notenschnitt';
-                String _shownDataVal = asyncSanpshot.data['notenschnitt'][1].toString();
-                if(_shownDataVal.length > 4){
-                  shownData = _shownDataVal.substring(0,4);
-                }else{
+                String _shownDataVal =
+                    asyncSanpshot.data['notenschnitt'][1].toString();
+                if (_shownDataVal.length > 4) {
+                  shownData = _shownDataVal.substring(0, 4);
+                } else {
                   shownData = _shownDataVal;
                 }
                 break;
@@ -54,7 +55,7 @@ class ListTileInformationWidget extends StatelessWidget {
                   throw Exception(
                       'Titel des Fachs und die Note fehlen.'); //todo: Exception
                 }
-             
+
               default:
                 throw Exception(); //todo: Exception
             }
@@ -68,7 +69,7 @@ class ListTileInformationWidget extends StatelessWidget {
                   minLeadingWidth: mediaQuery.width * 0.14,
                   tileColor: Theme.of(context).colorScheme.secondary,
                   leading: Icon(
-                    Icons.school_outlined,
+                    icon.icon,
                     color: Colors.white,
                     size: mediaQuery.height * 0.046,
                   ),
