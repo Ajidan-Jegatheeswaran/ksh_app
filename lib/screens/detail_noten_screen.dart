@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
+import 'package:ksh_app/screens/loading_screen.dart';
 
 class DetailNotenScreen extends StatelessWidget {
   static const routeName = '/detail-noten';
@@ -25,10 +26,9 @@ class DetailNotenScreen extends StatelessWidget {
           builder: (ctx, snap) {
             switch (snap.connectionState) {
               case ConnectionState.waiting:
-
+                return LoadingScreen();
               case ConnectionState.none:
-                return CircularProgressIndicator();
-
+                return LoadingScreen();
               case ConnectionState.active:
                 break;
               case ConnectionState.done:
@@ -48,12 +48,6 @@ class DetailNotenScreen extends StatelessWidget {
                   right: 15, left: 15, top: 3, bottom: 15),
               child: Column(
                 children: [
-                  Container(
-                    color: Theme.of(context).colorScheme.secondary,
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height * 0.25,
-                    margin: EdgeInsets.only(bottom: mediaQuery.height * 0.013),
-                  ),
                   const Text(
                     'Deine Daten',
                     style: TextStyle(color: Colors.white),
@@ -67,15 +61,18 @@ class DetailNotenScreen extends StatelessWidget {
                     shrinkWrap: true,
                     itemCount: markSubject.length,
                     itemBuilder: (ctx, index) {
-                      if(markSubject[index]['valuation'].toString().trim() == ''){
-                        return Container(width: 0, height: 0,);
+                      if (markSubject[index]['valuation'].toString().trim() ==
+                          '') {
+                        return Container(
+                          width: 0,
+                          height: 0,
+                        );
                       }
                       return Container(
                         margin: EdgeInsets.only(bottom: 5),
                         color: Theme.of(context).colorScheme.secondary,
                         child: ListTile(
                           contentPadding: EdgeInsets.only(left: 30, right: 30),
-                          
                           leading: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: const Icon(

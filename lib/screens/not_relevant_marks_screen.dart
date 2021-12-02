@@ -2,11 +2,18 @@ import 'dart:convert' as convert;
 
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
+import 'package:ksh_app/screens/home_screen.dart';
 
-class NotRelevantMarksScreen extends StatelessWidget {
+class NotRelevantMarksScreen extends StatefulWidget {
   static const routeName = '/not-relevant-marks';
 
+  @override
+  State<NotRelevantMarksScreen> createState() => _NotRelevantMarksScreenState();
+}
+
+class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
   var _selectedSubjectForSubmit;
+
   @override
   Widget build(BuildContext context) {
     Map<String, dynamic> mapOfSubjects = {};
@@ -21,7 +28,7 @@ class NotRelevantMarksScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).primaryColor,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           Map<String, dynamic> newMap = {};
 
           for (int i = 0; i < marks.length; i++) {
@@ -29,15 +36,18 @@ class NotRelevantMarksScreen extends StatelessWidget {
             map['relevant'] = isChecked[i];
             newMap[marks.keys.toList()[i]] = map;
           }
-          User.writeInToFile(newMap, requiredFile.userMarks);
+
+          await User.writeInToFile(newMap, requiredFile.userMarks);
+
           print('New Map Not Relevant Marks');
           print(newMap);
+          setState(() {});
+          Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
         },
         child: Icon(Icons.check),
         backgroundColor: Theme.of(context).canvasColor,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-
       body: FutureBuilder(
         future: User.readFile(requiredFile.userMarks),
         builder: (ctx, snap) {

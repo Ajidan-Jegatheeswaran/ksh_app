@@ -36,6 +36,7 @@ class NotenScreen extends StatelessWidget {
         body: FutureBuilder(
           future: marks,
           builder: (BuildContext ctx, AsyncSnapshot a) {
+            
             Map<String, dynamic> userMarksMap = a.data;
             List<Subject> subjects = [];
 

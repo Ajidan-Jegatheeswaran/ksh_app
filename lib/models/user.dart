@@ -65,19 +65,22 @@ class User {
 
   //Saldo wird berechnet
   static Future<List<String>> saldo(Map<String, dynamic> userMarks) async {
+    
     List<double> noten = [];
     double saldo = 0;
 
+    
     Map<String, dynamic> _userDuoMarks =
         await User.readFile(requiredFile.userDuoMarks);
 
     List<String> alreadyDoneDuoMarks = [];
 
     for (Map<String, dynamic> i in userMarks.values) {
-      /*
+      print('I Relevant > ' + i.toString());
       if (i['relevant'] == true) {
         continue;
       }
+      /*
       for (String item in _userDuoMarks.keys) {
         if (item.contains(i['Fach'])) {
           print('Duo Noten im Saldo...');
@@ -91,9 +94,9 @@ class User {
         }else{
           print('Das ist keine Duo Note: '+ i['Fach']);
         }
-      }
-      */
-
+      }*/
+      
+      
       String stringMark =
           i.toString().split(',')[1].split(':')[1].replaceAll(' ', '');
       if (stringMark == '--') {
@@ -226,6 +229,7 @@ class User {
 
   static Future<void> writeInToFile(
       Map<String, dynamic> information, Enum fileEnum) async {
+    print('Write in File -> ' + information.toString());
     File file = await getFile(fileEnum);
     if (file.existsSync()) {
       file.deleteSync();
@@ -241,7 +245,10 @@ class User {
     }
     print('ReadFile');
     print(file.readAsStringSync());
-    if (file.readAsStringSync() == Null || file.readAsStringSync() == '') {
+    if (file.readAsStringSync() == Null ||
+        file.readAsStringSync() == '' ||
+        file.readAsStringSync() == '{}') {
+      print('Datei ist leer.');
       return {};
     }
     print('File String');
@@ -262,6 +269,12 @@ class User {
     await webScraperNesa.login();
     print('Hat es Funktioniert?: ' + webScraperNesa.isLogin().toString());
     webScraperNesa.getAbsenceData();
+
+    //Einzelnoten werden geladen
+    Map<String, dynamic> userAllMarks = await webScraperNesa.getAllMarks();
+    print('User All Marks');
+    print(userAllMarks);
+    await User.writeInToFile(userAllMarks, requiredFile.userAllMarks);
     //Noten werden verarbeitet
     Map<String, dynamic> userMarks = await webScraperNesa.getMarksData();
     print('User Marks');

@@ -64,6 +64,12 @@ class WebScraperNesa {
   Map<String, dynamic> kontoauszug = {};
 
   String openAbsence = '';
+  Map<String,dynamic> repairedNewMarks = {};
+  Map<String,dynamic> repairedOpenAbsences = {};
+  bool absenceError = false;
+  
+  int countNewStart = 0;
+  
 
   Future<Map<String, String>> cookies(
       {bool isPathSecond = false,
@@ -350,7 +356,11 @@ class WebScraperNesa {
     return string.trim();
   } */
 
-  Future<Map<String, dynamic>> getHomeData(Enum homepageInformation) async {
+  Future<Map<String, dynamic>> getHomeData(Enum homepageInformation,
+      {int numAbsence = 0}) async {
+
+    bool checksStatus = false;
+    
     if (!webscraper.loadFromString(_homeHtml)) {
       throw Exception(); //todo: Exception
     }
@@ -403,8 +413,12 @@ class WebScraperNesa {
     print(listUserData);
     print('Open Absence Print');
     Map<String, dynamic> _map = await User.readFile(requiredFile.userDashboard);
-
-    int numOpenAbsence = int.parse(_map['openAbsence']);
+    int numOpenAbsence = numAbsence;
+    if (numOpenAbsence == 0) {
+      numOpenAbsence = int.parse(_map['openAbsence']);
+    } else {
+      numOpenAbsence = countNewStart;
+    }
     print('NumOpenAbsence');
     print(numOpenAbsence);
     int _counterNewMarks = 0;
@@ -429,7 +443,6 @@ class WebScraperNesa {
       }
       String item = i['title'].toString();
 
-      
       if (_counterNewMarks > 15 &&
           _counterNewMarks < ((3 * numOpenAbsence) + 16)) {
         print(_counterNewMarks);
@@ -503,6 +516,55 @@ class WebScraperNesa {
       _counterNewMarks++;
     }
 
+    //Überprüfung des Resultats von allNewMarks
+    if (allNewMarks.length == 0) {
+      allNewMarks = {};
+    } else {
+      //Alle Titel von AllNewMarks extrahieren
+      List<String> newMarkTitles = [];
+
+      for (Map<String, dynamic> item in allNewMarks.values) {
+        String itemString = item['title'];
+        newMarkTitles.add(itemString);
+      }
+      print('NewMarkTitles');
+      print(newMarkTitles);
+
+      //Laden der Titel der Fächer aus getMarksData
+      Map<String, dynamic> marks = await getMarksData();
+      print('Marks NewMarks Check');
+      print(marks);
+      List<String> allTitle = marks.keys.toList();
+
+      //Jeder Titel von newMarkTitles wird mit allTitle verglichen, um zu überprüfen, ob dass überhaupt ein Titel von einem Fach ist.
+      
+      for (var i = 0; i < newMarkTitles.length; i++) {
+        for (String item in allTitle) {
+          if (item
+              .toString()
+              .split(' ')[0]
+              .contains(newMarkTitles[i].toString())) {
+            checksStatus = true;
+            numOpenAbsence = countNewStart;
+            repairedNewMarks = allNewMarks;
+            repairedOpenAbsences = openAbsences;
+          }
+        }
+        if (checksStatus == false) {
+          countNewStart++;
+          allNewMarks = await getHomeData(HomePageInfo.newMarks,
+              numAbsence: countNewStart);
+          print('AllNewMarks after repair');
+          print(allNewMarks);
+          if (countNewStart > 19) {
+            throw Exception(
+                'Neue Noten konnten nicht in einer korrekten Form geliefert werden');
+          }
+        }
+      }
+
+    }
+
     switch (homepageInformation) {
       case HomePageInfo.information:
         print('UserInformation');
@@ -510,14 +572,18 @@ class WebScraperNesa {
         return userInformation;
 
       case HomePageInfo.newMarks:
-        print('UserNewMarks');
-        print(allNewMarks);
-        return allNewMarks;
+        if(repairedNewMarks == {}){
+          return allNewMarks;
+        }else{
+          return repairedNewMarks;
+        }
 
       case HomePageInfo.openAbsence:
-        print('UserOpenAbsences');
-        print(openAbsences);
-        return openAbsences;
+        if(repairedOpenAbsences == {}){
+          return openAbsences;
+        }else{
+          return repairedOpenAbsences;
+        }
 
       default:
         return {};
@@ -769,6 +835,7 @@ class WebScraperNesa {
         }
       }
     }
+
     print('Subject End');
     print(_subjects);
     return _subjects;

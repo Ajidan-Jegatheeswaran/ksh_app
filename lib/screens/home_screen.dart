@@ -110,60 +110,71 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(
                   height: 15,
                 ),
-                Container(
-                  padding: EdgeInsets.all(15),
-                  color: Theme.of(context).colorScheme.secondary,
-                  width: MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.only(bottom: mediaQuery.height * 0.013),
-                  child: Column(
-                    children: [
-                      const Center(
-                        child: Text(
-                          'Neue Noten',
-                          style: TextStyle(color: Colors.white),
-                          textScaleFactor: 1.2,
-                        ),
-                      ),
-                      ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: newMarks.length,
-                        itemBuilder: (ctx, index) {
-                          return Column(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.only(top: 15),
-                                width: mediaQuery.width - 60,
-                                color: Theme.of(context).primaryColor,
-                                child: ListTile(
-                                  title: Text(
-                                      newMarks[index.toString()]['testName'],
-                                      style: TextStyle(color: Colors.white)),
-                                  subtitle: Text(
-                                      newMarks[index.toString()]['title'],
-                                      style: TextStyle(color: Colors.white)),
-                                  trailing: Text(
-                                    newMarks[index.toString()]['valuation'],
-                                    style: const TextStyle(color: Colors.white),
-                                    textScaleFactor: 1.3,
-                                  ),
-                                ),
+                newMarks.length != 0
+                    ? Container(
+                        padding: EdgeInsets.all(15),
+                        color: Theme.of(context).colorScheme.secondary,
+                        width: MediaQuery.of(context).size.width,
+                        margin:
+                            EdgeInsets.only(bottom: mediaQuery.height * 0.013),
+                        child: Column(
+                          children: [
+                            const Center(
+                              child: Text(
+                                'Neue Noten',
+                                style: TextStyle(color: Colors.white),
+                                textScaleFactor: 1.2,
                               ),
-                              newMarks.length > 1
-                                  ? const SizedBox(
-                                      height: 0,
-                                    )
-                                  : const SizedBox(
-                                      height: 0,
-                                      width: 0,
-                                    )
-                            ],
-                          );
-                        },
+                            ),
+                            ListView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: newMarks.length,
+                              itemBuilder: (ctx, index) {
+                                return Column(
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(top: 15),
+                                      width: mediaQuery.width - 60,
+                                      color: Theme.of(context).primaryColor,
+                                      child: ListTile(
+                                        title: Text(
+                                            newMarks[index.toString()]
+                                                ['testName'],
+                                            style:
+                                                TextStyle(color: Colors.white)),
+                                        subtitle: Text(
+                                            newMarks[index.toString()]['title'],
+                                            style:
+                                                TextStyle(color: Colors.white)),
+                                        trailing: Text(
+                                          newMarks[index.toString()]
+                                              ['valuation'],
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                          textScaleFactor: 1.3,
+                                        ),
+                                      ),
+                                    ),
+                                    newMarks.length > 1
+                                        ? const SizedBox(
+                                            height: 0,
+                                          )
+                                        : const SizedBox(
+                                            height: 0,
+                                            width: 0,
+                                          )
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(
+                        height: 0,
+                        width: 0,
                       ),
-                    ],
-                  ),
-                ),
                 //Absenzen
 
                 !(openAbsences.length == 0 || openAbsences == Null)
@@ -173,54 +184,61 @@ class HomeScreen extends StatelessWidget {
                         width: MediaQuery.of(context).size.width,
                         margin:
                             EdgeInsets.only(bottom: mediaQuery.height * 0.013),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: openAbsences.length,
-                          itemBuilder: (ctx, index) {
-                            return Column(
-                              children: [
-                                const Center(
-                                  child: Text(
-                                    'Offene Absenzen',
-                                    style: TextStyle(color: Colors.white),
-                                    textScaleFactor: 1.2,
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(top: 15),
-                                  width: mediaQuery.width - 60,
-                                  color: Theme.of(context).primaryColor,
-                                  child: ListTile(
-                                    title: Text(
-                                      openAbsences[index.toString()]!['from'],
-                                      style: TextStyle(color: Colors.white),
-                                      textScaleFactor: 0.9,
+                        child: Column(
+                          children: [
+                            const Center(
+                              child: Text(
+                                'Offene Absenzen',
+                                style: TextStyle(color: Colors.white),
+                                textScaleFactor: 1.2,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 15,
+                            ),  
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: openAbsences.length,
+                              itemBuilder: (ctx, index) {
+                                return Column(
+                                  children: [
+                                    Container(
+                                      width: mediaQuery.width - 60,
+                                      color: Theme.of(context).primaryColor,
+                                      child: ListTile(
+                                        title: Text(
+                                          openAbsences[index.toString()]![
+                                              'from'],
+                                          style: TextStyle(color: Colors.white),
+                                          textScaleFactor: 0.9,
+                                        ),
+                                        subtitle: Text(
+                                          openAbsences[index.toString()]!['to'],
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        trailing: Text(
+                                          openAbsences[index.toString()]![
+                                              'deadline'],
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                          textScaleFactor: 1,
+                                        ),
+                                      ),
                                     ),
-                                    subtitle: Text(
-                                      openAbsences[index.toString()]!['to'],
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    trailing: Text(
-                                      openAbsences[index.toString()]![
-                                          'deadline'],
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                      textScaleFactor: 1,
-                                    ),
-                                  ),
-                                ),
-                                newMarks.length > 1
-                                    ? const SizedBox(
-                                        height: 15,
-                                      )
-                                    : const SizedBox(
-                                        height: 0,
-                                        width: 0,
-                                      )
-                              ],
-                            );
-                          },
+                                    openAbsences.length > 1
+                                        ? const SizedBox(
+                                            height: 15,
+                                          )
+                                        : const SizedBox(
+                                            height: 0,
+                                            width: 0,
+                                          )
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       )
                     /*  
