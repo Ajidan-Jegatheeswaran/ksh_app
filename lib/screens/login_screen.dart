@@ -9,6 +9,7 @@ import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/screens/noten_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
+//Hier werden die Benutzerdaten vom Nutzer abgefragt und diese dann dem Web Scraper übergeben und mit der User Klasse werden alle Informationen geholt und in Dateien gespeichert.
 class LoginScreen extends StatefulWidget {
   static const routeName = '/login';
 

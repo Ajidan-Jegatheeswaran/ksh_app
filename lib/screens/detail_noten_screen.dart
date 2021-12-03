@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
-import 'package:ksh_app/screens/loading_screen.dart';
 
+//Das ist der detallierter Fach Bildschirm, indem man die Einzelnnotne sieht
 class DetailNotenScreen extends StatelessWidget {
   static const routeName = '/detail-noten';
   Future<Map<String, dynamic>> marksOfSubjectFuture =
@@ -26,9 +26,9 @@ class DetailNotenScreen extends StatelessWidget {
           builder: (ctx, snap) {
             switch (snap.connectionState) {
               case ConnectionState.waiting:
-                return LoadingScreen();
+                return Container();
               case ConnectionState.none:
-                return LoadingScreen();
+                return Container();
               case ConnectionState.active:
                 break;
               case ConnectionState.done:

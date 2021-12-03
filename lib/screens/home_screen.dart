@@ -9,6 +9,7 @@ import 'package:ksh_app/screens/duo_noten_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/list_tile_information_widget.dart';
 
+//Das ist der Dashboard bzw. der Startbildschirm der Allgemeine Informationen anzeigt, wie Notenschnitt Notensaldo und offene Abenzen
 class HomeScreen extends StatelessWidget {
   static const routeName = '/home';
 

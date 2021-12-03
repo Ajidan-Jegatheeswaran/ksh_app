@@ -245,6 +245,7 @@ class WebScraperNesa {
     return 'https://$host.nesa-sg.ch/' + frag;
   }
 
+  //Führt eine Post Methode durch, um auf die nächste Seite zu kommen und liefert die HTML Code zurück
   Future<String> _getPageContent(String followingPage) async {
     Uri uri = Uri.parse(followingPage);
     List<String> data = uri.query.split('&');
@@ -274,6 +275,7 @@ class WebScraperNesa {
     print('Dokument');
     print(_document);
 
+    //Hier wird die ID (HTML) vom jeweiligen Element geschickt, welches den Link zu einer der Navigationsseiten von Nesa hat
     Future<String> getNavigationPage() async {
       String menu;
       String _content = '';
@@ -308,13 +310,14 @@ class WebScraperNesa {
           throw Exception(''); //TODO: Exception
       }
 
-      var link = webscraper.getElementAttribute(menu, 'href');
+      var link = webscraper.getElementAttribute(menu, 'href'); 
       print('Link');
       print(link);
 
       if (link.length > 1 || link.isEmpty) {
         throw Exception('Etwas ist schief gelaufen'); //TODO: Exception
       }
+      
 
       await _getPageContent(buildLink(link[0].toString())).then((val) {
         _content = val;
@@ -356,6 +359,7 @@ class WebScraperNesa {
     return string.trim();
   } */
 
+  //Holt die Daten von der Startseite von Nesa
   Future<Map<String, dynamic>> getHomeData(Enum homepageInformation,
       {int numAbsence = 0}) async {
 
@@ -367,7 +371,7 @@ class WebScraperNesa {
     webscraper.loadFromString(_homeHtml);
     print(_homeHtml.length);
 
-    //Get all User Data
+    //getElement liefert nun alle "td" Elemente
     var listUserData = webscraper.getElement('td', []);
 
     print('ListUserData');
@@ -590,6 +594,7 @@ class WebScraperNesa {
     }
   }
 
+  //Alle Notenschnitte der Fächer und weiteres ohne die Einzelnoten werden geladen
   Future<Map<String, dynamic>> getMarksData() async {
     //Web Scraper auf NaviPage.Noten gestellt
     await setNavigationPageContent(NaviPage.noten);
@@ -609,6 +614,7 @@ class WebScraperNesa {
     String subjectName = "";
     String subjectMark = "";
     String isConfirmed = '';
+    //In der For-Schleife werden alle Listen Elemente durch gegangen und dabei ein jedes Szenarie (case) der Counter um eins erhöhrt 
     for (var item in listMarks) {
       String res = item.values.first;
       res = res.trim();
@@ -841,6 +847,7 @@ class WebScraperNesa {
     return _subjects;
   }
 
+  //Funktioniert nicht so wie geplant, aber die offenen Absenzen werden über die Startseite geholt und diese Funktion liefert nur die Anzahl der offenen Absenzen die in openAbsence zugewiesen
   Future<Map<String, dynamic>> getAbsenceData() async {
     await setNavigationPageContent(NaviPage.absenzen);
 
@@ -942,6 +949,7 @@ class WebScraperNesa {
     return absenzen;
   }
 
+  //Funktioniert nicht... wurde nur angefangen 
   Future<String> getUserImageNetworkPath() async {
     await setNavigationPageContent(NaviPage.listenUndDok);
     String _resLink = webscraper
@@ -964,24 +972,10 @@ class WebScraperNesa {
     return completeLink;
   }
 
-/*
-    Uri uri = Uri.parse(buildLink(link));
-    List<String> data = uri.query.split('&');
-    Map<String, String> body = {};
-
-    for (String i in data) {
-      List<String> list = i.split('=');
-      body[list[0]] = list[1];
-    }
-    print('data');
-    print(body);
-    Response response = await client.post(uri, body: body, headers: await cookies());
-    print(response.body);
-    */
-
   //Schliesst den Client
   void closeClient() => client.close();
 
+  //Kalenderdaten Webserver verweigert die Anfrage d.h. Anfrage muss umgeändert werden
   getCalendarData() async {
     DateTime dateNow = DateTime.now();
     String currentDate = dateNow.year.toString() +

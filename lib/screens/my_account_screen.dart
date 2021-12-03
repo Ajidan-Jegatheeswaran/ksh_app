@@ -11,6 +11,7 @@ import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/list_tile_information_section_widget.dart';
 import 'package:ksh_app/widgets/list_tile_setting_widget.dart';
 
+//Das ist der Einstellungsbildschirm bzw. der Mein Konto Bildschirm, der Nutzer Informationen anzeigt und Einstellung Möglichkeiten in Bezug auf den Notensaldo bietet.
 class MyAccountScreen extends StatelessWidget {
   static const routeName = '/my-account';
 

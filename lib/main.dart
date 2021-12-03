@@ -16,57 +16,7 @@ import './screens/login_screen.dart';
 import 'screens/noten_screen.dart';
 
 void main() async {
-  /*
-  WebScraperNesa webScraperNesa = WebScraperNesa(
-      username: 'jon.stojkaj', password: '21Jonmalone?', host: 'ksh');
-  */
-  /*
-  WebScraperNesa webScraperNesa = WebScraperNesa(
-      username: 'haesan.ashokarasan', password: 'Haesan2021.', host: 'ksh');
-  
-  
-  
-  await webScraperNesa.login();
-  await webScraperNesa.getHomeData(HomePageInfo.openAbsence);
-  
-  */
-  runApp(MyApp());
-  //await webScraperNesa.getAllMark();
-  //print(await webScraperNesa.getCalendarData());
-  //await webScraperNesa.getAllMark();
-
-  /*
-  var login = LoginScreen();
-  
-  bool isLogin = false;
-  try {
-    File login = await User.getFile(requiredFile.userLogin);
-    File host = await User.getFile(requiredFile.userHost);
-    if (login.existsSync() && host.existsSync()) {
-      Map<String, dynamic> loginData =
-          await User.readFile(requiredFile.userLogin);
-      Map<String, dynamic> hostData =
-          await User.readFile(requiredFile.userHost);
-      WebScraperNesa webScraperNesa = WebScraperNesa(
-          username: loginData['username'],
-          password: loginData['password'],
-          host: hostData['subdomain']);
-      isLogin = await User.getUserData(webScraperNesa);
-    }
-  } on Exception {
-    runApp(MyApp(false));
-  }
-  /*
-  
-  await webScraperNesa.login();
-  if (webScraperNesa.isLogin()) {
-    print('Eingeloggt...');
-  }*/
-  //await User.getUserData(webScraperNesa);
-  */
-  //await User.getUserData(webScraperNesa);
-
-  //debugShowCheckedModeBanner: true;
+  runApp(MyApp()); //Hier wird alles gestartet
 }
 
 // ignore: use_key_in_widget_constructors
@@ -116,8 +66,8 @@ class MyApp extends StatelessWidget {
           headline6: TextStyle(color: Colors.white),
         ),
       ),
-      home: ChooseSchoolScreen(),
-      routes: {
+      home: ChooseSchoolScreen(), // Der erste Bildschirm
+      routes: { //Das sind die Navigationsmöglichkeiten
         LoginScreen.routeName: (ctx) => LoginScreen(),
         HomeScreen.routeName: (ctx) => HomeScreen(),
         NotenScreen.routeName: (ctx) => NotenScreen(),
