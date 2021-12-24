@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ksh_app/widgets/choose_school_widget.dart';
 import '../models/user.dart';
 
+//Dieser Bildschirm ist für das auswählen der Schulen zuständig und gibt die Subdomain den nächsten Bildschirm weiter in dem es in eine Datei gespeichert wird.
 class ChooseSchoolScreen extends StatelessWidget {
   static const routeName = '/choose-school';
 

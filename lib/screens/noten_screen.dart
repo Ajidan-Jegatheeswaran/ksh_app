@@ -3,10 +3,10 @@ import 'package:ksh_app/models/subject.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/screens/detail_noten_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
-import 'package:ksh_app/screens/my_account_screen.dart';
 import 'package:ksh_app/screens/duo_noten_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 
+// werden alle Fächer mit den jeweiligen Notenschnitten aufgelistet
 class NotenScreen extends StatelessWidget {
   static const routeName = '/noten';
   late int _markLength;
@@ -46,7 +46,7 @@ class NotenScreen extends StatelessWidget {
               String subjectName = userMarksMap.values.toList()[i]['Fach'];
               String subjectMark = userMarksMap.values.toList()[i]['Note'];
               Subject subject = Subject(
-                  title: subjectTitle, name: subjectName, mark: subjectMark);
+                  title: subjectTitle, name: subjectName, mark: double.parse(subjectMark));
               subjects.add(subject);
             }
 
@@ -77,7 +77,7 @@ class NotenScreen extends StatelessWidget {
                       textScaleFactor: 1.4,
                     ),
                     trailing: Text(
-                      subjects[index].mark,
+                      subjects[index].mark.toString(),
                       style: const TextStyle(color: Colors.white),
                       textScaleFactor: 1.4,
                     ),

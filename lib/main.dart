@@ -1,16 +1,11 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:ksh_app/models/user.dart';
-import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:ksh_app/screens/choose_school_screen.dart';
 import 'package:ksh_app/screens/detail_noten_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/screens/my_account_screen.dart';
 import 'package:ksh_app/screens/not_relevant_marks_screen.dart';
 import 'package:ksh_app/screens/duo_noten_screen.dart';
-import 'package:ksh_app/widgets/duo_note_erstellen_select_widget.dart';
-import 'package:path_provider/path_provider.dart';
 
 import './screens/login_screen.dart';
 import 'screens/noten_screen.dart';
@@ -67,7 +62,8 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: ChooseSchoolScreen(), // Der erste Bildschirm
-      routes: { //Das sind die Navigationsmöglichkeiten
+      routes: {
+        //Das sind die Navigationsmöglichkeiten
         LoginScreen.routeName: (ctx) => LoginScreen(),
         HomeScreen.routeName: (ctx) => HomeScreen(),
         NotenScreen.routeName: (ctx) => NotenScreen(),

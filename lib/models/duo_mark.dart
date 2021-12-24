@@ -1,8 +1,5 @@
-import 'dart:convert' as convert;
-
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
-import 'package:ksh_app/screens/duo_noten_screen.dart';
 
 class DuoMark {
   final Map<String, dynamic> firstSubject;
@@ -22,10 +19,12 @@ class DuoMark {
     return isTrue;
   }
 
+  //Funktion macht eine Map mit den Daten der Klasse in Form eines Stringes
   Map<String, dynamic> toJson() {
     return {firstSubject.toString(): secondSubject.toString()};
   }
 
+  //Wandelt den JSON in eine Map um
   static List<String> mapFromJson(Map<String, dynamic> map) {
     List listDuoMarks = map.values.toList();
     print('listDuoMarks');
@@ -56,6 +55,7 @@ class DuoMark {
     return listObjectOfDuoMark;
   }
 
+  //Hinzufügen Funktion, welche eine Duo Note hinzufügt
   static Future<void> add(Map<String, dynamic> firstSubject,
       Map<String, dynamic> secondSubject, BuildContext context) async {
     /*List exist = await DuoMark.isExist(DuoMark(firstSubject, secondSubject));
@@ -73,6 +73,7 @@ class DuoMark {
                 ],
               )); //todo: Das noch testen
     }*/
+
     Map<String, dynamic> data = await User.readFile(requiredFile.userDuoMarks);
     data.addAll({
       firstSubject['Fach'] + secondSubject['Fach']:
@@ -109,6 +110,7 @@ class DuoMark {
     
   }
 
+  //Lösch Funktion
   static void delete(String subjectNames) async {
     Map<String, dynamic> data = await User.readFile(requiredFile.userDuoMarks);
     print('Data Delete');
@@ -139,6 +141,7 @@ class DuoMark {
     }
   }
 
+  //Überprüft, ob die DuoNote existiert
   static Future<List> isExist(DuoMark d) async {
     Map<dynamic, dynamic> data = await User.readFile(requiredFile.userDuoMarks);
     bool isFirstSubject = false;

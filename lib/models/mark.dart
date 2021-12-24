@@ -4,6 +4,7 @@ class Mark {
 
   Mark({this.mark1, this.mark2});
 
+  //Rechnet den Durchschnit zwei Noten aus, welche jeweils eine Gewichtung haben z.B. eine Note zählt 40% und die andere 60%
   static double duoCount(double mark1, double mark2, int count1, int count2) {
     if (mark1 < 1 || mark2 < 1) {
       throw Exception();
@@ -20,6 +21,7 @@ class Mark {
     return zusammengerechnete;
   }
 
+  //Rechnet den Notenschnitt aus
   static double notenschnitt(Map<String, dynamic> map) {
     List list = map.values.toList();
     List<double> noten = [];

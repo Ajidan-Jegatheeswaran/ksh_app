@@ -6,6 +6,7 @@ import 'package:ksh_app/screens/not_relevant_marks_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/duo_note_erstellen_select_widget.dart';
 
+//Hier ist die Klasse, mit der zwei Noten zusammen für den Notensaldo gezählt werden.
 class DuoNotenScreen extends StatefulWidget {
   static const routeName = '/noten-saldo-settings';
 

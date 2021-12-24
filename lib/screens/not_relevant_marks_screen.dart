@@ -1,9 +1,8 @@
-import 'dart:convert' as convert;
-
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/screens/home_screen.dart';
 
+//Hier können alle nicht-relevanten Noten ausgewählt werden, damit der Notensaldo diese nicht zählt
 class NotRelevantMarksScreen extends StatefulWidget {
   static const routeName = '/not-relevant-marks';
 
@@ -53,11 +52,10 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
         builder: (ctx, snap) {
           switch (snap.connectionState) {
             case ConnectionState.none:
-              Center(child: CircularProgressIndicator());
-              break;
+              return const Center(child: CircularProgressIndicator());
+
             case ConnectionState.waiting:
-              Center(child: CircularProgressIndicator());
-              break;
+              return const Center(child: CircularProgressIndicator());
           }
 
           marks = snap.data as Map<String, dynamic>;

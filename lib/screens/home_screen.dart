@@ -10,21 +10,27 @@ import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/list_tile_information_widget.dart';
 
 //Das ist der Dashboard bzw. der Startbildschirm der Allgemeine Informationen anzeigt, wie Notenschnitt Notensaldo und offene Abenzen
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic> userMarks = {};
+
   String userSaldo = '';
 
   Map<String, dynamic> newMarks = {};
-  Map<String, dynamic> openAbsences = {};
 
-  //ReadUserData Variabeln
-  // ignore: prefer_final_fields
+  Map<String, dynamic> openAbsences = {};
 
   @override
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(context).size;
+
+    void refresh() => setState(() {});
 
     Widget builderOtherOptions(String title,
         {IconData? icons, String? iconPath}) {
@@ -196,7 +202,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                             const SizedBox(
                               height: 15,
-                            ),  
+                            ),
                             ListView.builder(
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),

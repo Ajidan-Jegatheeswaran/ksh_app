@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:path_provider/path_provider.dart';
 
+//Das sind Enums, um die Ordner in den die Daten gespeichert werden einfacher zu unterscheiden
 enum requiredFile {
   userLogin,
   userDashboard,
@@ -31,6 +32,7 @@ class User {
 
   User();
 
+  //Setter und Getter von Variblen in dieser Klasse
   set setUsername(String username) {
     username = username;
   }
@@ -112,7 +114,8 @@ class User {
     print(noten);
 
     allMarks = noten;
-
+    
+    //Hier werden Werte abgezogen bis ein Minimum erreicht wurde. Pro abgezogener Wert wird das beim Saldo einen Wert addiert, was schlussendlich den Notensaldo ergibt.
     for (double mark in noten) {
       double resMarkSaldo = mark - 4;
       if (resMarkSaldo == 0) {
@@ -180,6 +183,7 @@ class User {
 
   //Daten Verarbeitung -> Verwalten der Daten
 
+  //Diese Methode gibt den gewünschten File zurück, der per Enum gesucht wird
   static Future<File> getFile(Enum data) async {
     String fileName = '';
     File file;
@@ -227,6 +231,7 @@ class User {
     return file;
   }
 
+  //Speichert eine Map in einer JSON Datei
   static Future<void> writeInToFile(
       Map<String, dynamic> information, Enum fileEnum) async {
     print('Write in File -> ' + information.toString());
