@@ -3,8 +3,9 @@ import 'package:ksh_app/models/subject.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/screens/detail_noten_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
-import 'package:ksh_app/screens/duo_noten_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
+
+import 'my_account_screen.dart';
 
 // werden alle Fächer mit den jeweiligen Notenschnitten aufgelistet
 class NotenScreen extends StatelessWidget {
@@ -15,7 +16,7 @@ class NotenScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async{
+      onWillPop: () async {
         Navigator.pushReplacementNamed(context, HomeScreen.routeName);
         return false;
       },
@@ -27,16 +28,14 @@ class NotenScreen extends StatelessWidget {
           backgroundColor: Theme.of(context).primaryColor,
           actions: [
             IconButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed(DuoNotenScreen.routeName);
-                },
+                onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+                    MyAccountScreen.routeName, ModalRoute.withName('/')),
                 icon: const Icon(Icons.settings))
           ],
         ),
         body: FutureBuilder(
           future: marks,
           builder: (BuildContext ctx, AsyncSnapshot a) {
-            
             Map<String, dynamic> userMarksMap = a.data;
             List<Subject> subjects = [];
 
@@ -45,8 +44,14 @@ class NotenScreen extends StatelessWidget {
               String subjectTitle = userMarksMap.keys.toList()[i];
               String subjectName = userMarksMap.values.toList()[i]['Fach'];
               String subjectMark = userMarksMap.values.toList()[i]['Note'];
+              print('Subject Mark');
+              if (subjectMark == '--') {
+                subjectMark = 0.toString();
+              }
               Subject subject = Subject(
-                  title: subjectTitle, name: subjectName, mark: double.parse(subjectMark));
+                  title: subjectTitle,
+                  name: subjectName,
+                  mark: double.parse(subjectMark));
               subjects.add(subject);
             }
 
@@ -67,7 +72,7 @@ class NotenScreen extends StatelessWidget {
                         arguments: {
                           'title': subjects[index].title,
                           'name': subjects[index].name,
-                          'mark': subjects[index].mark,
+                          'mark': subjects[index].toString(),
                         },
                       );
                     },
@@ -77,7 +82,7 @@ class NotenScreen extends StatelessWidget {
                       textScaleFactor: 1.4,
                     ),
                     trailing: Text(
-                      subjects[index].mark.toString(),
+                      subjects[index].markAsString(),
                       style: const TextStyle(color: Colors.white),
                       textScaleFactor: 1.4,
                     ),

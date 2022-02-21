@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:ksh_app/screens/choose_school_screen.dart';
 import 'package:ksh_app/screens/detail_noten_screen.dart';
@@ -8,9 +7,15 @@ import 'package:ksh_app/screens/not_relevant_marks_screen.dart';
 import 'package:ksh_app/screens/duo_noten_screen.dart';
 
 import './screens/login_screen.dart';
+import 'models/user.dart';
+import 'models/web_scraper_nesa.dart';
 import 'screens/noten_screen.dart';
 
 void main() async {
+  //WebScraperNesa webScraperNesa = WebScraperNesa(username: 'jon.stojkaj', password: '21Jonmalone?', host: 'ksh');
+  //await webScraperNesa.login();
+  //webScraperNesa.getHomeNewMarks();
+
   runApp(MyApp()); //Hier wird alles gestartet
 }
 
@@ -18,6 +23,8 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    
+
     return MaterialApp(
       title: 'KSH APP',
       theme: ThemeData(

@@ -5,8 +5,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:ksh_app/models/subject.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:web_scraper/web_scraper.dart';
+
+import 'test.dart';
 
 enum NaviPage {
   home,
@@ -64,12 +67,14 @@ class WebScraperNesa {
   Map<String, dynamic> kontoauszug = {};
 
   String openAbsence = '';
-  Map<String,dynamic> repairedNewMarks = {};
-  Map<String,dynamic> repairedOpenAbsences = {};
+  Map<String, dynamic> repairedNewMarks = {};
+  Map<String, dynamic> repairedOpenAbsences = {};
   bool absenceError = false;
-  
+
   int countNewStart = 0;
-  
+
+  //Variables for Absence
+  bool checksStatus = false;
 
   Future<Map<String, String>> cookies(
       {bool isPathSecond = false,
@@ -310,14 +315,13 @@ class WebScraperNesa {
           throw Exception(''); //TODO: Exception
       }
 
-      var link = webscraper.getElementAttribute(menu, 'href'); 
+      var link = webscraper.getElementAttribute(menu, 'href');
       print('Link');
       print(link);
 
       if (link.length > 1 || link.isEmpty) {
         throw Exception('Etwas ist schief gelaufen'); //TODO: Exception
       }
-      
 
       await _getPageContent(buildLink(link[0].toString())).then((val) {
         _content = val;
@@ -339,32 +343,10 @@ class WebScraperNesa {
       throw Exception(); //TODO: Exception
     }
   }
-/*
-  String formatSelector(String selector) {
-    //TODO: Methode funktioniert noch nicht
-    List<String> list = selector.split(' > ');
-
-    for (String i in list) {
-      i.toString().replaceAll(' ', '.');
-    }
-    String string = '';
-    for (int i = 0; i < list.length; i++) {
-      if (i == (list.length - 1)) {
-        string += list[i];
-      } else {
-        string += list[i] + ' > ';
-      }
-    }
-
-    return string.trim();
-  } */
 
   //Holt die Daten von der Startseite von Nesa
   Future<Map<String, dynamic>> getHomeData(Enum homepageInformation,
       {int numAbsence = 0}) async {
-
-    bool checksStatus = false;
-    
     if (!webscraper.loadFromString(_homeHtml)) {
       throw Exception(); //todo: Exception
     }
@@ -490,6 +472,13 @@ class WebScraperNesa {
       print(_counterNewMarks);
       print('item NewMark');
       print(item);
+      if (item.contains('Sie haben alle Noten bestätigt.')) {
+        break;
+      }
+      //TODO: Überprüfen ob das ein Titel eines Faches ist.
+
+      //Laden der Fächer Titel
+      User.readFile(requiredFile.userMarks);
       switch (_counterNewMarks2) {
         case 0:
           newMark['title'] = item;
@@ -497,18 +486,32 @@ class WebScraperNesa {
           break;
 
         case 1:
-          newMark['testName'] = item;
+          newMark['testName'] = item.toString();
           _counterNewMarks2++;
           break;
 
         case 2:
-          newMark['date'] = item;
+          newMark['date'] = item.toString();
           _counterNewMarks2++;
           break;
 
         case 3:
-          newMark['valuation'] = item;
+          double zahl;
+          try {
+            zahl = double.parse(newMark['valuation']);
+          } catch (e) {
+            zahl = 0.0;
+          }
 
+          newMark['valuation'] = item.toString();
+          print(item);
+          /*
+          Test(
+              testName: newMark['testName'],
+              mark: zahl,
+              date: newMark['date'],
+              subjectTitle: newMark['title']);
+              */
           allNewMarks[_counterNewMarks3.toString()] = newMark;
           newMark = {};
           _counterNewMarks++;
@@ -541,7 +544,7 @@ class WebScraperNesa {
       List<String> allTitle = marks.keys.toList();
 
       //Jeder Titel von newMarkTitles wird mit allTitle verglichen, um zu überprüfen, ob dass überhaupt ein Titel von einem Fach ist.
-      
+
       for (var i = 0; i < newMarkTitles.length; i++) {
         for (String item in allTitle) {
           if (item
@@ -552,21 +555,30 @@ class WebScraperNesa {
             numOpenAbsence = countNewStart;
             repairedNewMarks = allNewMarks;
             repairedOpenAbsences = openAbsences;
+            break;
           }
         }
         if (checksStatus == false) {
           countNewStart++;
           allNewMarks = await getHomeData(HomePageInfo.newMarks,
               numAbsence: countNewStart);
+          numOpenAbsence = countNewStart;
           print('AllNewMarks after repair');
           print(allNewMarks);
           if (countNewStart > 19) {
             throw Exception(
                 'Neue Noten konnten nicht in einer korrekten Form geliefert werden');
           }
+        } else {
+          break;
         }
       }
-
+      if (checksStatus == true) {
+        for (Map<String, dynamic> item in repairedNewMarks.values) {
+          print('Item');
+          print(item);
+        }
+      }
     }
 
     switch (homepageInformation) {
@@ -576,16 +588,16 @@ class WebScraperNesa {
         return userInformation;
 
       case HomePageInfo.newMarks:
-        if(repairedNewMarks == {}){
+        if (repairedNewMarks == {}) {
           return allNewMarks;
-        }else{
+        } else {
           return repairedNewMarks;
         }
 
       case HomePageInfo.openAbsence:
-        if(repairedOpenAbsences == {}){
+        if (repairedOpenAbsences == {}) {
           return openAbsences;
-        }else{
+        } else {
           return repairedOpenAbsences;
         }
 
@@ -614,7 +626,7 @@ class WebScraperNesa {
     String subjectName = "";
     String subjectMark = "";
     String isConfirmed = '';
-    //In der For-Schleife werden alle Listen Elemente durch gegangen und dabei ein jedes Szenarie (case) der Counter um eins erhöhrt 
+    //In der For-Schleife werden alle Listen Elemente durch gegangen und dabei ein jedes Szenarie (case) der Counter um eins erhöhrt
     for (var item in listMarks) {
       String res = item.values.first;
       res = res.trim();
@@ -667,7 +679,8 @@ class WebScraperNesa {
           if (subjectMark != '' && subjectName != '' && isConfirmed != '') {
             Map<String, String> dataMarks = {};
             dataMarks['Fach'] = subjectName;
-            dataMarks['Note'] = subjectMark;
+
+            dataMarks['Note'] = subjectMark.replaceAll('*', '');
             dataMarks['Noten bestätigt'] = isConfirmed;
             noten[listSubjectTitle[counter2].values.first] = dataMarks;
             print('Noten Map');
@@ -712,7 +725,10 @@ class WebScraperNesa {
           .replaceAll('{', '')
           .split(',')[0]
           .split(': ')[1];
-
+      Map<String, dynamic> entrie = Map<String, dynamic>.from(i);
+      if (entrie['Note'] == '--') {
+        continue;
+      }
       markNames.add(res);
     }
     print('MarkNames');
@@ -776,11 +792,12 @@ class WebScraperNesa {
     List _listSubjects = [];
 
     bool aktuellerDurchschnitt = false;
-
+    bool end = false;
     //Prüfung
     for (int k = 0; k < titleListMarks.length; k++) {
+      
       if (counterSubjectsTitleListMarks == markNames.length) {
-        break;
+        end = true;
       }
       if (aktuellerDurchschnitt) {
         aktuellerDurchschnitt = false;
@@ -791,8 +808,8 @@ class WebScraperNesa {
         aktuellerDurchschnitt = true;
         continue;
       }
-
-      if (item.contains(markNames[counterSubjectsTitleListMarks])) {
+      if (end) {
+      } else if (item.contains(markNames[counterSubjectsTitleListMarks])) {
         _subjects[currentSubject.toString()] = _listSubjects;
         print('currentSubject');
         print(currentSubject);
@@ -813,7 +830,8 @@ class WebScraperNesa {
         counterSubjectsTitleListMarks++;
         _listSubjects = [];
         isSubjectStart = true;
-      } else if (isSubjectStart) {
+      }
+      if (isSubjectStart) {
         switch (switchCounter) {
           case 0:
             _subject['date'] = item;
@@ -841,13 +859,16 @@ class WebScraperNesa {
         }
       }
     }
-
+    if(end){
+      _subjects[currentSubject.toString()] = _listSubjects;
+    }
     print('Subject End');
     print(_subjects);
     return _subjects;
   }
 
   //Funktioniert nicht so wie geplant, aber die offenen Absenzen werden über die Startseite geholt und diese Funktion liefert nur die Anzahl der offenen Absenzen die in openAbsence zugewiesen
+
   Future<Map<String, dynamic>> getAbsenceData() async {
     await setNavigationPageContent(NaviPage.absenzen);
 
@@ -949,7 +970,7 @@ class WebScraperNesa {
     return absenzen;
   }
 
-  //Funktioniert nicht... wurde nur angefangen 
+  //Funktioniert nicht... wurde nur angefangen
   Future<String> getUserImageNetworkPath() async {
     await setNavigationPageContent(NaviPage.listenUndDok);
     String _resLink = webscraper

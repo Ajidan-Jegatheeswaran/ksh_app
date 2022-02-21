@@ -60,106 +60,38 @@ class _LoginScreenState extends State<LoginScreen> {
         context); // MediaQuery wird hier als Objekt in der Variabel mediaQuery gespeichert, damit es zu weniger build() aufrufen kommt -> Performance
 
     void _submit() async {
-      try {
-        await User.readFile(requiredFile.userHost)
-            .then((value) => _userData['host'] = value['subdomain']);
-        print('host');
-        print(_userData['host']);
-        print('Submit');
-        if (!_formKey.currentState!.validate() || _userData['host'] == '') {
-          throw Exception(); //todo: Exception
-        }
-        _formKey.currentState!.save();
+      await User.readFile(requiredFile.userHost)
+          .then((value) => _userData['host'] = value['subdomain']);
+      print('host');
+      print(_userData['host']);
+      print('Submit');
+      if (!_formKey.currentState!.validate() || _userData['host'] == '') {
+        throw Exception(); //todo: Exception
+      }
+      _formKey.currentState!.save();
 
-        print(_userData['username'].toString() +
-            _userData['password'].toString());
+      print(
+          _userData['username'].toString() + _userData['password'].toString());
 
-        User.writeInToFile(_userData,
-            requiredFile.userLogin); //todo: Durch User Methode ersetzen
+      User.writeInToFile(_userData,
+          requiredFile.userLogin); //todo: Durch User Methode ersetzen
 
-        WebScraperNesa webScraper = WebScraperNesa(
-            username: _userData['username'].toString(),
-            password: _userData['password'].toString(),
-            host: _userData['host'].toString());
-        setState(() {
-          _isLoading = true;
-        });
+      WebScraperNesa webScraper = WebScraperNesa(
+          username: _userData['username'].toString(),
+          password: _userData['password'].toString(),
+          host: _userData['host'].toString());
+      setState(() {
+        _isLoading = true;
+      });
 
-        bool isUserLogin = await User.getUserData(webScraper);
+      bool isUserLogin = await User.getUserData(webScraper);
 
-        print(isUserLogin);
-        if (isUserLogin) {
-          _isLoading = false;
-          print('If isLogin -> True');
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              HomeScreen.routeName, ModalRoute.withName('/'));
-        }
-      } on Exception {
-        setState(() {
-          _isLoading = false;
-        });
-        showDialog(
-            context: context,
-            builder: (ctx) {
-              return Dialog(
-                insetPadding: EdgeInsets.all(20),
-                backgroundColor: Theme.of(context).colorScheme.secondary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(40),
-                ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Icons.warning,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                        Column(
-                          children: const [
-                            Text(
-                              'Login fehlgeschlagen',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                              textScaleFactor: 1.5,
-                            ),
-                            SizedBox(
-                              height: 40,
-                            ),
-                            Text(
-                              '1. Überprüfe bitte deine Benutzerdaten',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              '2. Überprüfe deine Internetverbindung',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                        ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(ctx).pop();
-                            },
-                            child: const Text('Verstanden'))
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            });
+      print(isUserLogin);
+      if (isUserLogin) {
+        _isLoading = false;
+        print('If isLogin -> True');
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            HomeScreen.routeName, ModalRoute.withName('/'));
       }
     }
 

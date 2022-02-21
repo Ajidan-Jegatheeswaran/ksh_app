@@ -3,7 +3,6 @@ import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/screens/my_account_screen.dart';
 import 'package:ksh_app/screens/noten_screen.dart';
 
-
 class BottomNavigatioinBarWidget extends StatefulWidget {
   @override
   State<BottomNavigatioinBarWidget> createState() =>
@@ -15,13 +14,17 @@ class _BottomNavigatioinBarWidgetState
   void _tabSelected(int index) {
     switch (index) {
       case 0:
-        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            HomeScreen.routeName, ModalRoute.withName('/'));
         break;
       case 1:
-        Navigator.of(context).pushReplacementNamed(NotenScreen.routeName);
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            NotenScreen.routeName, ModalRoute.withName('/'));
         break;
       case 2:
-        Navigator.of(context).pushReplacementNamed(MyAccountScreen.routeName);
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            MyAccountScreen.routeName, ModalRoute.withName('/'));
+        break;
     }
   }
 

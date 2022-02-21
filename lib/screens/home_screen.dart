@@ -81,9 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).pushReplacementNamed(
-                MyAccountScreen
-                    .routeName), //TODO: Verlinkung zum ProfilScreen()
+            onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+            MyAccountScreen.routeName, ModalRoute.withName('/')), //TODO: Verlinkung zum ProfilScreen()
           ),
         ],
       ),

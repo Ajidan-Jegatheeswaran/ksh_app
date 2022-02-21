@@ -38,73 +38,88 @@ class DetailNotenScreen extends StatelessWidget {
             print(snap.data);
 
             marksOfSubject = snap.data as Map<String, dynamic>;
-            markSubject =
-                List<Map<String, dynamic>>.from(marksOfSubject[subjectName]);
+
+            try {
+              markSubject =
+                  List<Map<String, dynamic>>.from(marksOfSubject[subjectName]);
+              if(!markSubject[0].containsKey('topic')){
+                markSubject.removeAt(0);
+              }
+            } catch (e) {
+              markSubject = [];
+            }
             print('MarkSubject');
             print(markSubject);
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.only(
-                  right: 15, left: 15, top: 3, bottom: 15),
-              child: Column(
-                children: [
-                  const Text(
-                    'Deine Daten',
-                    style: TextStyle(color: Colors.white),
-                    textScaleFactor: 1.5,
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: markSubject.length,
-                    itemBuilder: (ctx, index) {
-                      if (markSubject[index]['valuation'].toString().trim() ==
-                          '') {
-                        return Container(
-                          width: 0,
-                          height: 0,
-                        );
-                      }
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 5),
-                        color: Theme.of(context).colorScheme.secondary,
-                        child: ListTile(
-                          contentPadding: EdgeInsets.only(left: 30, right: 30),
-                          leading: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: const Icon(
-                              Icons.adjust,
-                              color: Colors.white,
-                              size: 25,
-                            ),
-                          ),
-                          minLeadingWidth: 50,
-                          title: Text(
-                            markSubject[index]['topic'],
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          subtitle: Opacity(
-                            opacity: 0.7,
-                            child: Text(
-                              markSubject[index]['date'],
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                          trailing: Text(
-                            markSubject[index]['valuation'],
-                            style: const TextStyle(color: Colors.white),
-                            textScaleFactor: 1.3,
-                          ),
-                        ),
-                      );
-                    },
+            return markSubject.isEmpty
+                ? Center(
+                    child: Text('In diesem Fach hast du noch keine Noten', style: TextStyle(color: Colors.white),),
                   )
-                ],
-              ),
-            );
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.only(
+                        right: 15, left: 15, top: 3, bottom: 15),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Deine Noten',
+                          style: TextStyle(color: Colors.white),
+                          textScaleFactor: 1.5,
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: markSubject.length,
+                          itemBuilder: (ctx, index) {
+                            if (markSubject[index]['valuation']
+                                    .toString()
+                                    .trim() ==
+                                '') {
+                              return Container(
+                                width: 0,
+                                height: 0,
+                              );
+                            }
+                            return Container(
+                              margin: EdgeInsets.only(bottom: 5),
+                              color: Theme.of(context).colorScheme.secondary,
+                              child: ListTile(
+                                contentPadding:
+                                    EdgeInsets.only(left: 30, right: 30),
+                                leading: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: const Icon(
+                                    Icons.adjust,
+                                    color: Colors.white,
+                                    size: 25,
+                                  ),
+                                ),
+                                minLeadingWidth: 50,
+                                title: Text(
+                                  markSubject[index]['topic'],
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                subtitle: Opacity(
+                                  opacity: 0.7,
+                                  child: Text(
+                                    markSubject[index]['date'],
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                trailing: Text(
+                                  markSubject[index]['valuation'],
+                                  style: const TextStyle(color: Colors.white),
+                                  textScaleFactor: 1.3,
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    ),
+                  );
           }),
     );
   }

@@ -79,6 +79,27 @@ class DuoMark {
       firstSubject['Fach'] + secondSubject['Fach']:
           DuoMark(firstSubject, secondSubject).toJson()
     });
+
+    //Laden der Fächer
+    Map<String, dynamic> marks = await User.readFile(requiredFile.userMarks);
+    for (var item in marks.entries.toList()) {
+      Map<String, dynamic> value = Map<String, dynamic>.from(item.value);
+      String key = item.key;
+      if (value['Fach'].contains(firstSubject['Fach'])) {
+        value['duoMark'] = true;
+        value['duoPartner'] = secondSubject['Fach'];
+      } else if (value['Fach'].contains(secondSubject['Fach'])) {
+        value['duoMark'] = true;
+        value['duoPartner'] = firstSubject['Fach'];
+      }
+      marks[key] = value;
+      await User.writeInToFile(marks, requiredFile.userMarks);
+      print('marks');
+      print(marks);
+    }
+
+    //Bei alle Fächer die von der Duo Note betroffen sind kommt ein true
+    //Alle Fächer die ein true haben bekommen einen Eintrag, welches den duo Patner beinhaltet
     /*
     Map<String, dynamic> sub1 = {};
     Map<String, dynamic> sub2 = {};
@@ -107,12 +128,12 @@ class DuoMark {
     print('Add new Duo Mark...');
     print(data);
     await User.writeInToFile(data, requiredFile.userDuoMarks);
-    
   }
 
   //Lösch Funktion
   static void delete(String subjectNames) async {
     Map<String, dynamic> data = await User.readFile(requiredFile.userDuoMarks);
+    Map<String, dynamic> marks = await User.readFile(requiredFile.userMarks);
     print('Data Delete');
     print(data);
     String firstSubjectName = subjectNames.split(' + ')[0];
@@ -132,6 +153,19 @@ class DuoMark {
         ? objectFound2 = false
         : objectFound2 = true;
 
+    for (var item in marks.entries.toList()) {
+      String key = item.key;
+      Map<String, dynamic> val = Map<String, dynamic>.from(item.value);
+      if (val['Fach'].contains(firstSubjectName) ||
+          val['Fach'].contains(secondSubjectName)) {
+        val['duoMark'] = false;
+        val['duoPartner'] = 'None';
+        marks[key] = val;
+      }
+    }
+    
+    print('Deleted DuoMarks');
+    print(marks);
     User.writeInToFile(data, requiredFile.userDuoMarks);
 
     if (objectFound1 || objectFound2) {

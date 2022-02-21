@@ -206,7 +206,7 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             'Deine  Liste',
                             style: TextStyle(color: Colors.white),
                             textScaleFactor: 1.3,
@@ -255,10 +255,10 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                                                     horizontal: 15,
                                                     vertical: 30),
                                                 child: Text(
-                                                  'Manche Noten zählen zusammen für den Notensaldo '
-                                                  'und für kannst du hier eine Duo Note erstellen. Beispielsweise Musik(4.5) und'
-                                                  ' BG(3.75) zählen zusammen. D.h. zusammen gibt das einen Schnitt von 4.25, welcher einen '
-                                                  'halben Plus für den Notensaldo einbringt. ',
+                                                  'Manche Noten zählen gemeinsam für den Notensaldo '
+                                                  'und dafür kannst du hier eine Duo Note erstellen. Beispielsweise Musik(4.5) und'
+                                                  ' BG(3.5) zählen zusammen. D.h. zusammen gibt das einen Schnitt von 4, welcher einen '
+                                                  'keinen Plus oder Minus Punkt für den Notensaldo einbringt. ',
                                                   style: TextStyle(
                                                       color: Colors.white),
                                                   textScaleFactor: 1.2,

@@ -17,8 +17,8 @@ class Subject {
       this.isNotRelevant = false,
       this.singleMarks});
 
-  add(Test test){
-    if(singleMarks!.isEmpty){
+  add(Test test) {
+    if (singleMarks!.isEmpty) {
       singleMarks = [];
     }
     singleMarks!.add(test);
@@ -39,5 +39,12 @@ class Subject {
         name: map['name'],
         mark: map['mark'],
         isNotRelevant: map['isNotRelevant']);
+  }
+  String markAsString(){
+    if(mark == 0.0){
+      return '--';
+    }else{
+      return mark.toString();
+    }
   }
 }
