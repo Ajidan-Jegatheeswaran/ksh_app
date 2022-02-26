@@ -63,16 +63,13 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         await User.readFile(requiredFile.userHost)
             .then((value) => _userData['host'] = value['subdomain']);
-        print('host');
-        print(_userData['host']);
-        print('Submit');
+      
         if (!_formKey.currentState!.validate() || _userData['host'] == '') {
           throw Exception(); //todo: Exception
         }
         _formKey.currentState!.save();
 
-        print(_userData['username'].toString() +
-            _userData['password'].toString());
+ 
 
         User.writeInToFile(_userData,
             requiredFile.userLogin); //todo: Durch User Methode ersetzen
@@ -87,14 +84,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
         bool isUserLogin = await User.getUserData(webScraper);
 
-        print(isUserLogin);
+      
         if (isUserLogin) {
           _isLoading = false;
-          print('If isLogin -> True');
+         
           Navigator.of(context).pushNamedAndRemoveUntil(
               HomeScreen.routeName, ModalRoute.withName('/'));
         }
-      } on Exception {
+      } catch (e) {
         setState(() {
           _isLoading = false;
         });

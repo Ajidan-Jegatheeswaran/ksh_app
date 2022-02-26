@@ -7,6 +7,7 @@ import 'package:ksh_app/screens/choose_school_screen.dart';
 import 'package:ksh_app/screens/duo_noten_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/screens/not_relevant_marks_screen.dart';
+import 'package:ksh_app/screens/starting_screen.dart';
 import 'package:ksh_app/widgets/bottom_navigation_bar_widget.dart';
 import 'package:ksh_app/widgets/list_tile_information_section_widget.dart';
 import 'package:ksh_app/widgets/list_tile_setting_widget.dart';
@@ -23,7 +24,7 @@ class MyAccountScreen extends StatelessWidget {
 
     // ignore: prefer_const_literals_to_create_immutables
     return WillPopScope(
-      onWillPop: () async{
+      onWillPop: () async {
         Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
         return false;
       },
@@ -35,10 +36,29 @@ class MyAccountScreen extends StatelessWidget {
           actions: [
             IconButton(
                 onPressed: () {
+                  //Alle Daten löschen
+
+                  List<Enum> dataFiles = [
+                    requiredFile.userLogin,
+                    requiredFile.userDashboard,
+                    requiredFile.userMarks,
+                    requiredFile.userTests,
+                    requiredFile.userHost,
+                    requiredFile.userImage,
+                    requiredFile.userInformation,
+                    requiredFile.userDuoMarks,
+                    requiredFile.userAllMarks,
+                    requiredFile.userNewMarks,
+                    requiredFile.userOpenAbsences,
+                    requiredFile.userNotRelevantMarks
+                  ];
                   User.deleteAppDir();
-    
+                  for (Enum e in dataFiles) {
+                    User.writeInToFile({}, e);
+                  }
+
                   Navigator.of(context).pushNamedAndRemoveUntil(
-                      ChooseSchoolScreen.routeName,
+                      StartingScreen.routeName,
                       (Route<dynamic> route) => false);
                 },
                 icon: const Icon(Icons.logout))
@@ -53,10 +73,9 @@ class MyAccountScreen extends StatelessWidget {
                 color: Colors.white,
               );
             }
-            print(snap.data);
-            print(snap);
+         
             Map<String, dynamic> _map = snap.data as Map<String, dynamic>;
-    
+
             return SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -90,8 +109,8 @@ class MyAccountScreen extends StatelessWidget {
                   Container(
                     width: mediaQuery.width - 30,
                     color: Theme.of(context).colorScheme.secondary,
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 15),
                     child: Column(
                       children: [
                         const Text(
@@ -119,8 +138,8 @@ class MyAccountScreen extends StatelessWidget {
                   Container(
                     width: mediaQuery.width - 30,
                     color: Theme.of(context).colorScheme.secondary,
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 15),
                     child: Column(
                       children: [
                         const Text(
@@ -175,7 +194,6 @@ class ListTileForSettings extends StatelessWidget {
   var navigator;
 
   ListTileForSettings(this.title, this.navigator);
-
 
   @override
   Widget build(BuildContext context) {

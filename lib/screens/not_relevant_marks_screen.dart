@@ -19,8 +19,11 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
     int _value = 0;
     Map<String, dynamic> marks = {};
     List<bool> isChecked = [];
+    List<String> titles = [];
+    Map<String, dynamic> settings = {};
 
     return Scaffold(
+      
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
         title: const Text('Notensaldo - Nicht relevante Noten'),
@@ -35,13 +38,19 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
             map['relevant'] = isChecked[i];
             newMap[marks.keys.toList()[i]] = map;
           }
-
+          for (var i = 0; i < titles.length; i++) {
+            settings[titles[i]] = isChecked[i];
+          }
+          
           await User.writeInToFile(newMap, requiredFile.userMarks);
-
-          print('New Map Not Relevant Marks');
-          print(newMap);
+          await User.writeInToFile(settings, requiredFile.userNotRelevantMarks);
+         
+          await User.syncNotRelevantMarks();
           setState(() {});
-          Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            HomeScreen.routeName,
+            ModalRoute.withName(HomeScreen.routeName),
+          );
         },
         child: Icon(Icons.check),
         backgroundColor: Theme.of(context).canvasColor,
@@ -59,15 +68,22 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
           }
 
           marks = snap.data as Map<String, dynamic>;
+          for (var i = 0; i < marks.length; i++) {
+            titles.add('');
+          }
+
+          //Laden, der trues und falses
+          
+          
+
           isChecked = List<bool>.filled(marks.length, false);
-          print('Marks Not Relevant');
-          print(marks);
 
           return SingleChildScrollView(
             child: Column(
               children: [
                 ListViewBuilderForCheckBoxNotRelevantMarks(
-                    marks: marks, isChecked: isChecked),
+                  
+                    marks: marks, isChecked: isChecked, titles: titles),
               ],
             ),
           );
@@ -78,14 +94,16 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
 }
 
 class ListViewBuilderForCheckBoxNotRelevantMarks extends StatefulWidget {
-  const ListViewBuilderForCheckBoxNotRelevantMarks({
-    Key? key,
-    required this.marks,
-    required this.isChecked,
-  }) : super(key: key);
+  const ListViewBuilderForCheckBoxNotRelevantMarks(
+      {Key? key,
+      required this.marks,
+      required this.isChecked,
+      required this.titles})
+      : super(key: key);
 
   final Map<String, dynamic> marks;
   final List<bool> isChecked;
+  final List<String> titles;
 
   @override
   State<ListViewBuilderForCheckBoxNotRelevantMarks> createState() =>
@@ -117,14 +135,10 @@ class _ListViewBuilderForCheckBoxNotRelevantMarksState
                     value: widget.isChecked[index],
                     onChanged: (bool? val) {
                       setState(() {
-                        print('Val bool print');
-                        print(val as bool);
-                        widget.isChecked[index] = val;
+                        widget.isChecked[index] = val as bool;
+                        widget.titles[index] =
+                            widget.marks.values.toList()[index]['Fach'];
                       });
-
-                      if (widget.isChecked[index]) {
-                        print('Printing Printing');
-                      }
                     }),
               ),
               SizedBox(

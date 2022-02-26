@@ -15,7 +15,7 @@ class NotenScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async{
+      onWillPop: () async {
         Navigator.pushReplacementNamed(context, HomeScreen.routeName);
         return false;
       },
@@ -25,18 +25,21 @@ class NotenScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Noten'),
           backgroundColor: Theme.of(context).primaryColor,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed(DuoNotenScreen.routeName);
-                },
-                icon: const Icon(Icons.settings))
-          ],
+          
         ),
         body: FutureBuilder(
           future: marks,
           builder: (BuildContext ctx, AsyncSnapshot a) {
-            
+            switch (a.connectionState) {
+              case ConnectionState.waiting:
+                return Container();
+              case ConnectionState.none:
+                return Container();
+              case ConnectionState.active:
+                break;
+              case ConnectionState.done:
+                break;
+            }
             Map<String, dynamic> userMarksMap = a.data;
             List<Subject> subjects = [];
 
@@ -45,8 +48,14 @@ class NotenScreen extends StatelessWidget {
               String subjectTitle = userMarksMap.keys.toList()[i];
               String subjectName = userMarksMap.values.toList()[i]['Fach'];
               String subjectMark = userMarksMap.values.toList()[i]['Note'];
+           
+              if(subjectMark.replaceAll(' ', '') == '--'){
+                subjectMark = '0.0';
+              }
               Subject subject = Subject(
-                  title: subjectTitle, name: subjectName, mark: double.parse(subjectMark));
+                  title: subjectTitle,
+                  name: subjectName,
+                  mark: double.parse(subjectMark));
               subjects.add(subject);
             }
 

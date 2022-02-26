@@ -22,7 +22,7 @@ class Subject {
       singleMarks = [];
     }
     singleMarks!.add(test);
-    print('Neue Prüfung wurde hinzugefügt');
+    
   }
 
   static void toJson(Subject sub) => jsonEncode({
@@ -39,5 +39,12 @@ class Subject {
         name: map['name'],
         mark: map['mark'],
         isNotRelevant: map['isNotRelevant']);
+  }
+  String markAsString(){
+    if(mark == 0.0){
+      return '--';
+    }else{
+      return mark.toString();
+    }
   }
 }

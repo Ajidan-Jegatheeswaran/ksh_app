@@ -34,25 +34,22 @@ class DetailNotenScreen extends StatelessWidget {
               case ConnectionState.done:
                 break;
             }
-            print('Snap');
-            print(snap.data);
+            
 
             marksOfSubject = snap.data as Map<String, dynamic>;
+            if(marksOfSubject == Null){
+              return Container();
+            }
             markSubject =
                 List<Map<String, dynamic>>.from(marksOfSubject[subjectName]);
-            print('MarkSubject');
-            print(markSubject);
-
+           
+            
             return SingleChildScrollView(
               padding: const EdgeInsets.only(
                   right: 15, left: 15, top: 3, bottom: 15),
               child: Column(
                 children: [
-                  const Text(
-                    'Deine Daten',
-                    style: TextStyle(color: Colors.white),
-                    textScaleFactor: 1.5,
-                  ),
+                  
                   const SizedBox(
                     height: 15,
                   ),

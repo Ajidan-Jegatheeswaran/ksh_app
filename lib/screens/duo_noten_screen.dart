@@ -54,12 +54,10 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                           itemCount: marks.length,
                           itemBuilder: (ctx, index) {
                             List<dynamic> subjectsList = marks.values.toList();
-                            print('SUbjectsList');
-                            print(subjectsList);
+                           
                             Map<String, dynamic> subject =
                                 Map<String, dynamic>.from(subjectsList[index]);
-                            print('Subjectmap');
-                            print(subject);
+                         
                             bool isRadioSelcted = false;
                             int _value = 0;
                             return Container(
@@ -71,15 +69,17 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                                 ),
                                 tileColor: Theme.of(context).primaryColor,
                                 onTap: () async {
-                                  DuoMark.add(lastSubject, subject, context);
+                                  await DuoMark.add(
+                                      lastSubject, subject, context);
                                   var a = await User.readFile(
                                       requiredFile.userDuoMarks);
-                                  print(a);
-                                  setState(() {});
-                                  Navigator.of(context).popUntil(
-                                    ModalRoute.withName(
-                                        DuoNotenScreen.routeName),
-                                  );
+                               
+                                  setState(() {
+                                    Navigator.of(context)
+                                        .pushNamedAndRemoveUntil(
+                                            DuoNotenScreen.routeName,
+                                            ModalRoute.withName('/'));
+                                  });
                                 },
                               ),
                             );
@@ -124,12 +124,10 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                         itemCount: marks.length,
                         itemBuilder: (ctx, index) {
                           List<dynamic> subjectsList = marks.values.toList();
-                          print('SUbjectsList');
-                          print(subjectsList);
+                          
                           Map<String, dynamic> subject =
                               Map<String, dynamic>.from(subjectsList[index]);
-                          print('Subjectmap');
-                          print(subject);
+                         
                           bool isRadioSelcted = false;
                           int _value = 0;
                           return Container(
@@ -168,7 +166,7 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+        Navigator.of(context).pop();
         return false;
       },
       child: Scaffold(
@@ -188,10 +186,9 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                   snap.data as Map<String, dynamic>;
               marks = _userData['marks'] as Map<String, dynamic>;
               duoMarks = _userData['duoMarks'] as Map<String, dynamic>;
-              print('mARKS');
-              print(marks);
+           
             } catch (Exception) {
-              print('Oh Exception');
+              
             }
             return Padding(
               padding: const EdgeInsets.all(15),
@@ -206,7 +203,7 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             'Deine  Liste',
                             style: TextStyle(color: Colors.white),
                             textScaleFactor: 1.3,
@@ -255,10 +252,10 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                                                     horizontal: 15,
                                                     vertical: 30),
                                                 child: Text(
-                                                  'Manche Noten zählen zusammen für den Notensaldo '
-                                                  'und für kannst du hier eine Duo Note erstellen. Beispielsweise Musik(4.5) und'
-                                                  ' BG(3.75) zählen zusammen. D.h. zusammen gibt das einen Schnitt von 4.25, welcher einen '
-                                                  'halben Plus für den Notensaldo einbringt. ',
+                                                  'Manche Noten zählen gemeinsam für den Notensaldo '
+                                                  'und dafür kannst du hier eine Duo Note erstellen. Beispielsweise Musik(4.5) und'
+                                                  ' BG(3.5) zählen zusammen. D.h. zusammen gibt das einen Schnitt von 4, welcher einen '
+                                                  'keinen Plus oder Minus Punkt für den Notensaldo einbringt. ',
                                                   style: TextStyle(
                                                       color: Colors.white),
                                                   textScaleFactor: 1.2,
@@ -316,6 +313,7 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                                         setState(() {
                                           DuoMark.delete(DuoMark.mapFromJson(
                                               duoMarks)[index]);
+                                          setState(() {});
                                         });
                                       },
                                     ),

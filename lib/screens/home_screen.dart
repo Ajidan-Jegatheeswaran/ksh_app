@@ -30,8 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(context).size;
 
-    void refresh() => setState(() {});
-
     Widget builderOtherOptions(String title,
         {IconData? icons, String? iconPath}) {
       if (icons == Null) {
@@ -67,10 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
     Future<void> getData() async {
       newMarks = await User.readFile(requiredFile.userNewMarks);
       openAbsences = await User.readFile((requiredFile.userOpenAbsences));
-      print('NewMarks Home');
-      print(newMarks);
-      print('Open Absences Home');
-      print(openAbsences);
     }
 
     return Scaffold(
@@ -80,19 +74,23 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Theme.of(context).primaryColor,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).pushReplacementNamed(
-                MyAccountScreen
-                    .routeName), //TODO: Verlinkung zum ProfilScreen()
-          ),
+              onPressed: () async {
+                Map<String, dynamic> login =
+                    await User.readFile(requiredFile.userLogin);
+                WebScraperNesa webScraperNesa = WebScraperNesa(
+                    host: login['host'],
+                    username: login['username'],
+                    password: login['password']);
+                await webScraperNesa.login();
+                await User.getUserData(webScraperNesa);
+                setState(() {});
+              },
+              icon: const Icon(Icons.refresh)),
         ],
       ),
       body: FutureBuilder(
         future: getData(),
         builder: (ctx, snap) {
-          print('NewMarks');
-          print(newMarks);
-
           return SingleChildScrollView(
             padding:
                 const EdgeInsets.only(left: 15, right: 15, top: 3, bottom: 15),
@@ -117,6 +115,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(
                   height: 15,
                 ),
+                newMarks.length == 0 && openAbsences.length == 0
+                    ? const Center(
+                        child: Text('Keine Neuigkeiten'),
+                      )
+                    : Container(),
+
                 newMarks.length != 0
                     ? Container(
                         padding: EdgeInsets.all(15),

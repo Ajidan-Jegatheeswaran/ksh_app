@@ -27,8 +27,8 @@ class DuoMark {
   //Wandelt den JSON in eine Map um
   static List<String> mapFromJson(Map<String, dynamic> map) {
     List listDuoMarks = map.values.toList();
-    print('listDuoMarks');
-    print(listDuoMarks);
+    
+    
     List listS1 = [];
     List listS2 = [];
     List<String> listObjectOfDuoMark = [];
@@ -50,62 +50,43 @@ class DuoMark {
       listObjectOfDuoMark.add(listS1[i] + ' + ' + listS2[i]);
     }
 
-    print('listObjectOfDuoMark');
-    print(listObjectOfDuoMark);
     return listObjectOfDuoMark;
   }
 
   //Hinzufügen Funktion, welche eine Duo Note hinzufügt
   static Future<void> add(Map<String, dynamic> firstSubject,
       Map<String, dynamic> secondSubject, BuildContext context) async {
-    /*List exist = await DuoMark.isExist(DuoMark(firstSubject, secondSubject));
-    if (exist[0] || exist[1]) {
-      showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-                title: Text(
-                    'Du hast zu einem der gewählten Fächer schon eine Duo Note erstellt'),
-                actions: [
-                  ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(
-                          context, NotenSaldoSettingScreen.routeName),
-                      child: Text('Verstanden'))
-                ],
-              )); //todo: Das noch testen
-    }*/
-
+ 
     Map<String, dynamic> data = await User.readFile(requiredFile.userDuoMarks);
     data.addAll({
       firstSubject['Fach'] + secondSubject['Fach']:
           DuoMark(firstSubject, secondSubject).toJson()
     });
-    /*
-    Map<String, dynamic> sub1 = {};
-    Map<String, dynamic> sub2 = {};
 
+    //Laden der Fächer
     Map<String, dynamic> marks = await User.readFile(requiredFile.userMarks);
-    List<Map<String, dynamic>> list =
-        marks.values.toList() as List<Map<String, dynamic>>;
-    Map<String, dynamic> newMapMarks = {};
-    List newValues = [];
-    for (Map<String, dynamic> i in marks.values) {
-      bool isDuoNote = false;
-      if (i['Fach'] == firstSubject['Fach'] ||
-          i['Fach'] == secondSubject['Fach']) {
-        isDuoNote = true;
+    for (var item in marks.entries.toList()) {
+      Map<String, dynamic> value = Map<String, dynamic>.from(item.value);
+      String key = item.key;
+      if (value['Fach'].contains(firstSubject['Fach'])) {
+        value['duoMark'] = true;
+        value['duoPartner'] = secondSubject['Fach'];
+      } else if (value['Fach'].contains(secondSubject['Fach'])) {
+        value['duoMark'] = true;
+        value['duoPartner'] = firstSubject['Fach'];
       }
-      i['isDuoNote'] = isDuoNote;
-      newValues.add(i);
+      marks[key] = value;
+      await User.writeInToFile(marks, requiredFile.userMarks);
+     
+      
     }
-    for (var i = 0; i < marks.length; i++) {
-      newMapMarks[marks.keys.toList()[i]] = newValues[i];
-    }
-    print('NewMapMarks Duo Mark');
-    print(newMapMarks);
-    User.writeInToFile(newMapMarks, requiredFile.userMarks);
-    */
-    print('Add new Duo Mark...');
-    print(data);
+
+    Map<String,dynamic> userDashboard = await User.readFile(requiredFile.userDashboard);
+      List<String> saldo = await User.saldo(marks);
+      userDashboard['saldo'] = saldo;
+
+    User.writeInToFile(userDashboard, requiredFile.userDashboard);
+
     await User.writeInToFile(data, requiredFile.userDuoMarks);
     
   }
@@ -113,14 +94,12 @@ class DuoMark {
   //Lösch Funktion
   static void delete(String subjectNames) async {
     Map<String, dynamic> data = await User.readFile(requiredFile.userDuoMarks);
-    print('Data Delete');
-    print(data);
+    Map<String, dynamic> marks = await User.readFile(requiredFile.userMarks);
+  
     String firstSubjectName = subjectNames.split(' + ')[0];
-    print('deleteFirstName');
-    print(firstSubjectName);
+   
     String secondSubjectName = subjectNames.split(' + ')[1];
-    print('deleteSecondName');
-    print(secondSubjectName);
+   
     bool objectFound1 = false;
     bool objectFound2 = false;
 
@@ -132,13 +111,25 @@ class DuoMark {
         ? objectFound2 = false
         : objectFound2 = true;
 
+    for (var item in marks.entries.toList()) {
+      String key = item.key;
+      Map<String, dynamic> val = Map<String, dynamic>.from(item.value);
+      if (val['Fach'].contains(firstSubjectName) ||
+          val['Fach'].contains(secondSubjectName)) {
+        val['duoMark'] = false;
+        val['duoPartner'] = 'None';
+        marks[key] = val;
+      }
+    }
+
+    Map<String,dynamic> userDashboard = await User.readFile(requiredFile.userDashboard);
+      List<String> saldo = await User.saldo(marks);
+      userDashboard['saldo'] = saldo;
+
+    User.writeInToFile(userDashboard, requiredFile.userDashboard);
+
     User.writeInToFile(data, requiredFile.userDuoMarks);
 
-    if (objectFound1 || objectFound2) {
-      print('Objekt erfolgreich entfernt...');
-    } else {
-      print('Objekte konnte nicht entfernt werden...');
-    }
   }
 
   //Überprüft, ob die DuoNote existiert

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ksh_app/widgets/choose_school_widget.dart';
 import '../models/user.dart';
+import '../models/web_scraper_nesa.dart';
+import 'home_screen.dart';
 
 //Dieser Bildschirm ist für das auswählen der Schulen zuständig und gibt die Subdomain den nächsten Bildschirm weiter in dem es in eine Datei gespeichert wird.
 class ChooseSchoolScreen extends StatelessWidget {
@@ -42,8 +44,11 @@ class ChooseSchoolScreen extends StatelessWidget {
 
   void main(List<String> args) async {}
 
+  
+
   @override
   Widget build(BuildContext context) {
+   
     var mediaQuery = MediaQuery.of(context).size;
     var heightOfStatusBar = MediaQuery.of(context).padding.top;
 

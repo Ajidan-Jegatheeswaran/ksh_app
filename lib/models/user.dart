@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'dart:convert' as convert;
 
@@ -19,7 +21,8 @@ enum requiredFile {
   userDuoMarks,
   userAllMarks,
   userNewMarks,
-  userOpenAbsences
+  userOpenAbsences,
+  userNotRelevantMarks
 }
 
 class User {
@@ -65,40 +68,240 @@ class User {
     return webScraperNesa;
   }
 
-  //Saldo wird berechnet
+  static double round(double mark) {
+    double _roundedMark = 0;
+    while (mark >= 1) {
+      mark = mark - 1;
+      _roundedMark++;
+    }
+    if (mark >= 0.75) {
+      _roundedMark++;
+    } else if (mark >= 0.25 && mark < 0.75) {
+      _roundedMark = _roundedMark + 0.5;
+    }
+    return _roundedMark;
+  }
+
   static Future<List<String>> saldo(Map<String, dynamic> userMarks) async {
-    
+    //Listen in den die Algorithmen die einzelnen Fächer einteilen
+    List<Map<String, dynamic>> normalMarks = [];
+    List<Map<String, dynamic>> duoMarks = [];
+
+    //Algorithmus: Nichtrelevante Noten aussortieren und Einteilung in duoMarks und normalMarks
+    for (var item in userMarks.entries.toList()) {
+      String key = item.key;
+      Map<String, dynamic> value = Map<String, dynamic>.from(item.value);
+      Map<String, dynamic> entrie = {key: value};
+
+      bool wert = false;
+      bool wert2 = false;
+      try {
+        wert = value['relevant'];
+      } catch (e) {
+        wert = false;
+      }
+      try {
+        wert2 = value['duoMark'];
+      } catch (e) {
+        wert2 = false;
+      }
+
+      if (wert) {
+        continue;
+      } else if (wert2) {
+        duoMarks.add(entrie);
+      } else {
+        normalMarks.add(entrie);
+      }
+    }
+
+    //TODO: Falls keine Noten vorhanden sind, soll es "--" durch 0 ersetzen. Eine andere Variante wäre es das später bei den berechnungen zu behandeln, indem man alle, die die Note "--" haben sollen nicht behandelt werden.
+
+    //DuoMarks Partner finden: 1. Fach wird angeschaut duoPartner extrahiert, Note in gespeichert, duoPartner gefunden und dessen Note speichern.
+
+    //Speicher
+    Map<String, List<double>> _cacheDuoMarks = {};
+
+    for (Map<String, dynamic> item in duoMarks) {
+      Map<String, dynamic> _value = item.values.first;
+
+      //Überprüfen, ob der Duo Partner des Faches schon in gespeichert wurde
+      String _duoPartner = _value['duoPartner'];
+
+      for (var entrie in _cacheDuoMarks.entries.toList()) {
+        String key = entrie.key;
+        if (key.contains(_duoPartner)) {
+          List<double> _marks = entrie.value;
+          if (_value['Note'] == '--') {
+            _marks[1] = 0.0;
+          } else {
+            _marks[1] = double.parse(_value['Note']);
+          }
+
+          _cacheDuoMarks[key] = _marks;
+        }
+      }
+
+      //Wenn Duo Partner des Faches noch nicht gespeichert
+      double _mark = 0;
+      String _subject = _value['Fach'];
+      if (_value['Note'].toString() == '--') {
+        _mark = 0.0;
+      } else {
+        double _mark = double.parse(_value['Note']);
+      }
+
+      _cacheDuoMarks[_subject] = [_mark, 0];
+    }
+
+    List<double> allMarks = [];
+
+    //Duo Noten runden und dann zusammenrechnen.
+    for (var item in _cacheDuoMarks.values) {
+      List<double> _marks = item;
+      List<double> _roundedMarks = [];
+      for (double mark in _marks) {
+        double _markOnes = 0;
+        while (mark >= 1) {
+          mark = mark - 1;
+          _markOnes++;
+        }
+        if (mark >= 0.75) {
+          _markOnes++;
+        } else if (mark >= 0.25 && mark < 0.75) {
+          _markOnes = _markOnes + 0.5;
+        }
+        _roundedMarks.add(_markOnes);
+      }
+
+      if (_roundedMarks.length == 2) {
+        double mrk1 = _roundedMarks[0];
+        double mrk2 = _roundedMarks[1];
+        if (mrk1 == 0 || mrk2 == 0) {
+          double res = mrk1 + mrk2;
+          if (res != 0) {
+            allMarks.add(res);
+          }
+        } else {
+          double sum = mrk1 + mrk2;
+          double res = sum / 2;
+          if (res != 0) {
+            allMarks.add(res);
+          }
+        }
+      } else {
+        throw Exception('Es hat in einer DuoNote mehr als 2 Noten');
+      }
+    }
+
+    //Noten von Normalen Noten in eine Liste packen gerundet
+
+    for (var i in normalMarks) {
+      Map<String, dynamic> fach = Map<String, dynamic>.from(i);
+      Map<String, dynamic> value = Map<String, dynamic>.from(fach.values.first);
+      if (value['Note'] == '--') {
+        continue;
+      }
+
+      double mark = double.parse(value['Note']);
+
+      double roundedMark = User.round(mark);
+      if (roundedMark != 0) {
+        allMarks.add(roundedMark);
+      }
+    }
+    double saldo = 0;
+    //Plus und Minus Punkte von den Noten in einen gemeinsamen Saldo verrechnen und wiedergeben
+    for (double _mark in allMarks) {
+      if (_mark == 4) {
+        continue;
+      } else if (_mark > 4) {
+        _mark = _mark - 4;
+        while (_mark >= 1) {
+          _mark = _mark - 1;
+          saldo += 1;
+        }
+        if (_mark >= 0.75) {
+          saldo += 1;
+        } else if (_mark >= 0.25 && _mark < 0.75) {
+          saldo += 0.5;
+        } else {
+          continue;
+        }
+      } else {
+        _mark = 4 - _mark;
+        while (_mark >= 1) {
+          _mark = _mark - 1;
+          saldo = saldo - 2;
+        }
+        if (_mark >= 0.75) {
+          continue;
+        } else if (_mark < 0.75 && _mark >= 0.25) {
+          saldo = saldo - 1;
+        } else {
+          continue;
+        }
+      }
+    }
+
+    //Notendurschnitt
+    double sumAllMarks = 0;
+
+    for (double num in allMarks) {
+      sumAllMarks += num;
+    }
+    double notenschnitt = sumAllMarks / allMarks.length;
+
+    return [saldo.toString(), notenschnitt.toString()];
+  }
+
+  //Saldo wird berechnet
+  /*
+  static Future<List<String>> saldo(Map<String, dynamic> userMarks) async {
+    //Wichtig: !!!! Diese Funktion ist nicht mehr aktuelle -> saldoTwo
     List<double> noten = [];
     double saldo = 0;
 
-    
-    Map<String, dynamic> _userDuoMarks =
-        await User.readFile(requiredFile.userDuoMarks);
+    List<Map<String, dynamic>> normalMarks = [];
+    List<Map<String, dynamic>> duoMarks = []; //Every mark it noted one time.
+    List<Map<String, double>> duoPartners = [];
+    List<Map<double, double>> duoMarks =
+        []; //Here comes every mark from subject one and two which later get summeriesed
 
-    List<String> alreadyDoneDuoMarks = [];
+    for (Map<String, dynamic> i in userMarks.entries.toList()) {
+      bool skip = false;
 
-    for (Map<String, dynamic> i in userMarks.values) {
-      print('I Relevant > ' + i.toString());
+      String key = i.keys.first;
+      Map<String, dynamic> value = Map<String, dynamic>.from(i.values.first);
+
+      //Wird überprüft, ob es relevant ist
       if (i['relevant'] == true) {
         continue;
       }
-      /*
-      for (String item in _userDuoMarks.keys) {
-        if (item.contains(i['Fach'])) {
-          print('Duo Noten im Saldo...');
-          print(i['Fach']);
+      //Überprüft ob der Duo Parnter des Faches schon einmal genommen wurde.
+      for (Map<String, double> duoPartner in duoPartners) {
+        String duoPartnerKey = duoPartner.keys.first;
+        if (key.contains(duoPartnerKey)) {}
+      }
 
-          double sum = double.parse(_userDuoMarks[item].keys.first['Note']) +
-              double.parse(_userDuoMarks[item].values.first['Note']);
-          print('Saldo Duo Note Summe = ' + sum.toString());
-          double notenschnitt = sum / 2;
-          print('Notenschnitt = ' + notenschnitt.toString());
-        }else{
-          print('Das ist keine Duo Note: '+ i['Fach']);
-        }
-      }*/
-      
-      
+      if (i['duoMark'] == true) {
+        duoMarks.add(i);
+        String duoPartner = i['duoPartner'];
+        double mark = i['Note'];
+        Map<String, double> cache = {duoPartner: mark};
+        duoPartners.add(cache);
+
+        duoPartners.add(duoPartner);
+      } else {
+        //Todo:
+      }
+
+      //Die einzelnen Duo Noten runden
+
+      //Zusammenrechnen und runden
+
+      //Pluspunkt und Minuspunkte entnehmen
+
       String stringMark =
           i.toString().split(',')[1].split(':')[1].replaceAll(' ', '');
       if (stringMark == '--') {
@@ -114,7 +317,7 @@ class User {
     print(noten);
 
     allMarks = noten;
-    
+
     //Hier werden Werte abgezogen bis ein Minimum erreicht wurde. Pro abgezogener Wert wird das beim Saldo einen Wert addiert, was schlussendlich den Notensaldo ergibt.
     for (double mark in noten) {
       double resMarkSaldo = mark - 4;
@@ -180,6 +383,7 @@ class User {
         (_notendurchschnittValue / _counterNotenDurchschnitt);
     return [saldo.toString(), notendurchschnitt.toString()];
   }
+  */
 
   //Daten Verarbeitung -> Verwalten der Daten
 
@@ -220,6 +424,9 @@ class User {
       case requiredFile.userOpenAbsences:
         fileName = 'user_open_absences.json';
         break;
+      case requiredFile.userNotRelevantMarks:
+        fileName = 'user_not_relevant_marks.json';
+        break;
 
       default:
         throw Exception('File Path does not exist');
@@ -234,7 +441,6 @@ class User {
   //Speichert eine Map in einer JSON Datei
   static Future<void> writeInToFile(
       Map<String, dynamic> information, Enum fileEnum) async {
-    print('Write in File -> ' + information.toString());
     File file = await getFile(fileEnum);
     if (file.existsSync()) {
       file.deleteSync();
@@ -244,20 +450,22 @@ class User {
   }
 
   static Future<Map<String, dynamic>> readFile(Enum fileEnum) async {
-    File file = await getFile(fileEnum);
-    if (!file.existsSync()) {
-      throw Exception('File does not Exist'); //todo: Exception
+    File file = File('');
+    try {
+      file = await getFile(fileEnum);
+    } catch (e) {
+      return {};
     }
-    print('ReadFile');
-    print(file.readAsStringSync());
+    if (!file.existsSync()) {
+      return {};
+    }
+
     if (file.readAsStringSync() == Null ||
         file.readAsStringSync() == '' ||
         file.readAsStringSync() == '{}') {
-      print('Datei ist leer.');
       return {};
     }
-    print('File String');
-    print(file.readAsStringSync());
+
     Map<String, dynamic> data = convert.jsonDecode(file.readAsStringSync());
     return data;
   }
@@ -272,28 +480,57 @@ class User {
         password: _userData['password'],
         host: _userData['host']);
     await webScraperNesa.login();
-    print('Hat es Funktioniert?: ' + webScraperNesa.isLogin().toString());
+
     webScraperNesa.getAbsenceData();
 
     //Einzelnoten werden geladen
     Map<String, dynamic> userAllMarks = await webScraperNesa.getAllMarks();
-    print('User All Marks');
-    print(userAllMarks);
+
     await User.writeInToFile(userAllMarks, requiredFile.userAllMarks);
     //Noten werden verarbeitet
     Map<String, dynamic> userMarks = await webScraperNesa.getMarksData();
-    print('User Marks');
-    print(userMarks);
-    await User.writeInToFile(userMarks, requiredFile.userMarks);
 
-    //Dashboard Informationen
-    Map<String, dynamic> userDashboard = {};
-    userDashboard['saldo'] = await saldo(userMarks);
-    print('Absence Data');
-    userDashboard['openAbsence'] =
-        webScraperNesa.openAbsence.replaceAll('\n', ''); //todo:
-    userDashboard['notenschnitt'] = await saldo(userMarks); //todo:
-    await User.writeInToFile(userDashboard, requiredFile.userDashboard);
+    //Nicht Relevante Noten werden angewendet
+    Map<String, dynamic> userNotRelevantMarks =
+        await User.readFile(requiredFile.userNotRelevantMarks);
+    List<String> userNotRelevantMarksTitles =
+        userNotRelevantMarks.keys.toList();
+
+    for (var i = 0; i < userNotRelevantMarksTitles.length; i++) {
+      for (var item in userMarks.entries.toList()) {
+        Map<String, dynamic> res = Map<String, dynamic>.from(item.value);
+        if (res == Null) {
+          continue;
+        }
+        String s = res['Fach'];
+        if (userNotRelevantMarksTitles[i].contains(s)) {
+          String title = item.key;
+          res['relevant'] = true;
+          userMarks[title] = res;
+        }
+      }
+    }
+
+    //Duo Noten werden angewendet
+    //Schauen, ob im Key Beispielweise "EnglischFranzösisch" ein Name eines Faches steckt. Falls ja wird eine
+    //zweiter Algorhythmus seinen Partner finden.
+    Map<String, dynamic> duoMarks =
+        await User.readFile(requiredFile.userDuoMarks);
+
+    for (String str in duoMarks.keys) {
+      for (var item in userMarks.entries.toList()) {
+        String key = item.key;
+        Map<String, dynamic> value = Map<String, dynamic>.from(item.value);
+
+        if (str.contains(value['Fach'])) {
+          value['duoMark'] = true;
+          value['duoPartner'] = str.replaceAll(key, '');
+          userMarks[key] = value;
+        }
+      }
+    }
+
+    await User.writeInToFile(userMarks, requiredFile.userMarks);
 
     //User Informationen von der Startseite
     Map<String, dynamic> userInformation =
@@ -308,6 +545,16 @@ class User {
     await User.writeInToFile(userInformation, requiredFile.userInformation);
     await User.writeInToFile(userNewMarks, requiredFile.userNewMarks);
     await User.writeInToFile(userOpenAbsences, requiredFile.userOpenAbsences);
+
+    //Dashboard Informationen
+    Map<String, dynamic> userDashboard = {};
+    userDashboard['saldo'] = await saldo(userMarks);
+    userDashboard['openAbsence'] = userOpenAbsences.length.toString(); //todo:
+    userDashboard['notenschnitt'] = await saldo(userMarks); //todo:
+    if (userDashboard['openAbsence'] == '') {
+      userDashboard['openAbsence'] = 0.toString();
+    }
+    await User.writeInToFile(userDashboard, requiredFile.userDashboard);
 
     //Image Informationen
     /*
@@ -330,5 +577,39 @@ class User {
     if (appDir.existsSync()) {
       appDir.deleteSync(recursive: true);
     }
+  }
+
+  static Future<void> syncNotRelevantMarks() async {
+    Map<String, dynamic> userMarks =
+        await User.readFile(requiredFile.userMarks);
+    Map<String, dynamic> userNotRelevantMarks =
+        await User.readFile(requiredFile.userNotRelevantMarks);
+    List<String> userNotRelevantMarksTitles =
+        userNotRelevantMarks.keys.toList();
+    Map<String, dynamic> value;
+
+    for (var i = 0; i < userNotRelevantMarksTitles.length; i++) {
+      for (var item in userMarks.entries.toList()) {
+        Map<String, dynamic> res = Map<String, dynamic>.from(item.value);
+        String s = res['Fach'];
+        if (userNotRelevantMarksTitles[i].contains(s)) {
+          String title = item.key;
+          res['relevant'] = true;
+          userMarks[title] = res;
+        }
+      }
+      //Dashboard Informationen
+      Map<String, dynamic> userDashboard =
+          await User.readFile(requiredFile.userDashboard);
+      userDashboard['saldo'] = await saldo(userMarks);
+
+      await User.writeInToFile(userDashboard, requiredFile.userDashboard);
+    }
+    await User.writeInToFile(userMarks, requiredFile.userMarks);
+  }
+
+  static Future<void> syncDuoMarks(
+      Map<String, dynamic> marks, Map<String, dynamic> duoMarks) async {
+    //TODO:
   }
 }

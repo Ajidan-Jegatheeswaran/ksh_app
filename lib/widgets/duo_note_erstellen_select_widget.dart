@@ -53,12 +53,10 @@ class _DuoNoteErstellenSelectWidgetState
                         itemCount: marks.length,
                         itemBuilder: (ctx, index) {
                           List<dynamic> subjectsList = marks.values.toList();
-                          print('SUbjectsList');
-                          print(subjectsList);
+                          
                           Map<String, dynamic> subject =
                               Map<String, dynamic>.from(subjectsList[index]);
-                          print('Subjectmap');
-                          print(subject);
+                        
                           bool isRadioSelcted = false;
                           int _value = 0;
                           return Container(
@@ -122,10 +120,9 @@ class _DuoNoteErstellenSelectWidgetState
           Map<String, dynamic> marks = {};
           try {
             marks = snap.data as Map<String, dynamic>;
-            print('mARKS');
-            print(marks);
+          
           } catch (Exception) {
-            print('Oh Exception');
+          
           }
 
           return Center(

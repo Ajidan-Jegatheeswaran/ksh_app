@@ -1,4 +1,4 @@
-package com.example.ksh_app
+package com.duzent.nesa
 
 import io.flutter.embedding.android.FlutterActivity
 

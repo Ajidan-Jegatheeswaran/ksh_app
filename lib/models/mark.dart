@@ -15,7 +15,7 @@ class Mark {
 
     count1 = count1 ~/ 100;
     count2 = count2 ~/ 100;
-    print('counts ' + count1.toString() + ' ' + count2.toString());
+    
 
     double zusammengerechnete = (mark1 * count1) + (mark2 * count2);
     return zusammengerechnete;

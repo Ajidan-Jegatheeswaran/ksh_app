@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.ksh_app">
+    package="com.duzent.nesa">
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="ksh_app"
+        android:label="Nesa"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
