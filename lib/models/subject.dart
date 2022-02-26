@@ -17,8 +17,8 @@ class Subject {
       this.isNotRelevant = false,
       this.singleMarks});
 
-  add(Test test){
-    if(singleMarks!.isEmpty){
+  add(Test test) {
+    if (singleMarks!.isEmpty) {
       singleMarks = [];
     }
     singleMarks!.add(test);

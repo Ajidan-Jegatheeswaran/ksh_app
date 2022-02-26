@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:ksh_app/screens/home_screen.dart';
 import 'package:ksh_app/widgets/choose_school_widget.dart';
 import '../models/user.dart';
 import '../models/web_scraper_nesa.dart';
@@ -42,7 +43,25 @@ class ChooseSchoolScreen extends StatelessWidget {
   late List<String> subDomainsName;
   late List<String> subDomainsSub;
 
-  void main(List<String> args) async {}
+  void tryLogin(ctx) async {
+    Map<String, dynamic> _userData =
+        await User.readFile(requiredFile.userLogin);
+    if (_userData != {}) {
+      WebScraperNesa webScraperNesa = WebScraperNesa(
+          username: _userData['username'],
+          password: _userData['password'],
+          host: _userData['host']);
+      await webScraperNesa.login();
+      if (webScraperNesa.isLogin()) {
+        await User.getUserData(webScraperNesa);
+
+        Navigator.of(ctx).pushNamedAndRemoveUntil(
+            HomeScreen.routeName, ModalRoute.withName(HomeScreen.routeName));
+      } else {
+        print('Keine Benutzerdaten von vorherigen Logins bekannt.');
+      }
+    }
+  }
 
   
 

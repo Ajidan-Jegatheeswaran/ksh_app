@@ -71,18 +71,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
  
 
-        User.writeInToFile(_userData,
-            requiredFile.userLogin); //todo: Durch User Methode ersetzen
+      User.writeInToFile(_userData,
+          requiredFile.userLogin); //todo: Durch User Methode ersetzen
 
-        WebScraperNesa webScraper = WebScraperNesa(
-            username: _userData['username'].toString(),
-            password: _userData['password'].toString(),
-            host: _userData['host'].toString());
-        setState(() {
-          _isLoading = true;
-        });
+      WebScraperNesa webScraper = WebScraperNesa(
+          username: _userData['username'].toString(),
+          password: _userData['password'].toString(),
+          host: _userData['host'].toString());
+      setState(() {
+        _isLoading = true;
+      });
 
-        bool isUserLogin = await User.getUserData(webScraper);
+      bool isUserLogin = await User.getUserData(webScraper);
 
       
         if (isUserLogin) {

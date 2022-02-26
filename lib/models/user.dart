@@ -381,6 +381,9 @@ class User {
     print((_notendurchschnittValue / _counterNotenDurchschnitt).toString());
     double notendurchschnitt =
         (_notendurchschnittValue / _counterNotenDurchschnitt);
+    if (saldo.toString().startsWith('-')) {
+      saldo.toString().replaceAll('-', '');
+    }
     return [saldo.toString(), notendurchschnitt.toString()];
   }
   */
@@ -467,6 +470,7 @@ class User {
     }
 
     Map<String, dynamic> data = convert.jsonDecode(file.readAsStringSync());
+    print('Schreiben der Datei beendet...');
     return data;
   }
 
@@ -480,8 +484,6 @@ class User {
         password: _userData['password'],
         host: _userData['host']);
     await webScraperNesa.login();
-
-    webScraperNesa.getAbsenceData();
 
     //Einzelnoten werden geladen
     Map<String, dynamic> userAllMarks = await webScraperNesa.getAllMarks();
@@ -533,10 +535,10 @@ class User {
     await User.writeInToFile(userMarks, requiredFile.userMarks);
 
     //User Informationen von der Startseite
-    Map<String, dynamic> userInformation =
-        await webScraperNesa.getHomeData(HomePageInfo.information);
     Map<String, dynamic> userNewMarks =
         await webScraperNesa.getHomeData(HomePageInfo.newMarks);
+    Map<String, dynamic> userInformation =
+        await webScraperNesa.getHomeData(HomePageInfo.information);
     Map<String, dynamic> userOpenAbsences =
         await webScraperNesa.getHomeData(HomePageInfo.openAbsence);
     if (userInformation == {}) {

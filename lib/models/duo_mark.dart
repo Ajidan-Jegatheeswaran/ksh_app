@@ -88,7 +88,6 @@ class DuoMark {
     User.writeInToFile(userDashboard, requiredFile.userDashboard);
 
     await User.writeInToFile(data, requiredFile.userDuoMarks);
-    
   }
 
   //Lösch Funktion
