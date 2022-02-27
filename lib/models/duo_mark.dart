@@ -91,7 +91,7 @@ class DuoMark {
   }
 
   //Lösch Funktion
-  static void delete(String subjectNames) async {
+  static Future<void> delete(String subjectNames) async {
     Map<String, dynamic> data = await User.readFile(requiredFile.userDuoMarks);
     Map<String, dynamic> marks = await User.readFile(requiredFile.userMarks);
   

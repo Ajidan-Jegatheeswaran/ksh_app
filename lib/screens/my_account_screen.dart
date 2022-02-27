@@ -42,7 +42,6 @@ class MyAccountScreen extends StatelessWidget {
                     requiredFile.userLogin,
                     requiredFile.userDashboard,
                     requiredFile.userMarks,
-                    requiredFile.userTests,
                     requiredFile.userHost,
                     requiredFile.userImage,
                     requiredFile.userInformation,
@@ -73,7 +72,7 @@ class MyAccountScreen extends StatelessWidget {
                 color: Colors.white,
               );
             }
-         
+
             Map<String, dynamic> _map = snap.data as Map<String, dynamic>;
 
             return SingleChildScrollView(
@@ -123,8 +122,8 @@ class MyAccountScreen extends StatelessWidget {
                         ),
                         Column(
                           children: [
-                            ListTileForSettings(
-                                'Duo Noten', DuoNotenScreen.routeName),
+                            //ListTileForSettings(
+                            //    'Duo Noten', DuoNotenScreen.routeName),
                             ListTileForSettings('Nicht relevante Noten',
                                 NotRelevantMarksScreen.routeName)
                           ],
@@ -132,7 +131,7 @@ class MyAccountScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15,
                   ),
                   Container(

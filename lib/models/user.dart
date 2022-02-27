@@ -121,6 +121,8 @@ class User {
 
     //Speicher
     Map<String, List<double>> _cacheDuoMarks = {};
+    List<String> duoPartnerAlreadyMentioned = [];
+    bool duoPartnerAlreadyMentionedBool = false;
 
     for (Map<String, dynamic> item in duoMarks) {
       Map<String, dynamic> _value = item.values.first;
@@ -130,6 +132,15 @@ class User {
 
       for (var entrie in _cacheDuoMarks.entries.toList()) {
         String key = entrie.key;
+        for(String str in duoPartnerAlreadyMentioned){
+          if(str.contains(key)){
+            duoPartnerAlreadyMentionedBool = true;
+          }
+        }
+        if(duoPartnerAlreadyMentionedBool){
+          duoPartnerAlreadyMentionedBool = false;
+          continue;
+        }
         if (key.contains(_duoPartner)) {
           List<double> _marks = entrie.value;
           if (_value['Note'] == '--') {
@@ -148,7 +159,8 @@ class User {
       if (_value['Note'].toString() == '--') {
         _mark = 0.0;
       } else {
-        double _mark = double.parse(_value['Note']);
+        _mark = double.parse(_value['Note']);
+        duoPartnerAlreadyMentioned.add(_value['duoPartner']);
       }
 
       _cacheDuoMarks[_subject] = [_mark, 0];

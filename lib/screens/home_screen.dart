@@ -116,8 +116,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 15,
                 ),
                 newMarks.length == 0 && openAbsences.length == 0
-                    ? const Center(
-                        child: Text('Keine Neuigkeiten'),
+                    ? Padding(
+                        padding: EdgeInsets.only(top: mediaQuery.height * 0.2),
+                        child: const Center(
+                          child: Text(
+                            'Keine Neuigkeiten',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
                       )
                     : Container(),
 

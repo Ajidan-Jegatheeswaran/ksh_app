@@ -47,44 +47,41 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Flexible(
-                        child: ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: marks.length,
-                          itemBuilder: (ctx, index) {
-                            List<dynamic> subjectsList = marks.values.toList();
-                           
-                            Map<String, dynamic> subject =
-                                Map<String, dynamic>.from(subjectsList[index]);
-                         
-                            bool isRadioSelcted = false;
-                            int _value = 0;
-                            return Container(
-                              margin: EdgeInsets.only(bottom: 5),
-                              child: ListTile(
-                                title: Text(
-                                  subject['Fach'],
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                                tileColor: Theme.of(context).primaryColor,
-                                onTap: () async {
-                                  await DuoMark.add(
-                                      lastSubject, subject, context);
-                                  var a = await User.readFile(
-                                      requiredFile.userDuoMarks);
-                               
-                                  setState(() {
-                                    Navigator.of(context)
-                                        .pushNamedAndRemoveUntil(
-                                            DuoNotenScreen.routeName,
-                                            ModalRoute.withName('/'));
-                                  });
-                                },
+                      child: ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: marks.length,
+                        itemBuilder: (ctx, index) {
+                          List<dynamic> subjectsList = marks.values.toList();
+
+                          Map<String, dynamic> subject =
+                              Map<String, dynamic>.from(subjectsList[index]);
+
+                          bool isRadioSelcted = false;
+                          int _value = 0;
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 5),
+                            child: ListTile(
+                              title: Text(
+                                subject['Fach'],
+                                style: const TextStyle(color: Colors.white),
                               ),
-                            );
-                          },
-                        ),
+                              tileColor: Theme.of(context).primaryColor,
+                              onTap: () async {
+                                await DuoMark.add(
+                                    lastSubject, subject, context);
+                                var a = await User.readFile(
+                                    requiredFile.userDuoMarks);
+
+                                setState(() {
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                      DuoNotenScreen.routeName,
+                                      ModalRoute.withName('/'));
+                                });
+                              },
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -105,6 +102,7 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
             insetPadding: EdgeInsets.all(10),
             backgroundColor: Theme.of(context).colorScheme.secondary,
             child: SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
               child: Column(
                 children: [
                   Container(
@@ -117,34 +115,31 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Flexible(
-                      child: ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: marks.length,
-                        itemBuilder: (ctx, index) {
-                          List<dynamic> subjectsList = marks.values.toList();
-                          
-                          Map<String, dynamic> subject =
-                              Map<String, dynamic>.from(subjectsList[index]);
-                         
-                          bool isRadioSelcted = false;
-                          int _value = 0;
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 5),
-                            child: ListTile(
-                              title: Text(
-                                subject['Fach'],
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                              tileColor: Theme.of(context).primaryColor,
-                              onTap: () {
-                                showDialogChooseSubjectSecond(subject, marks);
-                              },
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: marks.length,
+                      itemBuilder: (ctx, index) {
+                        List<dynamic> subjectsList = marks.values.toList();
+
+                        Map<String, dynamic> subject =
+                            Map<String, dynamic>.from(subjectsList[index]);
+
+                        bool isRadioSelcted = false;
+                        int _value = 0;
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 5),
+                          child: ListTile(
+                            title: Text(
+                              subject['Fach'],
+                              style: const TextStyle(color: Colors.white),
                             ),
-                          );
-                        },
-                      ),
+                            tileColor: Theme.of(context).primaryColor,
+                            onTap: () {
+                              showDialogChooseSubjectSecond(subject, marks);
+                            },
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -186,10 +181,7 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                   snap.data as Map<String, dynamic>;
               marks = _userData['marks'] as Map<String, dynamic>;
               duoMarks = _userData['duoMarks'] as Map<String, dynamic>;
-           
-            } catch (Exception) {
-              
-            }
+            } catch (Exception) {}
             return Padding(
               padding: const EdgeInsets.all(15),
               child: SingleChildScrollView(
@@ -309,12 +301,10 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                                         Icons.delete,
                                         color: Colors.white,
                                       ),
-                                      onPressed: () {
-                                        setState(() {
-                                          DuoMark.delete(DuoMark.mapFromJson(
-                                              duoMarks)[index]);
-                                          setState(() {});
-                                        });
+                                      onPressed: () async{
+                                        await DuoMark.delete(DuoMark.mapFromJson(
+                                            duoMarks)[index]);
+                                        setState(() {});
                                       },
                                     ),
                                   ),
