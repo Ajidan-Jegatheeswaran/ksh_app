@@ -145,6 +145,8 @@ class User {
           duoPartnerAlreadyMentionedBool = false;
           continue;
         }
+
+      //This is the new one.
       /*
       for (var entrie in _cacheDuoMarks.entries.toList()) {
         String key = entrie.key;
