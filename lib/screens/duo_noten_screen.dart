@@ -73,11 +73,15 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                                 var a = await User.readFile(
                                     requiredFile.userDuoMarks);
 
-                                setState(() {
-                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                setState(
+                                  () {
+                                    Navigator.of(context)
+                                        .pushNamedAndRemoveUntil(
                                       DuoNotenScreen.routeName,
-                                      ModalRoute.withName('/'));
-                                });
+                                      ModalRoute.withName('/'),
+                                    );
+                                  },
+                                );
                               },
                             ),
                           );
@@ -279,7 +283,7 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                           )
                         ],
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15,
                       ),
                       ListView.builder(
@@ -301,9 +305,10 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                                         Icons.delete,
                                         color: Colors.white,
                                       ),
-                                      onPressed: () async{
-                                        await DuoMark.delete(DuoMark.mapFromJson(
-                                            duoMarks)[index]);
+                                      onPressed: () async {
+                                        await DuoMark.delete(
+                                            DuoMark.mapFromJson(
+                                                duoMarks)[index]);
                                         setState(() {});
                                       },
                                     ),

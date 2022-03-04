@@ -122,8 +122,8 @@ class MyAccountScreen extends StatelessWidget {
                         ),
                         Column(
                           children: [
-                            //ListTileForSettings(
-                            //    'Duo Noten', DuoNotenScreen.routeName),
+                            ListTileForSettings(
+                                'Duo Noten', DuoNotenScreen.routeName),
                             ListTileForSettings('Nicht relevante Noten',
                                 NotRelevantMarksScreen.routeName)
                           ],

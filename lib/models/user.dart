@@ -126,10 +126,26 @@ class User {
 
     for (Map<String, dynamic> item in duoMarks) {
       Map<String, dynamic> _value = item.values.first;
-
-      //Überprüfen, ob der Duo Partner des Faches schon in gespeichert wurde
+      String key1 = item.keys.first;
       String _duoPartner = _value['duoPartner'];
 
+      //Überprüfen, ob der Duo Partner des Faches schon in gespeichert wurde
+
+      for (var entrie in _cacheDuoMarks.entries) {
+        String key = entrie.key;
+        List<double> marks = entrie.value;
+
+        if (_duoPartner.contains(key)) {
+          marks[1] = double.parse(_value['Note']);
+          _cacheDuoMarks[key] = marks;
+          duoPartnerAlreadyMentionedBool = true;
+        }
+      }
+      if(duoPartnerAlreadyMentionedBool){
+          duoPartnerAlreadyMentionedBool = false;
+          continue;
+        }
+      /*
       for (var entrie in _cacheDuoMarks.entries.toList()) {
         String key = entrie.key;
         for(String str in duoPartnerAlreadyMentioned){
@@ -151,7 +167,7 @@ class User {
 
           _cacheDuoMarks[key] = _marks;
         }
-      }
+      }*/
 
       //Wenn Duo Partner des Faches noch nicht gespeichert
       double _mark = 0;

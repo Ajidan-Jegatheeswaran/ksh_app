@@ -110,6 +110,7 @@ class DuoMark {
         ? objectFound2 = false
         : objectFound2 = true;
 
+    
     for (var item in marks.entries.toList()) {
       String key = item.key;
       Map<String, dynamic> val = Map<String, dynamic>.from(item.value);
@@ -120,6 +121,7 @@ class DuoMark {
         marks[key] = val;
       }
     }
+    await User.writeInToFile(marks, requiredFile.userMarks);
 
     Map<String,dynamic> userDashboard = await User.readFile(requiredFile.userDashboard);
       List<String> saldo = await User.saldo(marks);
