@@ -22,6 +22,9 @@ class StartingScreen extends StatelessWidget {
           username: _userData['username'],
           password: _userData['password'],
           host: _userData['host']);
+          print(_userData['username']);
+          print(_userData['password']);
+          print(_userData['host']);
       try {
         await webScraperNesa.login();
       } on SocketException {

@@ -611,37 +611,13 @@ class User {
     }
   }
 
-  static Future<void> syncNotRelevantMarks() async {
-    Map<String, dynamic> userMarks =
-        await User.readFile(requiredFile.userMarks);
-    Map<String, dynamic> userNotRelevantMarks =
-        await User.readFile(requiredFile.userNotRelevantMarks);
-    List<String> userNotRelevantMarksTitles =
-        userNotRelevantMarks.keys.toList();
-    Map<String, dynamic> value;
+  static Future<void> refreshSaldo() async {
+    Map<String,dynamic> userMarks = await User.readFile(requiredFile.userMarks);
 
-    for (var i = 0; i < userNotRelevantMarksTitles.length; i++) {
-      for (var item in userMarks.entries.toList()) {
-        Map<String, dynamic> res = Map<String, dynamic>.from(item.value);
-        String s = res['Fach'];
-        if (userNotRelevantMarksTitles[i].contains(s)) {
-          String title = item.key;
-          res['relevant'] = true;
-          userMarks[title] = res;
-        }
-      }
-      //Dashboard Informationen
+    //Dashboard Informationen
       Map<String, dynamic> userDashboard =
           await User.readFile(requiredFile.userDashboard);
       userDashboard['saldo'] = await saldo(userMarks);
-
-      await User.writeInToFile(userDashboard, requiredFile.userDashboard);
-    }
     await User.writeInToFile(userMarks, requiredFile.userMarks);
-  }
-
-  static Future<void> syncDuoMarks(
-      Map<String, dynamic> marks, Map<String, dynamic> duoMarks) async {
-    //TODO:
   }
 }

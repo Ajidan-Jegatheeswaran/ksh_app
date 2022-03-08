@@ -23,7 +23,6 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
     Map<String, dynamic> settings = {};
 
     return Scaffold(
-      
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
         title: const Text('Notensaldo - Nicht relevante Noten'),
@@ -33,19 +32,20 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
         onPressed: () async {
           Map<String, dynamic> newMap = {};
 
+          //In die Noten werden die relevant Daten eingefügt
           for (int i = 0; i < marks.length; i++) {
             Map<String, dynamic> map = marks.values.toList()[i];
             map['relevant'] = isChecked[i];
             newMap[marks.keys.toList()[i]] = map;
+            map = {};
           }
-          for (var i = 0; i < titles.length; i++) {
-            settings[titles[i]] = isChecked[i];
-          }
-          
+
           await User.writeInToFile(newMap, requiredFile.userMarks);
-          await User.writeInToFile(settings, requiredFile.userNotRelevantMarks);
-         
-          await User.syncNotRelevantMarks();
+
+          Map<String,dynamic> map = await User.readFile(requiredFile.userDashboard);
+          map['saldo'] = await User.saldo(newMap);
+          await User.writeInToFile(map, requiredFile.userDashboard);
+
           setState(() {});
           Navigator.of(context).pushNamedAndRemoveUntil(
             HomeScreen.routeName,
@@ -73,16 +73,24 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
           }
 
           //Laden, der trues und falses
-          
-          
 
-          isChecked = List<bool>.filled(marks.length, false);
+          isChecked = [];
+
+          //Laden der Noten
+          for (Map<String, dynamic> val in marks.values) {
+            if (val.containsKey('relevant')) {
+              isChecked.add(val['relevant']);
+            } else {
+              isChecked.add(false);
+            }
+          }
+
+          //Den Status der Nicht Relevanten Noten durch iterieren
 
           return SingleChildScrollView(
             child: Column(
               children: [
                 ListViewBuilderForCheckBoxNotRelevantMarks(
-                  
                     marks: marks, isChecked: isChecked, titles: titles),
               ],
             ),

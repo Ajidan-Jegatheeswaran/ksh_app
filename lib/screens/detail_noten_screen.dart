@@ -58,6 +58,7 @@ class DetailNotenScreen extends StatelessWidget {
                       shrinkWrap: true,
                       itemCount: markSubject.length,
                       itemBuilder: (ctx, index) {
+                        String toProve = markSubject[index]['valuation'].toString().replaceAll(' ', '');
                         if (markSubject[index]['valuation'].toString().trim() ==
                             '') {
                           return Container(
@@ -65,6 +66,13 @@ class DetailNotenScreen extends StatelessWidget {
                             height: 0,
                           );
                         }
+                        if(markSubject[index]['valuation'].toString().replaceAll(' ', '').contains('DetailszurNote')){
+                          String res = markSubject[index]['valuation'].toString().replaceAll(' ', '');
+                          String fixed = res.split('DetailszurNote')[0].replaceAll(' ', '');
+                          markSubject[index]['valuation'] = fixed;
+                        }//
+//5.4
+//DetailszurNoteKombiprüfungmitEinzelnotenTeilprüfungCrosslauf
                         return Container(
                           margin: EdgeInsets.only(bottom: 5),
                           color: Theme.of(context).colorScheme.secondary,

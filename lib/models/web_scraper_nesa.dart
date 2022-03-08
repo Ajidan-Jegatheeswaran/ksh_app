@@ -78,15 +78,12 @@ class WebScraperNesa {
       bool isNoLongCodeHeader = false,
       bool isCalendar = false}) async {
     String? res = _header['set-cookie'];
-    
-    
+
     if (!isPathSecond) {
       phpSecurityHeader = res!.split(';')[0];
     } else if (isPathSecond) {
       longCodeHeader = res!.split(';')[0];
-      
     } else if (isNoLongCodeHeader || res!.length < 2) {
-      
     } else {
       longCodeHeader = res.split(';')[1].split(',')[1];
     }
@@ -132,7 +129,7 @@ class WebScraperNesa {
         'X-Requested-With': 'XMLHttpRequest'
       };
     }
-    
+
     return result;
   } //'content-length': '90',
 
@@ -191,10 +188,8 @@ class WebScraperNesa {
     await cookies();
     await send();
     if (isLogin()) {
-      
       return true;
     } else {
-      
       return false;
     }
   }
@@ -221,19 +216,16 @@ class WebScraperNesa {
     if (res.statusCode == 200) {
       _document = res.body;
       _homeHtml = res.body;
-      
+
       _header = res.headers;
       if (isLogin()) {
-        
       } else {
         //TODO:
       }
 
       webscraper.loadFromString(_document);
     } else {
-      if (res.isRedirect) {
-       
-      }
+      if (res.isRedirect) {}
 
       throw Exception('Nutzeranfrage war nicht erfolgreich');
     }
@@ -256,10 +248,9 @@ class WebScraperNesa {
 
     var res = await client.post(uri, body: body, headers: await cookies());
     _header = res.headers;
-    
 
     var content = res.body;
-   
+
     return content;
   }
 
@@ -269,7 +260,6 @@ class WebScraperNesa {
       throw ('Nicht angemeldet');
     }
     bool _isLoad = webscraper.loadFromString(_document);
-   
 
     //Hier wird die ID (HTML) vom jeweiligen Element geschickt, welches den Link zu einer der Navigationsseiten von Nesa hat
     Future<String> getNavigationPage() async {
@@ -307,7 +297,6 @@ class WebScraperNesa {
       }
 
       var link = webscraper.getElementAttribute(menu, 'href');
-     
 
       if (link.length > 1 || link.isEmpty) {
         throw Exception('Etwas ist schief gelaufen'); //TODO: Exception
@@ -315,7 +304,6 @@ class WebScraperNesa {
 
       await _getPageContent(buildLink(link[0].toString())).then((val) {
         _content = val;
-     
       });
 
       return _content;
@@ -784,7 +772,6 @@ class WebScraperNesa {
           counter += 1;
           break;
         case 4:
-          
           if (res != '--') {
             if (res.contains('ja')) {
               isConfirmed = 'ja';
@@ -793,11 +780,9 @@ class WebScraperNesa {
             } else {
               throw Exception('IsConfirmed If Else FUnktioniert nicht');
             }
-           
           } else {
             isConfirmed = '--';
           }
-         
 
           //Note in Map impotieren
           if (subjectMark != '' && subjectName != '' && isConfirmed != '') {
@@ -807,7 +792,6 @@ class WebScraperNesa {
             dataMarks['Note'] = subjectMark.replaceAll('*', '');
             dataMarks['Noten bestätigt'] = isConfirmed;
             noten[listSubjectTitle[counter2].values.first] = dataMarks;
-           
           } else {
             throw Exception(); //TODO: Exception
           }
@@ -816,18 +800,55 @@ class WebScraperNesa {
           break;
 
         case 6:
-         
           counter = 1;
           counter2 += 1;
           break;
         default:
-         
           counter += 1;
           break;
       }
     }
 
     
+
+    //noten überprüfen, ob es zwei mal die gleichen Fächer hat
+    String currentSubject = '';
+    List<String> sameNamed = [];
+    bool exit = false;
+
+    for (var val in noten.entries.toList()) {
+      Map<String,dynamic> value = Map<String,dynamic>.from(val.value);
+      String key = val.key;
+
+      //Überprüfen, ob es schon gemeldet wurde in der Liste sameNamed
+      for(String str in sameNamed){
+        if(value['Fach'].replaceAll(' ', '') == str){
+          value['Fach'] = key;
+          noten[key] = value;
+
+        }
+      }
+
+      //Exit if oben schon erfüllt
+      if(exit){
+        exit = false;
+      }
+
+
+      //currentSubject festlegen
+      currentSubject = value['Fach'].toString().replaceAll(' ', '');
+      //Mit den anderen Fächern vergleichen, ob es gleich ist
+      for (Map<String, dynamic> com in noten.values) {
+        String compareSubject = com['Fach'].toString().replaceAll(' ', '');
+        if(currentSubject == compareSubject){
+          value['Fach'] = key;
+          noten[key] = value;
+
+        }
+      }
+    }
+    
+
     return noten;
   }
 
@@ -850,7 +871,6 @@ class WebScraperNesa {
     //Alle Element von HTML Code extrahieren
     //td Elemente, welche unteranderm die Einzelnoten der Fächer enthalten werden herausgefiltert
     List listMarks = webscraper.getElement('tr>td>table>tbody>tr>td', []);
-    
 
     //Die gebrauchten Daten werden herausgenommen und die Liste titleListMarks gespeichert
     List titleListMarks = [];
@@ -863,7 +883,6 @@ class WebScraperNesa {
           .split(': ')[1];
       titleListMarks.add(markString);
     }
-  
 
     //Alle Listen Elemente, welche 'Datum', 'Thema', 'Bewertung', und 'Gewichtung' enthalten werden entfert.
     //Und an dieser Stelle wird der Fach Name eingefügt
@@ -876,18 +895,15 @@ class WebScraperNesa {
       titleListMarks.remove('Datum');
       titleListMarks.remove('Thema');
     }
-  
+
     counterSubjectsTitleListMarks = 0;
     for (int j = 0; j < titleListMarks.length; j++) {
       var i = titleListMarks[j];
       if (i.contains('Gewichtung')) {
-        
         titleListMarks[j] = markNames[counterSubjectsTitleListMarks];
         counterSubjectsTitleListMarks++;
       }
     }
-
-    
 
     //Es wird eine Map erstellt bei dem der Key Wert der Name des Faches ist und der Value Wert eine List von Noten mit den jeweiligen Zusatzinformation wie Datum, Thema,...
     counterSubjectsTitleListMarks = 0;
@@ -968,7 +984,7 @@ class WebScraperNesa {
           _subject['weighting'] = t;
           counter = 0;
           listOfSingleMarks.add(_subject);
-         
+
           _subject = {};
           break;
       }
@@ -1043,7 +1059,6 @@ class WebScraperNesa {
     }
     */
     allSubs[currentSub] = listOfSingleMarks;
-  
 
     return allSubs;
   }
@@ -1100,7 +1115,6 @@ class WebScraperNesa {
             indexCounter += 1;
             break;
           case 6:
-       
             absenz['lections'] =
                 item.split('ZudieserAbsenzerfasstenMeldungen')[0];
 
@@ -1110,7 +1124,7 @@ class WebScraperNesa {
 
               return test.contains('Anzahl Ereignisse');
             }).toList();
-           
+
             openAbsence = elementAnzahlEreignisseAll[1]['title']
                 .split(': ')[1]
                 .replaceAll(' ', '');
@@ -1130,8 +1144,6 @@ class WebScraperNesa {
                       .replaceAll(' ', '')
                       .split(':')[1];
 
-             
-
               anzahlEreignisseAll.add(int.parse(itemAnzahlEreignisse));
             }
 
@@ -1150,7 +1162,7 @@ class WebScraperNesa {
         }
       }
     }
- 
+
     return absenzen;
   }
 
@@ -1160,18 +1172,16 @@ class WebScraperNesa {
     String _resLink = webscraper
         .getElementAttribute('#cls_pageid_nav_24184', 'href')[0]
         .toString();
-  
+
     Response _response = await client.post(Uri.parse(buildLink(_resLink)),
         body: body, headers: await cookies(isNoLongCodeHeader: true));
-
-   
 
     webscraper.loadFromString(_response.body);
     String _resData =
         webscraper.getElementAttribute('img', 'src')[1].toString();
 
     String completeLink = buildLink(_resLink);
-  
+
     return completeLink;
   }
 
@@ -1186,17 +1196,15 @@ class WebScraperNesa {
         dateNow.month.toString() +
         '-' +
         dateNow.day.toString();
- 
 
     await setNavigationPageContent(NaviPage.agenda);
     String link = webscraper
         .getElementAttribute('#cls_pageid_nav_21312', 'href')[0]
         .toString();
-   
 
     Uri uriQuery = Uri.parse(buildLink(link));
     List<String> data = uriQuery.query.split('&');
-    
+
     data.add('ansicht=klassenuebersicht');
     data.add('view=month');
     data.add('curr_date=' + currentDate);
@@ -1210,7 +1218,6 @@ class WebScraperNesa {
     }
     data.add('timeshift=-60');
 
-    
     Map<String, String> body = {};
 
     for (int j = 0; j < 3; j++) {
@@ -1218,7 +1225,6 @@ class WebScraperNesa {
       List<String> list = i.split('=');
       body[list[0]] = list[1];
     }
- 
 
     String url = 'https://$host.nesa-sg.ch/scheduler_processor.php?';
     for (String item in data) {
@@ -1239,19 +1245,16 @@ class WebScraperNesa {
         i2 = '';
       }
     }
-    
+
     Uri uri = Uri.parse(url);
     var res = await client.post(uri,
         body: body,
         headers: await cookies(isPathSecond: true, isCalendar: true));
-   
+
     _header = res.headers;
 
     var content = res.body;
-    
 
     webscraper.loadFromString(res.body);
-
-    
   }
 }
