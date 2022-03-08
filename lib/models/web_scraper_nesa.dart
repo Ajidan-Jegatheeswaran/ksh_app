@@ -809,45 +809,43 @@ class WebScraperNesa {
       }
     }
 
-    
-
     //noten überprüfen, ob es zwei mal die gleichen Fächer hat
     String currentSubject = '';
     List<String> sameNamed = [];
     bool exit = false;
 
     for (var val in noten.entries.toList()) {
-      Map<String,dynamic> value = Map<String,dynamic>.from(val.value);
+      Map<String, dynamic> value = Map<String, dynamic>.from(val.value);
       String key = val.key;
 
       //Überprüfen, ob es schon gemeldet wurde in der Liste sameNamed
-      for(String str in sameNamed){
-        if(value['Fach'].replaceAll(' ', '') == str){
+      for (String str in sameNamed) {
+        if (value['Fach'].replaceAll(' ', '') == str) {
           value['Fach'] = key;
           noten[key] = value;
-
         }
       }
 
       //Exit if oben schon erfüllt
-      if(exit){
+      if (exit) {
         exit = false;
       }
-
 
       //currentSubject festlegen
       currentSubject = value['Fach'].toString().replaceAll(' ', '');
       //Mit den anderen Fächern vergleichen, ob es gleich ist
-      for (Map<String, dynamic> com in noten.values) {
+      for (var res in noten.entries.toList()) {
+        Map<String,dynamic> com = Map<String,dynamic>.from(res.value);
+        String comTitle = res.key;
+
         String compareSubject = com['Fach'].toString().replaceAll(' ', '');
-        if(currentSubject == compareSubject){
+        if (currentSubject == compareSubject && comTitle != key) {
+          sameNamed.add(value['Fach']);
           value['Fach'] = key;
           noten[key] = value;
-
         }
       }
     }
-    
 
     return noten;
   }
