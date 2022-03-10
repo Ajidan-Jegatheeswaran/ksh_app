@@ -8,8 +8,6 @@ import 'package:ksh_app/screens/duo_noten_screen.dart';
 import 'package:ksh_app/screens/starting_screen.dart';
 
 import './screens/login_screen.dart';
-import 'models/user.dart';
-import 'models/web_scraper_nesa.dart';
 import 'screens/noten_screen.dart';
 
 void main() async {
