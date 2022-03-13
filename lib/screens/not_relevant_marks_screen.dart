@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ksh_app/models/user.dart';
 import 'package:ksh_app/screens/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //Hier können alle nicht-relevanten Noten ausgewählt werden, damit der Notensaldo diese nicht zählt
 class NotRelevantMarksScreen extends StatefulWidget {
@@ -12,16 +13,12 @@ class NotRelevantMarksScreen extends StatefulWidget {
 
 class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
   var _selectedSubjectForSubmit;
+  List<bool> isChecked = [];
+  List<String> titles = [];
+  Map<String, bool> notRelevantMarks = {};
 
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> mapOfSubjects = {};
-    int _value = 0;
-    Map<String, dynamic> marks = {};
-    List<bool> isChecked = [];
-    List<String> titles = [];
-    Map<String, dynamic> settings = {};
-
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
@@ -30,21 +27,15 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          Map<String, dynamic> newMap = {};
-
-          //In die Noten werden die relevant Daten eingefügt
-          for (int i = 0; i < marks.length; i++) {
-            Map<String, dynamic> map = marks.values.toList()[i];
-            map['relevant'] = isChecked[i];
-            newMap[marks.keys.toList()[i]] = map;
-            map = {};
+          //Die isChecked List in notRelevantsMark eintragen
+          for(int i = 0; i < notRelevantMarks.length; i++){
+            String notRelevantMarksKey = notRelevantMarks.keys.toList()[i];
+            bool notRelevantMarksRelevant = isChecked[i];
+            notRelevantMarks[notRelevantMarksKey] = notRelevantMarksRelevant;
           }
 
-          await User.writeInToFile(newMap, requiredFile.userMarks);
-
-          Map<String,dynamic> map = await User.readFile(requiredFile.userDashboard);
-          map['saldo'] = await User.saldo(newMap);
-          await User.writeInToFile(map, requiredFile.userDashboard);
+          //In File speichern
+          User.saveNotRelevantMarks(notRelevantMarks);
 
           setState(() {});
           Navigator.of(context).pushNamedAndRemoveUntil(
@@ -57,33 +48,23 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: FutureBuilder(
-        future: User.readFile(requiredFile.userMarks),
+        future: User.readNotRelevantMarks(),
         builder: (ctx, snap) {
           switch (snap.connectionState) {
-            case ConnectionState.none:
-              return const Center(child: CircularProgressIndicator());
-
             case ConnectionState.waiting:
-              return const Center(child: CircularProgressIndicator());
+              return Container();
+            case ConnectionState.none:
+              return Container();
+            case ConnectionState.active:
+              break;
+            case ConnectionState.done:
+              break;
           }
 
-          marks = snap.data as Map<String, dynamic>;
-          for (var i = 0; i < marks.length; i++) {
-            titles.add('');
-          }
+          notRelevantMarks = snap.data as Map<String, bool>;
 
-          //Laden, der trues und falses
-
-          isChecked = [];
-
-          //Laden der Noten
-          for (Map<String, dynamic> val in marks.values) {
-            if (val.containsKey('relevant')) {
-              isChecked.add(val['relevant']);
-            } else {
-              isChecked.add(false);
-            }
-          }
+          isChecked = notRelevantMarks.values.toList();
+          titles = notRelevantMarks.keys.toList();
 
           //Den Status der Nicht Relevanten Noten durch iterieren
 
@@ -91,7 +72,9 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
             child: Column(
               children: [
                 ListViewBuilderForCheckBoxNotRelevantMarks(
-                    marks: marks, isChecked: isChecked, titles: titles),
+                    marks: notRelevantMarks,
+                    isChecked: isChecked,
+                    titles: titles),
               ],
             ),
           );
@@ -137,19 +120,17 @@ class _ListViewBuilderForCheckBoxNotRelevantMarksState
                     activeColor: Theme.of(context).canvasColor,
                     checkColor: Colors.white,
                     title: Text(
-                      widget.marks.values.toList()[index]['Fach'],
+                      widget.marks.keys.toList()[index],
                       style: const TextStyle(color: Colors.white),
                     ),
                     value: widget.isChecked[index],
                     onChanged: (bool? val) {
                       setState(() {
                         widget.isChecked[index] = val as bool;
-                        widget.titles[index] =
-                            widget.marks.values.toList()[index]['Fach'];
                       });
                     }),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 5,
               )
             ],

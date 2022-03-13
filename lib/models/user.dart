@@ -4,9 +4,9 @@ import 'dart:io';
 import 'dart:convert' as convert;
 
 import 'package:flutter/cupertino.dart';
-
 import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //Das sind Enums, um die Ordner in den die Daten gespeichert werden einfacher zu unterscheiden
 enum requiredFile {
@@ -32,8 +32,6 @@ class User {
   var webScraperNesa;
 
   static List<double> allMarks = [];
-
-  User();
 
   //Setter und Getter von Variblen in dieser Klasse
   set setUsername(String username) {
@@ -87,6 +85,9 @@ class User {
     List<Map<String, dynamic>> normalMarks = [];
     List<Map<String, dynamic>> duoMarks = [];
 
+    //Refresh NotRelevantMarks
+    await User.refreshNotRelevantMarks(userMarks);
+
     //Algorithmus: Nichtrelevante Noten aussortieren und Einteilung in duoMarks und normalMarks
     for (var item in userMarks.entries.toList()) {
       String key = item.key;
@@ -115,8 +116,6 @@ class User {
       }
     }
 
-    //TODO: Falls keine Noten vorhanden sind, soll es "--" durch 0 ersetzen. Eine andere Variante wäre es das später bei den berechnungen zu behandeln, indem man alle, die die Note "--" haben sollen nicht behandelt werden.
-
     //DuoMarks Partner finden: 1. Fach wird angeschaut duoPartner extrahiert, Note in gespeichert, duoPartner gefunden und dessen Note speichern.
 
     //Speicher
@@ -141,35 +140,10 @@ class User {
           duoPartnerAlreadyMentionedBool = true;
         }
       }
-      if(duoPartnerAlreadyMentionedBool){
-          duoPartnerAlreadyMentionedBool = false;
-          continue;
-        }
-
-      //This is the new one.
-      /*
-      for (var entrie in _cacheDuoMarks.entries.toList()) {
-        String key = entrie.key;
-        for(String str in duoPartnerAlreadyMentioned){
-          if(str.contains(key)){
-            duoPartnerAlreadyMentionedBool = true;
-          }
-        }
-        if(duoPartnerAlreadyMentionedBool){
-          duoPartnerAlreadyMentionedBool = false;
-          continue;
-        }
-        if (key.contains(_duoPartner)) {
-          List<double> _marks = entrie.value;
-          if (_value['Note'] == '--') {
-            _marks[1] = 0.0;
-          } else {
-            _marks[1] = double.parse(_value['Note']);
-          }
-
-          _cacheDuoMarks[key] = _marks;
-        }
-      }*/
+      if (duoPartnerAlreadyMentionedBool) {
+        duoPartnerAlreadyMentionedBool = false;
+        continue;
+      }
 
       //Wenn Duo Partner des Faches noch nicht gespeichert
       double _mark = 0;
@@ -285,139 +259,6 @@ class User {
     return [saldo.toString(), notenschnitt.toString()];
   }
 
-  //Saldo wird berechnet
-  /*
-  static Future<List<String>> saldo(Map<String, dynamic> userMarks) async {
-    //Wichtig: !!!! Diese Funktion ist nicht mehr aktuelle -> saldoTwo
-    List<double> noten = [];
-    double saldo = 0;
-
-    List<Map<String, dynamic>> normalMarks = [];
-    List<Map<String, dynamic>> duoMarks = []; //Every mark it noted one time.
-    List<Map<String, double>> duoPartners = [];
-    List<Map<double, double>> duoMarks =
-        []; //Here comes every mark from subject one and two which later get summeriesed
-
-    for (Map<String, dynamic> i in userMarks.entries.toList()) {
-      bool skip = false;
-
-      String key = i.keys.first;
-      Map<String, dynamic> value = Map<String, dynamic>.from(i.values.first);
-
-      //Wird überprüft, ob es relevant ist
-      if (i['relevant'] == true) {
-        continue;
-      }
-      //Überprüft ob der Duo Parnter des Faches schon einmal genommen wurde.
-      for (Map<String, double> duoPartner in duoPartners) {
-        String duoPartnerKey = duoPartner.keys.first;
-        if (key.contains(duoPartnerKey)) {}
-      }
-
-      if (i['duoMark'] == true) {
-        duoMarks.add(i);
-        String duoPartner = i['duoPartner'];
-        double mark = i['Note'];
-        Map<String, double> cache = {duoPartner: mark};
-        duoPartners.add(cache);
-
-        duoPartners.add(duoPartner);
-      } else {
-        //Todo:
-      }
-
-      //Die einzelnen Duo Noten runden
-
-      //Zusammenrechnen und runden
-
-      //Pluspunkt und Minuspunkte entnehmen
-
-      String stringMark =
-          i.toString().split(',')[1].split(':')[1].replaceAll(' ', '');
-      if (stringMark == '--') {
-        continue;
-      }
-
-      print('keys');
-      print(i.toString());
-      double doubleNote = double.parse(stringMark);
-      noten.add(doubleNote);
-    }
-    print('Noten Saldo Noten');
-    print(noten);
-
-    allMarks = noten;
-
-    //Hier werden Werte abgezogen bis ein Minimum erreicht wurde. Pro abgezogener Wert wird das beim Saldo einen Wert addiert, was schlussendlich den Notensaldo ergibt.
-    for (double mark in noten) {
-      double resMarkSaldo = mark - 4;
-      if (resMarkSaldo == 0) {
-        continue;
-      }
-      if (resMarkSaldo > 0) {
-        while (resMarkSaldo >= 1) {
-          resMarkSaldo = resMarkSaldo - 1;
-          saldo += 1;
-        }
-        while (resMarkSaldo >= 0.5) {
-          resMarkSaldo = resMarkSaldo - 0.5;
-          saldo += 0.5;
-        }
-        if (resMarkSaldo >= 0.25) {
-          resMarkSaldo = 0;
-          saldo += 0.5;
-        } else if (resMarkSaldo < 0.25) {
-          continue;
-        } else {
-          throw Exception(); //todo: Exception
-        }
-      } else if (resMarkSaldo < 0) {
-        resMarkSaldo = -resMarkSaldo;
-        if (resMarkSaldo > 0) {
-          while (resMarkSaldo >= 1) {
-            resMarkSaldo = resMarkSaldo - 1;
-            saldo -= 2;
-          }
-          while (resMarkSaldo >= 0.5) {
-            resMarkSaldo = resMarkSaldo - 0.5;
-            saldo -= 1;
-          }
-          if (resMarkSaldo >= 0.25) {
-            resMarkSaldo = 0;
-            saldo -= 1;
-          } else if (resMarkSaldo < 0.25) {
-            continue;
-          } else {
-            throw Exception(); //todo: Exception
-          }
-        }
-      } else {
-        throw Exception(); //todo: Exception
-      }
-    }
-
-    double _notendurchschnittValue = 0;
-    int _counterNotenDurchschnitt = 0;
-    print('AllMarks');
-    print(allMarks);
-    for (double item in allMarks) {
-      _notendurchschnittValue += item;
-
-      _counterNotenDurchschnitt++;
-    }
-    print('Notenschnitt');
-    print(_notendurchschnittValue);
-    print(_counterNotenDurchschnitt);
-    print((_notendurchschnittValue / _counterNotenDurchschnitt).toString());
-    double notendurchschnitt =
-        (_notendurchschnittValue / _counterNotenDurchschnitt);
-    if (saldo.toString().startsWith('-')) {
-      saldo.toString().replaceAll('-', '');
-    }
-    return [saldo.toString(), notendurchschnitt.toString()];
-  }
-  */
-
   //Daten Verarbeitung -> Verwalten der Daten
 
   //Diese Methode gibt den gewünschten File zurück, der per Enum gesucht wird
@@ -501,7 +342,125 @@ class User {
 
     Map<String, dynamic> data = convert.jsonDecode(file.readAsStringSync());
     print('Schreiben der Datei beendet...');
+
+    //Daten mit SharedPrefs laden
+
     return data;
+  }
+
+  static Future<void> saveNotRelevantMarks(Map<String, bool> settings) async {
+    //Mittels Map die richtigen Fächer finden und entsprechende bool einfügen für den Parameter: relevant
+    //Aufbau der Map settings:  Map<Fachname, relevant>
+    for (int i = 0; i < settings.length; i++) {
+      String settingsFachname = settings.keys.toList()[i];
+      bool settingsRelevant = settings.values.toList()[i];
+      Map<String, dynamic> marks = await User.readFile(requiredFile.userMarks);
+
+      //marks durch iterieren bis man das passende Fach gefunden hat und den Parameter relevant einfügen
+      for (int j = 0; j < marks.length; j++) {
+        String marksKey = marks.keys.toList()[j];
+        Map<String, dynamic> value = marks.values.toList()[j];
+        String marksFachname = marks.values.toList()[j]['Fach'];
+
+        if (marksFachname == settingsFachname || marksKey == settingsFachname) {
+          value['relevant'] = settingsRelevant;
+          marks[marksKey] = value;
+        }
+      }
+
+      //Die vorgenommenen Einstellungen in userMarks speichern
+      await User.writeInToFile(marks, requiredFile.userMarks);
+
+      //Nun sollen die settings auch in userNotRelevantMarks gespeichert werden
+      await User.writeInToFile(settings, requiredFile.userNotRelevantMarks);
+    }
+  }
+
+  static Future<Map<String, bool>> readNotRelevantMarks() async {
+    //Aufbau des Returns: Future<Map<Fachname, relevant>>
+    //Die Daten aus dem File userNotRelevantMarks auslesen -> Es sind nur Entries der Fächer, welche nicht relevant sind
+    Map<String, dynamic> notRelevantsMarks =
+        await User.readFile(requiredFile.userNotRelevantMarks);
+    if (notRelevantsMarks == {}) {
+      return {};
+    }
+
+    //Die marks durch interiieren
+    //Alle fächer für relevant Eintrag: false einfügen
+    Map<String, dynamic> marks = await User.readFile(requiredFile.userMarks);
+
+    for (int i = 0; i < marks.length; i++) {
+      String key = marks.keys.toList()[i];
+      Map<String, dynamic> value = marks.values.toList()[i];
+
+      value['relevant'] = false;
+
+      marks[key] = value;
+    }
+
+    //Falls ein Fach gefunden wird, dann den eintrag durch true ersetzen
+    for (int j = 0; j < marks.length; j++) {
+      String marksKey = marks.keys.toList()[j];
+      Map<String, dynamic> marksValue = marks.values.toList()[j];
+      String marksFachname = marksValue['Fach'];
+
+      bool notRelevantsMarksBool = notRelevantsMarks.values.toList()[j];
+
+      if (notRelevantsMarksBool) {
+        marksValue['relevant'] = true;
+        marks[marksKey] = marksValue;
+      }
+    }
+
+    //Marks in File:userMarks speichern -> Zweck: Methode kann auch als aktualiseriung verwendet werden für notRelMarks
+    User.writeInToFile(marks, requiredFile.userMarks);
+
+    //marks durch iterieren und dessen Fachname als Key und dessen relevant als Value in notRelevantsMarksBool speichern
+    Map<String, bool> notRelevantsMarksBool = {};
+    for (int i = 0; i < marks.length; i++) {
+      Map<String, dynamic> value = marks.values.toList()[i];
+      String marksFachname = value['Fach'];
+      bool marksRelevant = value['relevant'];
+
+      notRelevantsMarksBool[marksFachname] = marksRelevant;
+    }
+
+    return notRelevantsMarksBool;
+  }
+
+  static Future<void> refreshNotRelevantMarks(
+      Map<String, dynamic> userMarks) async {
+    Map<String, dynamic> notRelevantsMarks =
+        await User.readFile(requiredFile.userNotRelevantMarks);
+
+    //Die marks durch interiieren
+    //Alle fächer für relevant Eintrag: false einfügen
+    Map<String, dynamic> marks = userMarks;
+
+    for (int i = 0; i < marks.length; i++) {
+      String key = marks.keys.toList()[i];
+      Map<String, dynamic> value = marks.values.toList()[i];
+
+      value['relevant'] = false;
+      marks[key] = value;
+    }
+
+    //Falls ein Fach gefunden wird, dann den eintrag durch true ersetzen
+    for (int j = 0; j < marks.length; j++) {
+      String marksKey = marks.keys.toList()[j];
+      Map<String, dynamic> marksValue = marks.values.toList()[j];
+      String marksFachname = marksValue['Fach'];
+
+      bool notRelevantsMarksBool = notRelevantsMarks.values.toList()[j];
+
+      if (notRelevantsMarksBool) {
+        marksValue['relevant'] = true;
+        marks[marksKey] = marksValue;
+      }
+    }
+
+    //Marks in File:userMarks speichern -> Zweck: Methode kann auch als aktualiseriung verwendet werden für notRelMarks
+    User.writeInToFile(marks, requiredFile.userMarks);
   }
 
   static Future<bool> getUserData(WebScraperNesa webScraperNesa) async {
@@ -522,26 +481,7 @@ class User {
     //Noten werden verarbeitet
     Map<String, dynamic> userMarks = await webScraperNesa.getMarksData();
 
-    //Nicht Relevante Noten werden angewendet
-    Map<String, dynamic> userNotRelevantMarks =
-        await User.readFile(requiredFile.userNotRelevantMarks);
-    List<String> userNotRelevantMarksTitles =
-        userNotRelevantMarks.keys.toList();
-
-    for (var i = 0; i < userNotRelevantMarksTitles.length; i++) {
-      for (var item in userMarks.entries.toList()) {
-        Map<String, dynamic> res = Map<String, dynamic>.from(item.value);
-        if (res == Null) {
-          continue;
-        }
-        String s = res['Fach'];
-        if (userNotRelevantMarksTitles[i].contains(s)) {
-          String title = item.key;
-          res['relevant'] = true;
-          userMarks[title] = res;
-        }
-      }
-    }
+    
 
     //Duo Noten werden angewendet
     //Schauen, ob im Key Beispielweise "EnglischFranzösisch" ein Name eines Faches steckt. Falls ja wird eine
@@ -562,7 +502,8 @@ class User {
       }
     }
 
-    await User.writeInToFile(userMarks, requiredFile.userMarks);
+    //Nicht Relevante Noten werden angewendet
+    await User.refreshNotRelevantMarks(userMarks);
 
     //User Informationen von der Startseite
     Map<String, dynamic> userNewMarks =
@@ -579,6 +520,9 @@ class User {
     await User.writeInToFile(userOpenAbsences, requiredFile.userOpenAbsences);
 
     //Dashboard Informationen
+    //NotRelevantMarks aktualisieren
+    await User.readNotRelevantMarks();
+
     Map<String, dynamic> userDashboard = {};
     userDashboard['saldo'] = await saldo(userMarks);
     userDashboard['openAbsence'] = userOpenAbsences.length.toString(); //todo:
@@ -612,12 +556,13 @@ class User {
   }
 
   static Future<void> refreshSaldo() async {
-    Map<String,dynamic> userMarks = await User.readFile(requiredFile.userMarks);
+    Map<String, dynamic> userMarks =
+        await User.readFile(requiredFile.userMarks);
 
     //Dashboard Informationen
-      Map<String, dynamic> userDashboard =
-          await User.readFile(requiredFile.userDashboard);
-      userDashboard['saldo'] = await saldo(userMarks);
+    Map<String, dynamic> userDashboard =
+        await User.readFile(requiredFile.userDashboard);
+    userDashboard['saldo'] = await saldo(userMarks);
     await User.writeInToFile(userMarks, requiredFile.userMarks);
   }
 }

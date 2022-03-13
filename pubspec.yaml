@@ -43,9 +43,8 @@ dependencies:
   loading_animation_widget: ^1.1.0+1
   path_provider: ^2.0.5
   provider: ^6.0.1
-  social_media_widgets: ^1.0.0+2
+  shared_preferences: ^2.0.13
   web_scraper: ^0.1.4
-  webview_cookie_manager: ^2.0.6
   #http_auth: ^1.0.1
 
 dev_dependencies:
