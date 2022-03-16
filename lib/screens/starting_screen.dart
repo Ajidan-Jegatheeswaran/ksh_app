@@ -14,7 +14,7 @@ class StartingScreen extends StatelessWidget {
   static const routeName = '/starting-screen';
 
   Future<bool> tryLogin(ctx) async {
-    try{
+    /*try{*/
     Map<String, dynamic> _userData =
         await User.readFile(requiredFile.userLogin);
     if (_userData != {}) {
@@ -40,10 +40,11 @@ class StartingScreen extends StatelessWidget {
       } else {
         
       }
-    }}catch(e){
+    }
+    /*}catch(e){
       Navigator.of(ctx).pushNamedAndRemoveUntil(
             ChooseSchoolScreen.routeName, ModalRoute.withName(ChooseSchoolScreen.routeName));
-    }
+    }*/
     return false;
   }
 

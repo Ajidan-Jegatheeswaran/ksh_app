@@ -85,8 +85,37 @@ class User {
     List<Map<String, dynamic>> normalMarks = [];
     List<Map<String, dynamic>> duoMarks = [];
 
-    //Refresh NotRelevantMarks
-    await User.refreshNotRelevantMarks(userMarks);
+    //Nicht relevante Daten anwenden
+    //Laden der der Nichtrelevante Noten
+    Map<String, bool> userNotRelevantMarks = await User.readNotRelevantMarks();
+    //Liste der mit den boolean erstellen
+    List<bool> userNotRelevantMarksBool = userNotRelevantMarks.values.toList();
+    //Die userMarks durch iterrieren und diese in die Fächer von userMarks einsetzen unter dem Parameter "relevant"
+    for (int i = 0; i < userMarks.length; i++) {
+      String keyUserMarks = userMarks.keys.toList()[i];
+      Map<String, dynamic> value = userMarks.values.toList()[i];
+      value['relevant'] = userNotRelevantMarksBool[i].toString();
+      userMarks[keyUserMarks] = value;
+    }
+
+    //Duo Noten werden angewendet
+    //Schauen, ob im Key Beispielweise "EnglischFranzösisch" ein Name eines Faches steckt. Falls ja wird eine
+    //zweiter Algorhythmus seinen Partner finden.
+    Map<String, dynamic> duoMarksSecond =
+        await User.readFile(requiredFile.userDuoMarks);
+
+    for (String str in duoMarksSecond.keys) {
+      for (var item in userMarks.entries.toList()) {
+        String key = item.key;
+        Map<String, dynamic> value = Map<String, dynamic>.from(item.value);
+
+        if (str.contains(value['Fach'])) {
+          value['duoMark'] = true;
+          value['duoPartner'] = str.replaceAll(key, '');
+          userMarks[key] = value;
+        }
+      }
+    }
 
     //Algorithmus: Nichtrelevante Noten aussortieren und Einteilung in duoMarks und normalMarks
     for (var item in userMarks.entries.toList()) {
@@ -97,7 +126,7 @@ class User {
       bool wert = false;
       bool wert2 = false;
       try {
-        wert = value['relevant'];
+        wert = value['relevant'] == 'true' ? true : false;
       } catch (e) {
         wert = false;
       }
@@ -373,6 +402,14 @@ class User {
 
       //Nun sollen die settings auch in userNotRelevantMarks gespeichert werden
       await User.writeInToFile(settings, requiredFile.userNotRelevantMarks);
+
+      //Die Änderungen solen nun auch zur Änderung des Saldos führen
+      //Dashboarddaten laden und neue Daten aktualisieren
+      Map<String, dynamic> userDashboard =
+          await User.readFile(requiredFile.userDashboard);
+      userDashboard['saldo'] = await saldo(marks);
+      userDashboard['notenschnitt'] = await saldo(marks);
+      await User.writeInToFile(userDashboard, requiredFile.userDashboard);
     }
   }
 
@@ -481,7 +518,18 @@ class User {
     //Noten werden verarbeitet
     Map<String, dynamic> userMarks = await webScraperNesa.getMarksData();
 
-    
+    //Nicht relevante Daten anwenden
+    //Laden der der Nichtrelevante Noten
+    Map<String, bool> userNotRelevantMarks = await User.readNotRelevantMarks();
+    //Liste der mit den boolean erstellen
+    List<bool> userNotRelevantMarksBool = userNotRelevantMarks.values.toList();
+    //Die userMarks durch iterrieren und diese in die Fächer von userMarks einsetzen unter dem Parameter "relevant"
+    for (int i = 0; i < userMarks.length; i++) {
+      String keyUserMarks = userMarks.keys.toList()[i];
+      Map<String, dynamic> value = userMarks.values.toList()[i];
+      value['relevant'] = userNotRelevantMarksBool[i].toString();
+      userMarks[keyUserMarks] = value;
+    }
 
     //Duo Noten werden angewendet
     //Schauen, ob im Key Beispielweise "EnglischFranzösisch" ein Name eines Faches steckt. Falls ja wird eine
@@ -502,8 +550,7 @@ class User {
       }
     }
 
-    //Nicht Relevante Noten werden angewendet
-    await User.refreshNotRelevantMarks(userMarks);
+    await User.writeInToFile(userMarks, requiredFile.userMarks);
 
     //User Informationen von der Startseite
     Map<String, dynamic> userNewMarks =
