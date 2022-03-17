@@ -63,10 +63,10 @@ class MyApp extends StatelessWidget {
           headline6: TextStyle(color: Colors.white),
         ),
       ),
-      home: StartingScreen(), // Der erste Bildschirm
+      home: const StartingScreen(), // Der erste Bildschirm
       routes: {
         //Das sind die Navigationsmöglichkeiten
-        StartingScreen.routeName: (ctx) => StartingScreen(),
+        StartingScreen.routeName: (ctx) => const StartingScreen(),
         LoginScreen.routeName: (ctx) => LoginScreen(),
         HomeScreen.routeName: (ctx) => HomeScreen(),
         NotenScreen.routeName: (ctx) => NotenScreen(),
