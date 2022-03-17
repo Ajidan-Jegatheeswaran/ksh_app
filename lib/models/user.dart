@@ -267,10 +267,12 @@ class User {
           _mark = _mark - 1;
           saldo = saldo - 2;
         }
-        if (_mark >= 0.75) {
+        if (_mark <= 0.25) {
           continue;
-        } else if (_mark < 0.75 && _mark >= 0.25) {
+        } else if (_mark > 0.25 && _mark <= 0.75) {
           saldo = saldo - 1;
+        } else if (_mark > 0.75) {
+          saldo = saldo - 2;
         } else {
           continue;
         }

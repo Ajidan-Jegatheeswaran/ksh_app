@@ -265,9 +265,10 @@ class _DuoNotenScreenState extends State<DuoNotenScreen> {
                                             },
                                             child: const Text('Erstellen'),
                                             style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.blue)),
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.blue),
+                                            ),
                                           ),
                                         ],
                                       ),

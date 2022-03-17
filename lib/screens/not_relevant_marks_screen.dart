@@ -35,7 +35,7 @@ class _NotRelevantMarksScreenState extends State<NotRelevantMarksScreen> {
           }
 
           //In File speichern
-          User.saveNotRelevantMarks(notRelevantMarks);
+          await User.saveNotRelevantMarks(notRelevantMarks);
 
           setState(() {});
           Navigator.of(context).pushNamedAndRemoveUntil(
