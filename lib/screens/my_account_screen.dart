@@ -125,9 +125,11 @@ class MyAccountScreen extends StatelessWidget {
                             ListTileForSettings(
                                 'Duo Noten', DuoNotenScreen.routeName),
                             ListTileForSettings('Nicht relevante Noten',
-                                NotRelevantMarksScreen.routeName)
+                                NotRelevantMarksScreen.routeName),
+                           // ListTileForSettings(
+                           //     'Bug melden', DuoNotenScreen.routeName)
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),

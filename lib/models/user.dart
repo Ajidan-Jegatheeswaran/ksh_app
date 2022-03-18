@@ -3,10 +3,8 @@
 import 'dart:io';
 import 'dart:convert' as convert;
 
-import 'package:flutter/cupertino.dart';
 import 'package:ksh_app/models/web_scraper_nesa.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 //Das sind Enums, um die Ordner in den die Daten gespeichert werden einfacher zu unterscheiden
 enum requiredFile {

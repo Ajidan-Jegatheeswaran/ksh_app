@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ksh_app/screens/bug_screen.dart';
 import 'package:ksh_app/screens/choose_school_screen.dart';
 import 'package:ksh_app/screens/detail_noten_screen.dart';
 import 'package:ksh_app/screens/home_screen.dart';
@@ -74,7 +75,8 @@ class MyApp extends StatelessWidget {
         ChooseSchoolScreen.routeName: (ctx) => ChooseSchoolScreen(),
         DuoNotenScreen.routeName: (ctx) => DuoNotenScreen(),
         DetailNotenScreen.routeName: (ctx) => DetailNotenScreen(),
-        NotRelevantMarksScreen.routeName: (ctx) => NotRelevantMarksScreen()
+        NotRelevantMarksScreen.routeName: (ctx) => NotRelevantMarksScreen(),
+        BugScreen.routeName: (ctx)=> BugScreen()
       },
     );
   }
