@@ -77,7 +77,7 @@ class NotenScreen extends StatelessWidget {
                         arguments: {
                           'title': subjects[index].title,
                           'name': subjects[index].name,
-                          'mark': subjects[index].toString(),
+                          'mark': subjects[index].mark.toString(),
                         },
                       );
                     },

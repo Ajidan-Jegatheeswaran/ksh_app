@@ -437,6 +437,9 @@ class User {
 
     //Falls ein Fach gefunden wird, dann den eintrag durch true ersetzen
     for (int j = 0; j < marks.length; j++) {
+      if(notRelevantsMarks.isEmpty){
+        continue;
+      }
       String marksKey = marks.keys.toList()[j];
       Map<String, dynamic> marksValue = marks.values.toList()[j];
       String marksFachname = marksValue['Fach'];
@@ -525,6 +528,9 @@ class User {
     List<bool> userNotRelevantMarksBool = userNotRelevantMarks.values.toList();
     //Die userMarks durch iterrieren und diese in die Fächer von userMarks einsetzen unter dem Parameter "relevant"
     for (int i = 0; i < userMarks.length; i++) {
+      if(userNotRelevantMarksBool.isEmpty){
+        continue;
+      }
       String keyUserMarks = userMarks.keys.toList()[i];
       Map<String, dynamic> value = userMarks.values.toList()[i];
       value['relevant'] = userNotRelevantMarksBool[i].toString();
