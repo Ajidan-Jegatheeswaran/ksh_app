@@ -2,7 +2,7 @@
     package="com.duzent.nesa">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="Nesa"
+        android:label="Matora"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

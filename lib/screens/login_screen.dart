@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
         context); // MediaQuery wird hier als Objekt in der Variabel mediaQuery gespeichert, damit es zu weniger build() aufrufen kommt -> Performance
 
     void _submit() async {
-      try {
+     // try {
         await User.readFile(requiredFile.userHost)
             .then((value) => _userData['host'] = value['subdomain']);
       
@@ -91,7 +91,8 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.of(context).pushNamedAndRemoveUntil(
               HomeScreen.routeName, ModalRoute.withName('/'));
         }
-      } catch (e) {
+      //} catch (e) { 
+        /*
         setState(() {
           _isLoading = false;
         });
@@ -157,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               );
             });
-      }
+      }*/
     }
 
     return WillPopScope(

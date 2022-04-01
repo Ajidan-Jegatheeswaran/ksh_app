@@ -897,7 +897,7 @@ class WebScraperNesa {
     counterSubjectsTitleListMarks = 0;
     for (int j = 0; j < titleListMarks.length; j++) {
       var i = titleListMarks[j];
-      if (i.contains('Gewichtung')) {
+      if (i.contains('Gewichtung') && markNames.isNotEmpty) {
         titleListMarks[j] = markNames[counterSubjectsTitleListMarks];
         counterSubjectsTitleListMarks++;
       }
